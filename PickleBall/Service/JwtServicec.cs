@@ -43,21 +43,6 @@ namespace PickleBall.Service
 
             var userToDto = await GenerateToken(isExistToken.User);
 
-            var newRefreshToken = new RefreshTokens
-            {
-                UserID = isExistToken.UserID,
-                RefreshToken = userToDto.RefreshToken,
-                IsLocked = false,
-                CreatedAt = DateTime.UtcNow,
-                ExpiresAt = DateTime.UtcNow.AddDays(7),
-            };
-
-            _context.RefreshTokens.Remove(isExistToken);
-
-            await  _context.RefreshTokens.AddAsync(newRefreshToken);
-
-            await _context.SaveChangesAsync();
-
             return userToDto;
         }
 

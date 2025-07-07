@@ -6,6 +6,8 @@
 
             services.AddConnetion();
             services.AddJwt();
+            services.AddDI();
+            services.AddCors();
             return services;
         }
     }

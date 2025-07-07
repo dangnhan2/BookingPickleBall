@@ -3,17 +3,18 @@ using PickleBall.Repository;
 
 namespace PickleBall.UnitOfWork
 {
-    public class UnitOfWork : IUnitOfWork
+    public class UnitOfWorks : IUnitOfWorks
     {
         private readonly BookingContext _context;
 
-        public UnitOfWork(BookingContext context)
+        public UnitOfWorks(BookingContext context)
         {
             _context = context;
             User = new UserRepo(_context);
             Blog = new BlogRepo(_context);
             Court = new CourtRepo(_context);
             Booking = new BookingRepo(_context);
+            TimeSlot = new TimeSlotRepo(_context);
         }
 
         public IUserRepo User { get; }
@@ -23,6 +24,8 @@ namespace PickleBall.UnitOfWork
         public ICourtRepo Court { get; }
 
         public IBookingRepo Booking { get; }
+
+        public ITimeSlotRepo TimeSlot { get; }
 
         public async Task CompleteAsync()
         {
