@@ -24,13 +24,12 @@ namespace PickleBall.Validation
             RuleFor(x => x.PricePerHour)
                 .GreaterThan(0).WithMessage("Giá mỗi giờ phải lớn hơn 0.");
 
+            RuleFor(x => x.ImageUrl)
+                .NotEmpty().WithMessage("Ảnh phải được upload")
+                .NotNull().WithMessage("Ảnh phải được upload");
+
             RuleFor(x => x.CourtStatus)
                 .IsInEnum().WithMessage("Trạng thái sân không hợp lệ.");
-
-            RuleFor(x => x.Created)
-                .NotEmpty().WithMessage("Ngày tạo không được để trống.")
-                .NotNull().WithMessage("Ngày tạo không được để trống.")
-                .LessThanOrEqualTo(DateTime.Now).WithMessage("Ngày tạo không được trong tương lai.");
         }
 
     }
