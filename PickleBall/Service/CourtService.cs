@@ -21,12 +21,10 @@ namespace PickleBall.Service
         }
 
         public async Task Add(CourtRequest court)
-        {
-            var imageUrl =  await _cloudinaryService.Upload(court.ImageUrl, allowedExtension, folder);
-
+        {  
             var courts = _unitOfWork.Court.Get();
 
-            if(await courts.AnyAsync(c => c.Name == court.Name))
+            if(await courts.AnyAsync(c => c.Name.ToLower() == court.Name.ToLower()))
             {
                 throw new ArgumentException("Sân đã tồn tại");
             }
@@ -37,11 +35,19 @@ namespace PickleBall.Service
                 Description = court.Description,
                 Location = court.Location,
                 PricePerHour = court.PricePerHour,
-                ImageUrl = imageUrl,
                 CourtStatus = court.CourtStatus,
                 IsDeleted = false,
                 Created = DateTime.UtcNow,
             };
+
+            if (court.ImageUrl == null || court.ImageUrl.Length == 0)
+            {
+                throw new ArgumentException("File phải được upload");
+            }
+
+            var imageUrl = await _cloudinaryService.Upload(court.ImageUrl, allowedExtension, folder);
+
+            newCourt.ImageUrl = imageUrl;
 
             await _unitOfWork.Court.CreateAsync(newCourt);
             await _unitOfWork.CompleteAsync();

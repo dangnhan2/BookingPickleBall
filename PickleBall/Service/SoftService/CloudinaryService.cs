@@ -35,26 +35,26 @@ namespace PickleBall.Service.SoftService
         }
 
         public async Task<string> Upload(IFormFile file, string[] allowedExtension, string folder)
-        {
-            var fileExtension = Path.GetExtension(file.FileName);
+        {   
+                var fileExtension = Path.GetExtension(file.FileName);
 
-            if (!allowedExtension.Contains(fileExtension))
-            {
-                throw new ArgumentException($"Hãy upload các file có đuôi {string.Join(" ," , allowedExtension)}");
-            }
+                if (!allowedExtension.Contains(fileExtension))
+                {
+                    throw new ArgumentException($"Hãy upload các file có đuôi {string.Join(" ,", allowedExtension)}");
+                }
 
-            using var stream = file.OpenReadStream();
+                using var stream = file.OpenReadStream();
 
-            var uploadParams = new ImageUploadParams
-            {
-                File = new FileDescription(file.FileName, stream),
-                Folder = folder
-            };
+                var uploadParams = new ImageUploadParams
+                {
+                    File = new FileDescription(file.FileName, stream),
+                    Folder = folder
+                };
 
-            var result = await _cloudinary.UploadAsync(uploadParams);
+                var result = await _cloudinary.UploadAsync(uploadParams);
 
-            Console.WriteLine(result);
-            return result.SecureUrl.ToString();
+                Console.WriteLine(result);
+                return result.SecureUrl.ToString();
         }
 
         public string ExtractPublicIdFromUrl(string imageUrl)
