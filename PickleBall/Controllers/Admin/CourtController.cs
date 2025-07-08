@@ -27,7 +27,8 @@ namespace PickleBall.Controllers.Admin
                     Message = "Thêm mới thành công",
                     StatusCode = StatusCodes.Status201Created
                 });
-            }catch (ArgumentException ex)
+            }
+            catch (ArgumentException ex)
             {
                 return BadRequest(new
                 {

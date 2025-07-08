@@ -8,6 +8,7 @@
             services.AddJwt();
             services.AddDI();
             services.AddCors();
+            services.AddValidation();
             return services;
         }
     }
