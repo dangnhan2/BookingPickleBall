@@ -1,0 +1,45 @@
+version: '3.9'
+
+services:
+  postgres_db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: PickleballDb
+    volumes:
+      - postgres_db:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+
+  backend_api:
+    build: 
+    #  backend_api
+      context: ../
+      dockerfile: Dockerfile 
+    ports:
+      - "5000:80"
+    depends_on:
+      - postgres_db
+    environment:
+      CLOUDINARY_CLOUD_NAME: dtihvekmn
+      CLOUDINARY_API_KEY: 974274143438247
+      CLOUDINARY_API_SECRET: _W4PbVOFRfY89kEw0BWw4dadwyE
+    
+      MAIL_SMTP_HOST: smtp.gmail.com
+      MAIL_SMTP_PORT: 587
+      MAIL_SMTP_USERNAME: nhanbadao992@gmail.com
+      MAIL_SMTP_PASSWORD: fleidoljybpwkjsv
+      MAIL_FROM: nhanbadao992@gmail.com
+      MAIL_FROM_NAME: PICKLEBOOM
+      MAIL_ENABLE_SSL: true
+
+      JWT_SECRET: 78d4142e7966da40d8af877ede1af16d8359b0eb
+      JWT_ISSUER: https://localhost:7279
+      JWT_AUDIENCE: User
+
+      BASE_URL: https://localhost:7279 
+
+volumes:
+  postgres_db:
