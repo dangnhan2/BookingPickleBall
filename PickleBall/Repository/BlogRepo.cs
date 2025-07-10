@@ -1,16 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PickleBall.Data;
 using PickleBall.Models;
+using System.Reflection.Metadata;
 
 namespace PickleBall.Repository
 {
     public interface IBlogRepo
     {
-        public IQueryable<Court> Get();
-        public Task<Court?> GetById(Guid id);
-        public Task CreateAsync(Court court);
-        public void Update(Court court);
-        public void Delete(Court court);
+        public IQueryable<Blog> Get();
+        public Task<Blog?> GetById(Guid id);
+        public Task CreateAsync(Blog blog);
+        public void Update(Blog blog);
+        public void Delete(Blog blog);
     }
 
     public class BlogRepo : IBlogRepo
@@ -22,29 +23,29 @@ namespace PickleBall.Repository
             _bookingContext = bookingContext;
         }
 
-        public async Task CreateAsync(Court court)
+        public async Task CreateAsync(Blog blog)
         {
-            await _bookingContext.Courts.AddAsync(court);
+            await _bookingContext.Blogs.AddAsync(blog);
         }
 
-        public void Delete(Court court)
+        public void Delete(Blog blog)
         {
-            _bookingContext.Courts.Remove(court);
+            _bookingContext.Blogs.Remove(blog);
         }
 
-        public IQueryable<Court> Get()
+        public IQueryable<Blog> Get()
         {
-            return _bookingContext.Courts.AsQueryable();
+            return _bookingContext.Blogs.AsQueryable();
         }
 
-        public async Task<Court?> GetById(Guid id)
+        public async Task<Blog?> GetById(Guid id)
         {
-            return await _bookingContext.Courts.FirstOrDefaultAsync(c => c.ID == id);
+            return await _bookingContext.Blogs.FirstOrDefaultAsync(c => c.ID == id);
         }
 
-        public void Update(Court court)
+        public void Update (Blog blog)
         {
-            _bookingContext.Courts.Update(court);
+            _bookingContext.Blogs.Update(blog);
         }
     }
 }
