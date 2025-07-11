@@ -5,7 +5,7 @@
         public static IServiceCollection AddCors(this IServiceCollection services) {
             services.AddCors(options =>
             {
-                options.AddPolicy("Mado", policy =>
+                options.AddPolicy("PickleBall", policy =>
                     policy.WithOrigins("http://localhost:5173")
                           .AllowAnyHeader()
                           .AllowAnyMethod()
