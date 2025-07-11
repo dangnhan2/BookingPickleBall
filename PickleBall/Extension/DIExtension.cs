@@ -13,12 +13,14 @@ namespace PickleBall.Extension
           services.AddScoped<ITimeSlotRepo, TimeSlotRepo>();
           services.AddScoped<IBlogRepo, BlogRepo>();
           services.AddScoped<IUnitOfWorks, UnitOfWorks>();
+          services.AddScoped<IUserRepo, UserRepo>();    
             
           services.AddScoped<IJwtService, JwtService>();    
           services.AddScoped<IAccountService, AccountService>();
           services.AddScoped<ICourtService, CourtService>();
           services.AddScoped<ITimeSlotService, TimeSlotService>();
           services.AddScoped<IBlogService, BlogService>();
+          services.AddScoped<IUserService, UserService>();
           services.AddTransient<IEmailService, EmailService>();
           services.AddTransient<ICloudinaryService, CloudinaryService>();
           return services;

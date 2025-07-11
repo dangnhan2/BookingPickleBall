@@ -21,27 +21,16 @@ namespace PickleBall.Controllers
             var user = await _userManager.FindByIdAsync(userId);
 
             if (user == null)
-                return BadRequest(new {
-                   Message = "Người dùng không tồn tại",
-                   StatusCode = StatusCodes.Status400BadRequest
-                });
+              return Redirect("https://localhost:5173/login?confirm=fail");
 
             var result = await _userManager.ConfirmEmailAsync(user, token);
 
             if (!result.Succeeded)
-                return BadRequest(new
-                {
-                    Message = "Email confirmation failed. Token may be expired or invalid.",
-                    StatusCode = StatusCodes.Status400BadRequest
-                });
+              return Redirect("https://localhost:5173/login?confirm=fail");
 
             user.EmailConfirmed = true;
 
-            return Ok(new
-            {
-                Message = "Xác nhận thành công",
-                StatusCode = StatusCodes.Status200OK
-            });
+             return Redirect("https://localhost:5173/login?confirm=success");
         }
     }
 }
