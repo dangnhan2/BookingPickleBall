@@ -1,7 +1,16 @@
 using Microsoft.OpenApi.Models;
 using PickleBall.Extension;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.FromLogContext()
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 builder.Services.Extensions();
 // Add services to the container.

@@ -9,6 +9,7 @@ using PickleBall.Dto;
 using PickleBall.Dto.Request;
 using PickleBall.Models;
 using PickleBall.Service.SoftService;
+using PickleBall.UnitOfWork;
 using System.Net;
 using System.Text;
 
@@ -20,13 +21,15 @@ namespace PickleBall.Service
         private readonly BookingContext _bookingContext;
         private readonly IEmailService _email;
         private readonly IJwtService _jwtService;
+        private readonly IUnitOfWorks _unitOfWorks;
 
-        public AccountService(UserManager<User> userManager, BookingContext bookingContext, IEmailService email, IJwtService jwtService)
+        public AccountService(UserManager<User> userManager, BookingContext bookingContext, IEmailService email, IJwtService jwtService, IUnitOfWorks unitOfWorks)
         {
             _userManager = userManager;
             _bookingContext = bookingContext;
             _email = email;
             _jwtService = jwtService;
+            _unitOfWorks = unitOfWorks;
         }
         public async Task<UserDto> Login(LoginRequest request)
         {
@@ -62,6 +65,13 @@ namespace PickleBall.Service
 
         public async Task Register(RegisterRequest request)
         {
+            var users = _unitOfWorks.User.Get();
+
+            if(await users.AnyAsync(u => u.PhoneNumber == request.PhoneNumber))
+            {
+                throw new ArgumentException("Số điện thoại đã được đăng kí");
+            }
+
             Env.Load();
             var checkMail = await CheckEmail(request.Email);
 
