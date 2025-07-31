@@ -16,7 +16,7 @@ namespace PickleBall.Controllers
         }
 
         [HttpGet("confirm-email")]
-        public async Task<IActionResult> Send(string userId, string token)
+        public async Task<IActionResult> SendEmailConfirm(string userId, string token)
         {
             var user = await _userManager.FindByIdAsync(userId);
 
@@ -26,11 +26,40 @@ namespace PickleBall.Controllers
             var result = await _userManager.ConfirmEmailAsync(user, token);
 
             if (!result.Succeeded)
+            {
+              await _userManager.DeleteAsync(user);
               return Redirect("https://localhost:5173/login?confirm=fail");
+            }
 
             user.EmailConfirmed = true;
 
              return Redirect("https://localhost:5173/login?confirm=success");
+        }
+
+        [HttpGet("confirm-resetpassword")]
+        public async Task<IActionResult> SendEmailConfirmResetPassword(string email, string token)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            //if (user == null)
+            //    return Redirect("https://localhost:5173/login?confirm=fail");
+
+            var result = await _userManager.ConfirmEmailAsync(user, token);
+
+            //if (!result.Succeeded)
+            //    return Redirect("https://localhost:5173/login?confirm=fail");
+
+            //user.EmailConfirmed = true;
+
+            //return Redirect("https://localhost:5173/login?confirm=success");
+
+            return Ok(new
+            {
+                Message = "Reset password",
+                StatusCode = StatusCodes.Status200OK,
+                Email = email,
+                Token = token
+            });
         }
     }
 }

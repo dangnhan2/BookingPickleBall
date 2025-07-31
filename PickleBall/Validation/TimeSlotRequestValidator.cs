@@ -3,9 +3,9 @@ using PickleBall.Dto.Request;
 
 namespace PickleBall.Validation
 {
-    public class TimeSlotRequestValidation : AbstractValidator<TimeSlotRequest>
+    public class TimeSlotRequestValidator : AbstractValidator<TimeSlotRequest>
     {
-        public TimeSlotRequestValidation() {
+        public TimeSlotRequestValidator() {
             RuleFor(x => x.StartTime)
             .NotNull().WithMessage("Thời gian bắt đầu không được để trống.")
             .LessThan(x => x.EndTime).WithMessage("Thời gian bắt đầu phải trước thời gian kết thúc.");

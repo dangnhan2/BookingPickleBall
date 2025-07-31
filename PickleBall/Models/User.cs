@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using PickleBall.Enum;
+using PickleBall.Models.Enum;
 
 namespace PickleBall.Models
 {

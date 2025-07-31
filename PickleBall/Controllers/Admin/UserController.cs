@@ -1,13 +1,15 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using PickleBall.Dto.QueryParams;
 using PickleBall.Dto.Request;
-using PickleBall.QueryParams;
 using PickleBall.Service;
 
 namespace PickleBall.Controllers.Admin
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -16,7 +18,7 @@ namespace PickleBall.Controllers.Admin
           _userService = userService;
         }
 
-        [HttpGet("getAll")]
+        [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] UserParams user)
         {
             try
@@ -39,7 +41,7 @@ namespace PickleBall.Controllers.Admin
             }
         }
 
-        [HttpPatch("update-user/{userId}")]
+        [HttpPatch("{userId}")]
         public async Task<IActionResult> UpdateByAdmin(string userId,[FromForm] UserRequestByAdmin user)
         {
             try

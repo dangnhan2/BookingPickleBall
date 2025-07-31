@@ -1,4 +1,6 @@
-﻿namespace PickleBall.Extension
+﻿using System.Security.Claims;
+
+namespace PickleBall.Extension
 {
     public static class Extension
     {

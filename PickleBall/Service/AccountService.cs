@@ -1,5 +1,4 @@
-﻿using CloudinaryDotNet;
-using DotNetEnv;
+﻿using DotNetEnv;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
@@ -7,11 +6,12 @@ using Newtonsoft.Json.Linq;
 using PickleBall.Data;
 using PickleBall.Dto;
 using PickleBall.Dto.Request;
+using PickleBall.Extension;
 using PickleBall.Models;
+using PickleBall.Models.Enum;
 using PickleBall.Service.SoftService;
 using PickleBall.UnitOfWork;
 using System.Net;
-using System.Text;
 
 namespace PickleBall.Service
 {
@@ -31,13 +31,15 @@ namespace PickleBall.Service
             _jwtService = jwtService;
             _unitOfWorks = unitOfWorks;
         }
-        public async Task<UserDto> Login(LoginRequest request)
+        public async Task<Result<UserDto>> Login(LoginRequest request)
         {
             var user = await _userManager.FindByEmailAsync(request.Email);
 
+            Console.Write(user);
+
             if (user == null)
             {
-                throw new InvalidDataException("Thông tin đăng nhập không đúng"); 
+               return Result<UserDto>.Fail("Thông tin đăng nhập không đúng");
             }
 
             var isPassword = await _userManager.CheckPasswordAsync(user, request.Password);
@@ -46,38 +48,50 @@ namespace PickleBall.Service
 
             if (isPassword == false)
             {
-                throw new ArgumentException("Thông tin đăng nhập không đúng");
+               return Result<UserDto>.Fail("Thông tin đăng nhập không đúng");
             }
+
+            if (user.Status == UserStatus.Inactive)
+            {
+               return Result<UserDto>.Fail("Tài khoản đã bị khóa, vui lòng liên hệ với admin");
+            }
+
+
+            if (!user.EmailConfirmed)
+            {
+               return Result<UserDto>.Fail("Tài khoản chưa được đăng kí");
+            }     
 
             var result = await _jwtService.GenerateToken(user);
 
-            return result;
+            return Result<UserDto>.Ok(result);
         }
 
-        public async Task Logout(string refreshToken)
+        public async Task<Result<string>> Logout(string refreshToken)
         {
-            var isTokenExist = await _bookingContext.RefreshTokens.FirstOrDefaultAsync(rt => rt.RefreshToken == refreshToken)
-                ?? throw new KeyNotFoundException("Token is invalid");
+            var isTokenExist = await _bookingContext.RefreshTokens.FirstOrDefaultAsync(rt => rt.RefreshToken == refreshToken);
+
+            if(isTokenExist == null)
+                return Result<string>.Fail("Token không hợp lệ / không tìm thấy");
 
             _bookingContext.RefreshTokens.Remove(isTokenExist);
             await _bookingContext.SaveChangesAsync();
+
+            return Result<string>.Ok("Đăng xuất thành công");
         }
 
-        public async Task Register(RegisterRequest request)
+        public async Task<Result<string>> Register(RegisterRequest request)
         {
             var users = _unitOfWorks.User.Get();
 
-            if(await users.AnyAsync(u => u.PhoneNumber == request.PhoneNumber))
-            {
-                throw new ArgumentException("Số điện thoại đã được đăng kí");
-            }
+            if (await users.AnyAsync(u => u.PhoneNumber == request.PhoneNumber))
+                return Result<string>.Fail("Số điện thoại đã được đăng kí");
 
             Env.Load();
             var checkMail = await CheckEmail(request.Email);
 
-            if (checkMail == false) {
-                throw new ArgumentException("Email đã được đăng ký");
-            }
+            if (!checkMail) 
+                return Result<string>.Fail("Email đã được đăng kí");
 
             var newUser = new User
             {
@@ -112,6 +126,8 @@ namespace PickleBall.Service
 
             await _email.EmailSender(newUser.Email, subject, htmlBody);
 
+            return Result<string>.Ok("Email đã được gửi, hãy kiểm tra email để xác nhận đăng kí");
+
         }
 
         public async Task<bool> CheckEmail(string email)
@@ -125,5 +141,53 @@ namespace PickleBall.Service
             return false;
         }
 
+        public async Task<Result<string>> ChangePassword(string userId, ChangePasswordRequest passwordRequest)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
+                return Result<string>.Fail("Không tìm thấy người dùng");
+
+            var result = await _userManager.ChangePasswordAsync(user, passwordRequest.CurrentPassword, passwordRequest.NewPassword);
+
+            if (!result.Succeeded)        
+                return Result<string>.Fail("Đổi mật khẩu không thành công");
+
+            return Result<string>.Ok("Đổi mật khẩu thành công");
+
+        }
+
+        public async Task<Result<User>> ForgotPassword(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email) ?? throw new KeyNotFoundException("Không tìm thấy người dùng");
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            token = WebUtility.UrlEncode(token);
+
+            string subject = "Xác nhận đặt lại mật khầu";
+
+            var confirmationUrl = $"{Env.GetString("BASE_URL")}/api/Email/confirm-resetpassword?email={email}&token={token}";
+
+            string htmlBody = $"<p>Nhấn vào link sau để xác nhận đặt lại mật khẩu:</p><a href='{confirmationUrl}'>Confirm</a>";
+            await _email.EmailSender(user.Email, subject, htmlBody);
+
+            return Result<User>.Ok(user);
+        }
+
+        public async Task<Result<string>> ResetPassword(ForgetPasswordRequest passwordRequest)
+        {
+            var user = await _userManager.FindByEmailAsync(passwordRequest.Email);
+
+            if (user == null)
+                return Result<string>.Fail("Không tìm thấy người dùng");
+
+            var resetPasswordResult = await _userManager.ResetPasswordAsync(user, passwordRequest.Token, passwordRequest.Password);
+
+            if (!resetPasswordResult.Succeeded) 
+                return Result<string>.Fail("Đổi mật khẩu không thành công");
+            
+
+            return Result<string>.Ok("Đổi mật khẩu thành công");
+        }
     }
 }

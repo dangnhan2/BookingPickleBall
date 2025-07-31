@@ -15,7 +15,7 @@ namespace PickleBall.Controllers
             _timeSlotService = timeSlotService;
         }
 
-        [HttpGet("getAll")]
+        [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             try

@@ -1,6 +1,6 @@
 ﻿using PickleBall.Dto;
+using PickleBall.Dto.QueryParams;
 using PickleBall.Dto.Request;
-using PickleBall.QueryParams;
 
 namespace PickleBall.Service
 {

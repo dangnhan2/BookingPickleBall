@@ -1,4 +1,4 @@
-﻿using PickleBall.Enum;
+﻿
 
 namespace PickleBall.Dto.Request
 {

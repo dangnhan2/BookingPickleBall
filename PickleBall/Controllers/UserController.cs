@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PickleBall.Dto.Request;
 using PickleBall.Service;
+using System.Security.Claims;
 
 namespace PickleBall.Controllers
 {
+    [Authorize]   
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
@@ -16,7 +19,7 @@ namespace PickleBall.Controllers
             _userService = userService;
         }
 
-        [HttpGet("by-id/{id}")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetById(string id)
         {
             try
@@ -48,17 +51,28 @@ namespace PickleBall.Controllers
             }
         }
 
-        [HttpPut("upload-avatar/{id}")]
-        public async Task<IActionResult> UploadAvatar(string id, IFormFile file)
+        [HttpPut("upload-avatar/{userId}")]
+        public async Task<IActionResult> UploadAvatar(string userId, IFormFile file)
         {
             try
-            {
-                await _userService.UploadAvatarByUser(id, file);
+            {  
+                var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-                return Ok(new
+                if (userId == id)
                 {
-                    Message = "Cập nhật hình ảnh thành công",
-                    StatusCode = StatusCodes.Status200OK,
+                    await _userService.UploadAvatarByUser(userId, file);
+
+                    return Ok(new
+                    {
+                        Message = "Cập nhật hình ảnh thành công",
+                        StatusCode = StatusCodes.Status200OK,
+                    });
+                }
+
+                return Unauthorized(new
+                {
+                    Message = "Id của người dùng không hợp lệ",
+                    StatusCode = StatusCodes.Status401Unauthorized
                 });
             }
             catch (KeyNotFoundException ex) {
@@ -79,16 +93,27 @@ namespace PickleBall.Controllers
         }
 
         [HttpPut("{userId}")]
-        public async Task<IActionResult> UpdateUser(string userId,[FromBody] UserRequest user)
+        public async Task<IActionResult> UpdateUser(string userId, [FromBody] UserRequest user)
         {
             try
             {
-                await _userService.UpdateByUser(userId, user);
+                var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-                return Ok(new
+                if (id == userId)
                 {
-                    Message = "Cập nhật thành công",
-                    StatusCode = StatusCodes.Status200OK,
+                    await _userService.UpdateByUser(userId, user);
+
+                    return Ok(new
+                    {
+                        Message = "Cập nhật thành công",
+                        StatusCode = StatusCodes.Status200OK,
+                    });
+                }                    
+
+                return Unauthorized(new
+                {
+                    Message = "Id của người dùng không hợp lệ",
+                    StatusCode = StatusCodes.Status401Unauthorized
                 });
             }
             catch (KeyNotFoundException ex)
@@ -108,5 +133,7 @@ namespace PickleBall.Controllers
                 });
             }
         }
+
+       
     }
 }

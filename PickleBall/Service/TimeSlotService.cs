@@ -30,12 +30,12 @@ namespace PickleBall.Service
             return await timeSlotsToDto.ToListAsync();
         }
 
-        public async Task Add(TimeSlotRequest timeSlot)
+        public async Task<Result<string>> Add(TimeSlotRequest timeSlot)
         {
             var isExistTimeSlot = _unitOfWork.TimeSlot.Get();
 
             if(await isExistTimeSlot.AnyAsync(tl => tl.StartTime == timeSlot.StartTime || tl.EndTime == timeSlot.EndTime)){
-                throw new ArgumentException("Thời gian bắt đầu hoặc thời gian kết thúc bị trùng lặp với một khung giờ đã tồn tại.");
+                return Result<string>.Fail("Thời gian bắt đầu hoặc thời gian kết thúc bị trùng lặp với một khung giờ đã tồn tại.");
             }
 
             var newTimeSlot = new TimeSlot
@@ -46,14 +46,23 @@ namespace PickleBall.Service
 
             await _unitOfWork.TimeSlot.CreateAsync(newTimeSlot);
             await _unitOfWork.CompleteAsync();
+
+            return Result<string>.Ok("Thêm mới thành công");
         }
 
-        public async Task Delete(Guid id)
+        public async Task<Result<string>> Delete(Guid id)
         {
-            var isExistTimeSlot = await _unitOfWork.TimeSlot.GetById(id) ?? throw new KeyNotFoundException("Không tìm thấy khung thời gian");
+            var isExistTimeSlot = await _unitOfWork.TimeSlot.GetById(id);
+
+            if (isExistTimeSlot == null)
+            {
+                return Result<string>.Fail("Không tìm thấy khung thời gian");
+            }
 
             _unitOfWork.TimeSlot.Delete(isExistTimeSlot);
             await _unitOfWork.CompleteAsync();
+
+            return Result<string>.Ok("Xóa thành công");
         }
     }
 }

@@ -1,10 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using PickleBall.Dto;
+using PickleBall.Dto.QueryParams;
 using PickleBall.Dto.Request;
 using PickleBall.Extension;
-using PickleBall.QueryParams;
+using PickleBall.Models;
 using PickleBall.Service.SoftService;
 using PickleBall.UnitOfWork;
+using System.Security.Claims;
 
 namespace PickleBall.Service
 {
@@ -12,13 +15,15 @@ namespace PickleBall.Service
     {
         private readonly IUnitOfWorks _unitOfWorks;
         private readonly ICloudinaryService _cloudinaryService;
+        private readonly UserManager<User> _userManager; 
         private readonly string[] allowedExtension = { ".jpg", ".png", ".jpeg", };
         private readonly string folder = "Avatar";
 
-        public UserService(IUnitOfWorks unitOfWorks, ICloudinaryService cloudinaryService)
+        public UserService(IUnitOfWorks unitOfWorks, ICloudinaryService cloudinaryService, UserManager<User> userManager)
         {
             _unitOfWorks = unitOfWorks;
             _cloudinaryService = cloudinaryService;
+            _userManager = userManager;
         }
 
         public async Task<DataReponse<UsersDto>> GetAll(UserParams user)
@@ -67,6 +72,8 @@ namespace PickleBall.Service
 
         public async Task<UsersDto> GetById(string userId)
         {
+            
+
             var isExistUser = await _unitOfWorks.User.GetById(userId) ?? throw new KeyNotFoundException("Không tìm thấy người dùng");
 
             var userToDto = new UsersDto
