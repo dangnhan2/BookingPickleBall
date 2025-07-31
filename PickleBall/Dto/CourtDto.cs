@@ -1,4 +1,4 @@
-﻿using PickleBall.Enum;
+﻿using PickleBall.Models.Enum;
 using PickleBall.Service;
 using PickleBall.UnitOfWork;
 

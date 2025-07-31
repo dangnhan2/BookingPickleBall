@@ -1,6 +1,6 @@
-﻿using PickleBall.Enum;
+﻿using PickleBall.Models.Enum;
 
-namespace PickleBall.QueryParams
+namespace PickleBall.Dto.QueryParams
 {
     public class CourtParams
     {

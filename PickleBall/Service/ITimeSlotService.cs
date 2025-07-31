@@ -6,7 +6,7 @@ namespace PickleBall.Service
     public interface ITimeSlotService
     {
         public Task<IEnumerable<TimeSlotDto>> GetAll();
-        public Task Add(TimeSlotRequest timeSlot);
-        public Task Delete(Guid id);
+        public Task<Result<string>> Add(TimeSlotRequest timeSlot);
+        public Task<Result<string>> Delete(Guid id);
     }
 }

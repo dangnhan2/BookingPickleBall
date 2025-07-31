@@ -1,12 +1,15 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PickleBall.Dto.Request;
 using PickleBall.Service;
+using Serilog;
 
 namespace PickleBall.Controllers.Admin
 {
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize(Roles = "Admin")]
     public class TimeSlotController : ControllerBase
     {
         private readonly ITimeSlotService _timeSlotService;
@@ -16,25 +19,27 @@ namespace PickleBall.Controllers.Admin
             _timeSlotService = timeSlotService;
         }
 
-        [HttpPost("add-timeslot")]
+        [HttpPost]
         public async Task<IActionResult> Add(TimeSlotRequest timeSlot)
         {
             try
             {
-                await _timeSlotService.Add(timeSlot);
+                var result = await _timeSlotService.Add(timeSlot);
+
+                if (result.Success != true)
+                {
+                    return BadRequest(new
+                    {
+                        Message = result.Error,
+                        StatusCode = StatusCodes.Status400BadRequest
+                    });
+                }
+
 
                 return Ok(new
                 {
-                    Message = "Thêm mới thành công",
+                    Message = result.Data,
                     StatusCode = StatusCodes.Status200OK
-                });
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(new
-                {
-                    Message = ex.Message,
-                    StatusCode = StatusCodes.Status400BadRequest
                 });
             }
             catch (Exception ex) {
@@ -46,29 +51,31 @@ namespace PickleBall.Controllers.Admin
             }
         }
 
-        [HttpDelete("delete-timeslot")]
+        [HttpDelete]
         public async Task<IActionResult> Delete(Guid id)
         {
             try
             {
-                await _timeSlotService.Delete(id);
+                var result = await _timeSlotService.Delete(id);
+
+                if (result.Success != true)
+                {
+                    return BadRequest(new
+                    {
+                        Message = result.Error,
+                        StatusCode = StatusCodes.Status400BadRequest
+                    });
+                }
 
                 return Ok(new
                 {
-                    Message = "Xóa thành công",
+                    Message = result.Data,
                     StatusCode = StatusCodes.Status200OK
                 });
             }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new
-                {
-                    Message = ex.Message,
-                    StatusCode = StatusCodes.Status404NotFound
-                });
-            }
             catch (Exception ex)
-            {
+            {   
+                Log.Error($"Lỗi khác : ${ex.Message}");
                 return BadRequest(new
                 {
                     Message = ex.Message,

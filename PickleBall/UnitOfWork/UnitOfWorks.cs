@@ -15,6 +15,7 @@ namespace PickleBall.UnitOfWork
             Court = new CourtRepo(_context);
             Booking = new BookingRepo(_context);
             TimeSlot = new TimeSlotRepo(_context);
+            Payement = new PaymentRepo(_context);
         }
 
         public IUserRepo User { get; }
@@ -26,6 +27,8 @@ namespace PickleBall.UnitOfWork
         public IBookingRepo Booking { get; }
 
         public ITimeSlotRepo TimeSlot { get; }
+
+        public IPaymentRepo Payement { get; }
 
         public async Task CompleteAsync()
         {

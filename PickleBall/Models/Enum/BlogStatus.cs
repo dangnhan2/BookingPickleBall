@@ -1,4 +1,4 @@
-﻿namespace PickleBall.Enum
+﻿namespace PickleBall.Models.Enum
 {
     public enum BlogStatus
     {

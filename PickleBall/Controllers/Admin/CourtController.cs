@@ -1,12 +1,15 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PickleBall.Dto.Request;
 using PickleBall.Service;
+using Serilog;
 
 namespace PickleBall.Controllers.Admin
 {
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize(Roles = "Admin")]
     public class CourtController : ControllerBase
     {
         private readonly ICourtService _courtService;
@@ -15,29 +18,31 @@ namespace PickleBall.Controllers.Admin
             _courtService = courtService;
         }
 
-        [HttpPost("add-court")]
+        [HttpPost]
         public async Task<IActionResult> Create([FromForm] CourtRequest court)
         {
             try
             {
-                await _courtService.Add(court);
+                var result = await _courtService.Add(court);
+
+                if (result.Success != true) {
+                    return BadRequest(new
+                    {
+                        Message = result.Error,
+                        StatusCode = StatusCodes.Status400BadRequest
+                    });
+                }
 
                 return Ok(new
                 {
-                    Message = "Thêm mới thành công",
+                    Message = result.Data,
                     StatusCode = StatusCodes.Status201Created
-                });
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(new
-                {
-                    Message = ex.Message,
-                    StatusCode = StatusCodes.Status400BadRequest
                 });
             }
             catch (Exception ex)
             {
+                Log.Error($"Lỗi khác : ${ex.Message}");
+
                 return BadRequest(new
                 {
                     Message = ex.Message,
@@ -46,45 +51,31 @@ namespace PickleBall.Controllers.Admin
             }
         }
 
-        [HttpPut("update-court/{id}")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id,[FromForm] CourtRequest court)
         {
             try
             {
-                await _courtService.Update(id, court);
+                var result =  await _courtService.Update(id, court);
+
+                if (result.Success != true) {
+                    return BadRequest(new
+                    {
+                        Message = result.Error,
+                        StatusCode = StatusCodes.Status400BadRequest
+                    });
+                }
 
                 return Ok(new
                 {
-                    Message = "Cập nhật thành công",
+                    Message = result.Data,
                     StatusCode = StatusCodes.Status201Created
-                });
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(new
-                {
-                    Message = ex.Message,
-                    StatusCode = StatusCodes.Status400BadRequest
-                });
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return BadRequest(new
-                {
-                    Message = ex.Message,
-                    StatusCode = StatusCodes.Status404NotFound
-                });
-            }
-            catch(InvalidOperationException ex)
-            {
-                return BadRequest(new
-                {
-                    Message = ex.Message,
-                    StatusCode = StatusCodes.Status404NotFound
                 });
             }
             catch (Exception ex)
             {
+                Log.Error($"Lỗi khác : ${ex.Message}");
+
                 return BadRequest(new
                 {
                     Message = ex.Message,
@@ -93,29 +84,31 @@ namespace PickleBall.Controllers.Admin
             }
         }
 
-        [HttpPatch("delete-court/{id}")]
+        [HttpPatch("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
             try
             {
-                await _courtService.Delete(id);
+                var result = await _courtService.Delete(id);
 
+                if (result.Success != true)
+                {
+                    return BadRequest(new
+                    {
+                        Message = result.Error,
+                        StatusCode = StatusCodes.Status400BadRequest
+                    });              
+                }
                 return Ok(new
                 {
-                    Message = "Xóa thành công",
+                    Message = result.Data,
                     StatusCode = StatusCodes.Status201Created
-                });
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return BadRequest(new
-                {
-                    Message = ex.Message,
-                    StatusCode = StatusCodes.Status404NotFound
                 });
             }
             catch (Exception ex)
             {
+                Log.Error($"Lỗi khác : ${ex.Message}");
+
                 return BadRequest(new
                 {
                     Message = ex.Message,

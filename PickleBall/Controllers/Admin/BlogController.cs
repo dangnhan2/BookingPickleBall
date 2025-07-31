@@ -1,12 +1,15 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PickleBall.Dto.Request;
 using PickleBall.Service;
+using Serilog;
 
 namespace PickleBall.Controllers.Admin
 {
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize(Roles = "Admin")]
     public class BlogController : ControllerBase
     {
         private readonly IBlogService _blogService;
@@ -16,29 +19,32 @@ namespace PickleBall.Controllers.Admin
             _blogService = blogService;
         }
 
-        [HttpPost("add-blog")]
+        [HttpPost]
         public async Task<IActionResult> Create([FromForm] BlogRequest blog)
         {
             try
             {
-                await _blogService.Create(blog);
+                var result = await _blogService.Create(blog);
+
+                if(result.Success != true)
+                {
+                    return BadRequest(new
+                    {
+                        Message = result.Error,
+                        StatusCodes = StatusCodes.Status400BadRequest
+                    });
+                }
 
                 return Ok(new
                 {
-                    Message = "Thêm mới thành công",
+                    Message = result.Data,
                     StatusCode = StatusCodes.Status201Created
-                });
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(new
-                {
-                    Message = ex.Message,
-                    StatusCode = StatusCodes.Status400BadRequest
                 });
             }
             catch (Exception ex)
             {
+                Log.Error($"Lỗi khác : ${ex.Message}");
+
                 return BadRequest(new
                 {
                     Message = ex.Message,
@@ -47,29 +53,32 @@ namespace PickleBall.Controllers.Admin
             }
         }
 
-        [HttpPut("update-blog/{id}")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, [FromForm] BlogRequest blog)
         {
             try
             {
-                await _blogService.Update(id, blog);
+                var result =  await _blogService.Update(id, blog);
+
+                if(result.Success != true)
+                {
+                    return BadRequest(new
+                    {
+                        Message = result.Error,
+                        StatusCode = StatusCodes.Status400BadRequest
+                    });
+                }
 
                 return Ok(new
                 {
-                    Message = "Cập nhật thành công",
+                    Message = result.Data,
                     StatusCode = StatusCodes.Status200OK
-                });
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new
-                {
-                    Message = ex.Message,
-                    StatusCode = StatusCodes.Status404NotFound
                 });
             }
             catch (Exception ex)
             {
+                Log.Error($"Lỗi khác : ${ex.Message}");
+
                 return BadRequest(new
                 {
                     Message = ex.Message,
@@ -78,29 +87,32 @@ namespace PickleBall.Controllers.Admin
             }
         }
 
-        [HttpPatch("delete-blog/{id}")]
+        [HttpPatch("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
             try
             {
-                await _blogService.Delete(id);
+                var result = await _blogService.Delete(id);
 
+                if(result.Success != true)
+                {
+                    return NotFound(new
+                    {
+                        Message = result.Error,
+                        StatusCode = StatusCodes.Status400BadRequest
+                    });
+                   
+                }
                 return Ok(new
                 {
-                    Message = "Xóa thành công",
+                    Message = result.Data,
                     StatusCode = StatusCodes.Status200OK
-                });
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new
-                {
-                    Message = ex.Message,
-                    StatusCode = StatusCodes.Status404NotFound
                 });
             }
             catch (Exception ex)
             {
+                Log.Error($"Lỗi khác : ${ex.Message}");
+
                 return BadRequest(new
                 {
                     Message = ex.Message,

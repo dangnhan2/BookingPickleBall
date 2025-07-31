@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using PickleBall.QueryParams;
+using PickleBall.Dto.QueryParams;
 using PickleBall.Service;
+using Serilog;
 
 namespace PickleBall.Controllers
 {
@@ -15,7 +16,7 @@ namespace PickleBall.Controllers
            _courtService = courtService;    
         }
 
-        [HttpGet("getAll")]
+        [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] CourtParams court)
         {
             try
@@ -30,6 +31,8 @@ namespace PickleBall.Controllers
                 });
             }catch (Exception ex)
             {
+                Log.Error($"Lỗi khác : ${ex.Message}");
+
                 return BadRequest(new
                 {
                     Message = ex.Message,
@@ -38,30 +41,32 @@ namespace PickleBall.Controllers
             }
         }
 
-        [HttpGet("by-id/{id}")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
             try
             {
                 var result = await _courtService.GetById(id);
 
+                if (result.Success != true)
+                {
+                    return NotFound(new
+                    {
+                        Message = result.Error,
+                        StatusCode = StatusCodes.Status404NotFound
+                    });
+                }
+
                 return Ok(new
                 {
                     Message = "Lấy dữ liệu thành công",
                     StatusCode = StatusCodes.Status200OK,
-                    Data = result
-                });
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return BadRequest(new
-                {
-                    Message = ex.Message,
-                    StatusCode = StatusCodes.Status404NotFound
+                    Data = result.Data
                 });
             }
             catch (Exception ex)
             {
+                Log.Error($"Lỗi khác : ${ex.Message}");
                 return BadRequest(new
                 {
                     Message = ex.Message,

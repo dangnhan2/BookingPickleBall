@@ -11,9 +11,11 @@ namespace PickleBall.Extension
         {
             services.AddFluentValidationAutoValidation();
             services.AddFluentValidationClientsideAdapters();
-            services.AddValidatorsFromAssemblyContaining<TimeSlotRequestValidation>();
-            services.AddValidatorsFromAssemblyContaining<LoginRequestValidation>();
+            services.AddValidatorsFromAssemblyContaining<TimeSlotRequestValidator>();
+            services.AddValidatorsFromAssemblyContaining<LoginRequestValidator>();
             services.AddValidatorsFromAssemblyContaining<CourtRequestValidation>();
+            services.AddValidatorsFromAssemblyContaining<ForgetPasswordRequestValidator>();
+            services.AddValidatorsFromAssemblyContaining<ChangePasswordRequestValidator>();
             return services;
         }
     }

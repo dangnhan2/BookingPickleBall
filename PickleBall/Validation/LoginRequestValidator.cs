@@ -4,9 +4,9 @@ using PickleBall.Dto.Request;
 
 namespace PickleBall.Validation
 {
-    public class LoginRequestValidation : AbstractValidator<LoginRequest>
+    public class LoginRequestValidator : AbstractValidator<LoginRequest>
     {  
-        public LoginRequestValidation() {
+        public LoginRequestValidator() {
             RuleFor(x => x.Email)
             .NotEmpty().WithMessage("Địa chỉ email không được để trống.") // Email không được rỗng
             .EmailAddress().WithMessage("Địa chỉ email không hợp lệ."); // Phải là định dạng email hợp lệ

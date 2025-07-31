@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PickleBall.Dto;
+using PickleBall.Dto.QueryParams;
 using PickleBall.Dto.Request;
 using PickleBall.Extension;
 using PickleBall.Models;
-using PickleBall.QueryParams;
 using PickleBall.Service.SoftService;
 using PickleBall.UnitOfWork;
 
@@ -22,13 +22,13 @@ namespace PickleBall.Service
             _cloudinaryService = cloudinaryService;
         }
 
-        public async Task Create(BlogRequest request)
+        public async Task<Result<string>> Create(BlogRequest request)
         {
             var blogs = _unitOfWork.Blog.Get();
 
             if (await blogs.AnyAsync(b => b.Title.ToLower().Trim() == request.Title.ToLower().Trim()))
             {
-                throw new ArgumentException("Blog đã tồn tại");
+                return Result<string>.Fail("Blog đã tồn tại");
             }
 
             var newBlog = new Blog
@@ -46,16 +46,26 @@ namespace PickleBall.Service
 
             await _unitOfWork.Blog.CreateAsync(newBlog);
             await _unitOfWork.CompleteAsync();
+
+            return Result<string>.Ok("Thêm blog thành công");
+           
         }
 
-        public async Task Delete(Guid id)
+        public async Task<Result<string>> Delete(Guid id)
         {
-            var isExistBlog = await _unitOfWork.Blog.GetById(id) ?? throw new KeyNotFoundException("Không tìm thấy blog");
+            var isExistBlog = await _unitOfWork.Blog.GetById(id); 
+            
+            if (isExistBlog == null)
+            {
+                return Result<string>.Fail("Không tìm thấy blog");
+            }
 
             isExistBlog.IsDeleted = true;
 
             _unitOfWork.Blog.Update(isExistBlog);
             await _unitOfWork.CompleteAsync();
+
+            return Result<string>.Ok("Xóa blog thành công");
         }
 
         public async Task<DataReponse<BlogDto>> GetAll(BlogParams blog)
@@ -92,9 +102,14 @@ namespace PickleBall.Service
             };
         }
 
-        public async Task<BlogDto> GetById(Guid id)
+        public async Task<Result<BlogDto>> GetById(Guid id)
         {
-            var blog = await _unitOfWork.Blog.GetById(id) ?? throw new KeyNotFoundException("Không tìm thấy blog");
+            var blog = await _unitOfWork.Blog.GetById(id);
+
+            if(blog == null)
+            {
+                return Result<BlogDto>.Fail("Không tìm thấy blog");
+            }
 
             var blogToDto = new BlogDto
             {
@@ -107,19 +122,24 @@ namespace PickleBall.Service
                 CreatedAt = blog.CreatedAt,
             };
 
-            return blogToDto;
+            return Result<BlogDto>.Ok(blogToDto);
         }
 
-        public async Task Update(Guid id, BlogRequest request)
+        public async Task<Result<string>> Update(Guid id, BlogRequest request)
         {
             var blogs = _unitOfWork.Blog.Get();
 
             if (await blogs.AnyAsync(b => b.Title.ToLower().Trim() == request.Title.ToLower().Trim() && b.ID != id))
             {
-                throw new ArgumentException("Blog đã tồn tại");
+                return Result<string>.Fail("Blog đã tồn tại");
             }
 
-            var isExistBlog = await _unitOfWork.Blog.GetById(id) ?? throw new KeyNotFoundException("Không tìm thấy blog");
+            var isExistBlog = await _unitOfWork.Blog.GetById(id);
+
+            if (isExistBlog == null)
+            {
+                return Result<string>.Fail("Không tìm thấy blog");
+            }
 
             if (request.ThumbnailUrl != null || request?.ThumbnailUrl?.Length > 0)
             {
@@ -146,6 +166,8 @@ namespace PickleBall.Service
 
             _unitOfWork.Blog.Update(isExistBlog);
             await _unitOfWork.CompleteAsync();
+
+            return Result<string>.Ok("Cập nhật thành công");
         }
     }
 }

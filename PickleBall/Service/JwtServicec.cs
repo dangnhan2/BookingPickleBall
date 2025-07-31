@@ -25,25 +25,24 @@ namespace PickleBall.Service
             _context = context;
             _userManager = userManager;
         }
-        public async Task<UserDto> GenerateRefreshToken(string refreshToken)
+        public async Task<Result<UserDto>> GenerateRefreshToken(string refreshToken)
         {
             var isExistToken = await _context.RefreshTokens
                 .Include(rt => rt.User)
-                .FirstOrDefaultAsync(rt => rt.RefreshToken == refreshToken) ?? throw new KeyNotFoundException("Không tìm thấy token");
+                .FirstOrDefaultAsync(rt => rt.RefreshToken == refreshToken);
 
-            if(isExistToken.IsLocked == true)
-            {
-                throw new ArgumentException("Tài khoản đã bị khóa, vui lòng liên hệ với quản trị viên");
-            }
+            if (isExistToken == null)
+                return Result<UserDto>.Fail("Token không hợp/không tìm thấy");
 
-            if(isExistToken.ExpiresAt < DateTime.UtcNow)
-            {
-                throw new ArgumentException("Token đã hết hạn, hãy đăng nhập lại");
-            }
+            if (isExistToken.IsLocked == true)
+                return Result<UserDto>.Fail("Tài khoản đã bị khóa, vui lòng đăng nhập lại");
+
+            if (isExistToken.ExpiresAt < DateTime.UtcNow)
+                return Result<UserDto>.Fail("Token đã hết hạn, vui lòng đăng nhập lại");
 
             var userToDto = await GenerateToken(isExistToken.User);
 
-            return userToDto;
+            return Result<UserDto>.Ok(userToDto);
         }
 
         public async Task<UserDto> GenerateToken(User user)

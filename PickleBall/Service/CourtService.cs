@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PickleBall.Dto;
+using PickleBall.Dto.QueryParams;
 using PickleBall.Dto.Request;
 using PickleBall.Extension;
 using PickleBall.Models;
-using PickleBall.QueryParams;
 using PickleBall.Service.SoftService;
 using PickleBall.UnitOfWork;
 
@@ -20,13 +20,13 @@ namespace PickleBall.Service
           _cloudinaryService = cloudinaryService;
         }
 
-        public async Task Add(CourtRequest court)
+        public async Task<Result<string>> Add(CourtRequest court)
         {  
             var courts = _unitOfWork.Court.Get();
 
             if(await courts.AnyAsync(c => c.Name.ToLower() == court.Name.ToLower()))
             {
-                throw new ArgumentException("Sân đã tồn tại");
+                return Result<string>.Fail("Sân đã tồn tại");
             }
 
             var newCourt = new Court
@@ -42,7 +42,7 @@ namespace PickleBall.Service
 
             if (court.ImageUrl == null || court.ImageUrl.Length == 0)
             {
-                throw new ArgumentException("File phải được upload");
+                return Result<string>.Fail("File phải được upload");
             }
 
             var imageUrl = await _cloudinaryService.Upload(court.ImageUrl, allowedExtension, folder);
@@ -51,15 +51,24 @@ namespace PickleBall.Service
 
             await _unitOfWork.Court.CreateAsync(newCourt);
             await _unitOfWork.CompleteAsync();
+
+            return Result<string>.Ok("Thêm mới thành công");
         }
 
-        public async Task Delete(Guid id)
+        public async Task<Result<string>> Delete(Guid id)
         {
-            var isExistCourt = await _unitOfWork.Court.GetById(id) ?? throw new KeyNotFoundException("Không tìm thấy sân");
+            var isExistCourt = await _unitOfWork.Court.GetById(id);
+
+            if(isExistCourt == null)
+            {
+                return Result<string>.Fail("Không tìm thấy sân");
+            }
 
             isExistCourt.IsDeleted = true;
             _unitOfWork.Court.Update(isExistCourt);
             await _unitOfWork.CompleteAsync();
+
+            return Result<string>.Ok("Xóa thành công");
         }
 
         public async Task<DataReponse<CourtDto>> GetAll(CourtParams court)
@@ -97,9 +106,14 @@ namespace PickleBall.Service
             };
         }
 
-        public async Task<CourtDto> GetById(Guid id)
+        public async Task<Result<CourtDto>> GetById(Guid id)
         {
-            var isExistCourt = await _unitOfWork.Court.GetById(id) ?? throw new KeyNotFoundException("Không tìm thấy sân");
+            var isExistCourt = await _unitOfWork.Court.GetById(id);
+
+            if( isExistCourt == null)
+            {
+                return Result<CourtDto>.Fail("Không tìm thấy sân");
+            }
            
             var courtToDto = new CourtDto
             {
@@ -113,18 +127,23 @@ namespace PickleBall.Service
                 Created = isExistCourt.Created,
             };
 
-            return courtToDto;
+            return Result<CourtDto>.Ok(courtToDto);
         }
 
-        public async Task Update(Guid id, CourtRequest court)
+        public async Task<Result<string>> Update(Guid id, CourtRequest court)
         {   
-            var isExistCourt = await _unitOfWork.Court.GetById(id) ?? throw new KeyNotFoundException("Không tìm thấy sân");
+            var isExistCourt = await _unitOfWork.Court.GetById(id);
+
+            if(isExistCourt == null)
+            {
+                return Result<string>.Fail("Không tìm thấy sân");
+            }
 
             var courts = _unitOfWork.Court.Get();
 
             if (await courts.AnyAsync(c => c.Name.ToLower() == court.Name.ToLower() && c.ID != id))
             {
-                throw new ArgumentException("Sân đã tồn tại");
+                return Result<string>.Fail("Sân đã tồn tại");
             }
 
             if (court.ImageUrl != null)
@@ -152,6 +171,8 @@ namespace PickleBall.Service
 
             _unitOfWork.Court.Update(isExistCourt);
             await _unitOfWork.CompleteAsync();
+
+            return Result<string>.Ok("Xóa thành công");
         }
     }
 }

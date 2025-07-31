@@ -4,9 +4,9 @@ using PickleBall.Dto.Request;
 
 namespace PickleBall.Validation
 {
-    public class RegisterRequestValidation : AbstractValidator<RegisterRequest>
+    public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
     {
-        public RegisterRequestValidation() {
+        public RegisterRequestValidator() {
             RuleFor(x => x.FullName)
              .NotEmpty().WithMessage("Tên đầy đủ không được để trống.")
              .MaximumLength(100).WithMessage("Tên đầy đủ không được vượt quá 100 ký tự.");
