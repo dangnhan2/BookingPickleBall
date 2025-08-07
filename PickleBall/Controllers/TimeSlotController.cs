@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PickleBall.Service;
+using Serilog;
 
 namespace PickleBall.Controllers
 {
@@ -31,12 +32,26 @@ namespace PickleBall.Controllers
             }
             catch (Exception ex)
             {
+                Log.Error($"Lỗi khác : {ex.InnerException.Message ?? ex.Message}");
                 return BadRequest(new
                 {
-                    Message = ex.Message,
+                    Message = ex.InnerException.Message ?? ex.Message,
                     StatusCode = StatusCodes.Status400BadRequest
                 });
             }
+        }
+
+        [HttpGet("{courtId}")]
+        public async Task<IActionResult> GetTimeSlots(Guid courtId,[FromQuery] DateOnly date)
+        {
+            var result = await _timeSlotService.GetAllBooked(courtId, date);
+
+            return Ok(new
+            {
+                Message = "Lấy dữ liệu thành công",
+                StatusCode = StatusCodes.Status200OK,
+                Data = result
+            });
         }
     }
 }

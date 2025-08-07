@@ -13,7 +13,10 @@ namespace PickleBall.Extension
           services.AddScoped<ITimeSlotRepo, TimeSlotRepo>();
           services.AddScoped<IBlogRepo, BlogRepo>();
           services.AddScoped<IUnitOfWorks, UnitOfWorks>();
-          services.AddScoped<IUserRepo, UserRepo>();    
+          services.AddScoped<IUserRepo, UserRepo>();
+          services.AddScoped<IBookingRepo, BookingRepo>();
+          services.AddScoped<IPaymentRepo, PaymentRepo>();
+          services.AddScoped<IBookingTimeSlotRepo, BookingTimeSlotRepo>();
             
           services.AddScoped<IJwtService, JwtService>();    
           services.AddScoped<IAccountService, AccountService>();
@@ -23,6 +26,10 @@ namespace PickleBall.Extension
           services.AddScoped<IUserService, UserService>();
           services.AddTransient<IEmailService, EmailService>();
           services.AddTransient<ICloudinaryService, CloudinaryService>();
+          services.AddTransient<ICheckoutService, CheckoutService>();
+          services.AddScoped<IBookingService, BookingService>();
+          services.AddScoped<ICronJobService, CronJobService>();
+          services.AddScoped<IPayOsWebHookService, PayOsWebHookService>();
           return services;
         }
     }

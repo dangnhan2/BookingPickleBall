@@ -1,4 +1,6 @@
-﻿namespace PickleBall.Extension
+﻿using Hangfire;
+
+namespace PickleBall.Extension
 {
     public static class ApplicationExtension
     {
@@ -9,6 +11,8 @@
             services.AddDI();
             services.AddCors();
             services.AddValidation();
+            services.AddCronJob();
+            
             return services;
         }
     }

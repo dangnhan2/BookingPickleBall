@@ -1,5 +1,7 @@
+using Hangfire;
 using Microsoft.OpenApi.Models;
 using PickleBall.Extension;
+using PickleBall.Service.SoftService;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -46,6 +48,8 @@ builder.Services.AddSwaggerGen(opt =>
     });
 });
 
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -60,6 +64,34 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
+app.UseHangfireDashboard("/hangfire");
+
+//RecurringJob.AddOrUpdate<IPaymentJobService>(
+//             "CheckExpiredBookings",
+//             service => service.CheckExpiredBoookings(),
+//             "*/3 * * * *"
+//           );
+
+RecurringJob.AddOrUpdate<ICronJobService>(
+            "DeleteExpiredRefreshToken",
+            service => service.DeleteExpiredRefreshToken(),
+            "0 3 * * *"
+);
+
 app.MapControllers();
 
 app.Run();
+
+
+//{
+//    "userID": "0798b0f9-f44a-41d5-b034-79ce461a3907",
+//  "courtID": "fa11eb86-27a6-4833-89f2-2e6073b09000",
+//  "bookingDate": "2025-08-03",
+//  "customerName": "Nhan",
+//  "name": "string",
+//  "quantity": 1,
+//  "amount": 2000,
+//  "timeSlots": [
+//    "dd7e8d16-fe42-4816-a90c-7d9856749f3e"
+//  ]
+//}

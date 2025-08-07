@@ -39,7 +39,7 @@ namespace PickleBall.Repository
 
         public async Task<Booking?> GetById(Guid id)
         {
-            return await _bookingContext.Bookings.FirstOrDefaultAsync(b => b.ID == id);
+            return await _bookingContext.Bookings.Include(b => b.Payments).FirstOrDefaultAsync(b => b.ID == id);
         }
 
         public void Update(Booking booking)

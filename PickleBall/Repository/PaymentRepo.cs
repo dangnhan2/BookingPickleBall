@@ -9,6 +9,7 @@ namespace PickleBall.Repository
     {
         public IQueryable<Payment> Get();
         public Task<Payment?> GetById(Guid id);
+        public Task<Payment?> GetByOrderCode(long orderCode);
         public Task CreateAsync(Payment payment);
         public void Update(Payment payment);
         public void Delete(Payment payment);
@@ -40,7 +41,12 @@ namespace PickleBall.Repository
 
         public async Task<Payment?> GetById(Guid id)
         {
-            return await _bookingContext.Payments.FirstOrDefaultAsync(p => p.ID == id);
+            return await _bookingContext.Payments.Include(p => p.Bookings).FirstOrDefaultAsync(p => p.ID == id);
+        }
+
+        public async Task<Payment?> GetByOrderCode(long orderCode)
+        {
+            return await _bookingContext.Payments.Include(p => p.Bookings).FirstOrDefaultAsync(p => p.OrderCode == orderCode);
         }
 
         public void Update(Payment payment)

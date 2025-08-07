@@ -70,11 +70,14 @@ namespace PickleBall.Service
             };
         }
 
-        public async Task<UsersDto> GetById(string userId)
+        public async Task<Result<UsersDto>> GetById(string userId)
         {
-            
+            var isExistUser = await _unitOfWorks.User.GetById(userId); 
 
-            var isExistUser = await _unitOfWorks.User.GetById(userId) ?? throw new KeyNotFoundException("Không tìm thấy người dùng");
+            if (isExistUser == null)
+            {
+                return Result<UsersDto>.Fail("Không tìm thấy người dùng");
+            }
 
             var userToDto = new UsersDto
             {
@@ -87,29 +90,41 @@ namespace PickleBall.Service
                 Status = isExistUser.Status
             };
 
-            return userToDto;
+            return Result<UsersDto>.Ok(userToDto);
         }
 
-        public async Task UpdateByAdmin(string userId, UserRequestByAdmin user)
+        public async Task<Result<string>> UpdateByAdmin(string userId, UserRequestByAdmin user)
         {
-            var isExistUser = await _unitOfWorks.User.GetById(userId) ?? throw new KeyNotFoundException("Không tìm thấy người dùng");
+            var isExistUser = await _unitOfWorks.User.GetById(userId);
+
+            if (isExistUser == null)
+            {
+                return Result<string>.Fail("Không tìm thấy người dùng");
+            }
 
             isExistUser.Status = user.Status;
 
             _unitOfWorks.User.Update(isExistUser);
             await _unitOfWorks.CompleteAsync();
+
+            return Result<string>.Ok("Cập nhật thành công");
         }
 
-        public async Task UpdateByUser(string userId, UserRequest user)
+        public async Task<Result<string>> UpdateByUser(string userId, UserRequest user)
         {
             //var isExistUser = await _unitOfWorks.User.GetById(userId) ?? throw new KeyNotFoundException("Không tìm thấy người dùng");
 
             var users = _unitOfWorks.User.Get();
-            var isExistUser = await users.FirstOrDefaultAsync(u => u.Id == userId) ?? throw new KeyNotFoundException("Không tìm thấy người dùng");
+            var isExistUser = await users.FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (isExistUser == null)
+            {
+                return Result<string>.Fail("Không tìm thấy người dùng");
+            }
 
             if (await users.AnyAsync(u => u.PhoneNumber == user.PhoneNumber && u.Id != userId))
             {
-                throw new ArgumentException("Số điện thoại đã được đăng kí");
+                return Result<string>.Fail("Số điện thoại đã được đăng kí");
             }
 
             isExistUser.FullName = user.FullName;
@@ -118,6 +133,8 @@ namespace PickleBall.Service
 
             _unitOfWorks.User.Update(isExistUser);
             await _unitOfWorks.CompleteAsync();
+
+            return Result<string>.Ok("Cập nhật thành công");
         }
 
         public async Task UploadAvatarByUser(string userId, IFormFile file)

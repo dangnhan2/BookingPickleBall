@@ -12,7 +12,7 @@ namespace PickleBall.Extension
         {
             Env.Load();
 
-            var connStr = $"Host={Env.GetString("DB_HOST")};Database={Env.GetString("DB_NAME")};Username={Env.GetString("DB_USER")};Password={Env.GetString("DB_PASSWORD")}";
+            var connStr = Env.GetString("CONNECTION_STRING").ToString();
 
             try
             {

@@ -5,5 +5,6 @@
         public Guid ID { get; set; }
         public TimeOnly StartTime { get; set; }
         public TimeOnly EndTime { get; set; }
+        public bool IsBooked { get; set; }
     }
 }

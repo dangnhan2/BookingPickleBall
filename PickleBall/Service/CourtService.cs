@@ -31,14 +31,26 @@ namespace PickleBall.Service
 
             var newCourt = new Court
             {
+                ID = Guid.NewGuid(),
                 Name = court.Name,
                 Description = court.Description,
                 Location = court.Location,
                 PricePerHour = court.PricePerHour,
                 CourtStatus = court.CourtStatus,
-                IsDeleted = false,
                 Created = DateTime.UtcNow,
             };
+
+            foreach(var slot in court.TimeSlotIDs)
+            {
+                var courtTimeSlot = new CourtTimeSlot
+                {   
+                    ID = Guid.NewGuid(),
+                    CourtID = newCourt.ID,
+                    TimeSlotID = slot
+                };
+
+                newCourt.CourtTimeSlots.Add(courtTimeSlot);
+            }
 
             if (court.ImageUrl == null || court.ImageUrl.Length == 0)
             {
@@ -64,8 +76,8 @@ namespace PickleBall.Service
                 return Result<string>.Fail("Không tìm thấy sân");
             }
 
-            isExistCourt.IsDeleted = true;
-            _unitOfWork.Court.Update(isExistCourt);
+            _unitOfWork.Court.Delete(isExistCourt);
+            await _cloudinaryService.Delete(isExistCourt.ImageUrl);
             await _unitOfWork.CompleteAsync();
 
             return Result<string>.Ok("Xóa thành công");
@@ -106,16 +118,17 @@ namespace PickleBall.Service
             };
         }
 
-        public async Task<Result<CourtDto>> GetById(Guid id)
+        public async Task<Result<CourtForIdDto>> GetById(Guid id)
         {
+          
             var isExistCourt = await _unitOfWork.Court.GetById(id);
 
             if( isExistCourt == null)
             {
-                return Result<CourtDto>.Fail("Không tìm thấy sân");
+                return Result<CourtForIdDto>.Fail("Không tìm thấy sân");
             }
            
-            var courtToDto = new CourtDto
+            var courtToDto = new CourtForIdDto
             {
                 ID = isExistCourt.ID,
                 Name = isExistCourt.Name,
@@ -125,9 +138,15 @@ namespace PickleBall.Service
                 ImageUrl = isExistCourt.ImageUrl,
                 CourtStatus = isExistCourt.CourtStatus,
                 Created = isExistCourt.Created,
+                TimeSlotIDs = isExistCourt.CourtTimeSlots.Select(tl => new TimeSlotDto
+                {
+                    ID = tl.TimeSlotID,
+                    StartTime = tl.TimeSlot.StartTime,
+                    EndTime = tl.TimeSlot.EndTime,
+                }).ToList()
             };
 
-            return Result<CourtDto>.Ok(courtToDto);
+            return Result<CourtForIdDto>.Ok(courtToDto);
         }
 
         public async Task<Result<string>> Update(Guid id, CourtRequest court)
@@ -152,15 +171,7 @@ namespace PickleBall.Service
 
                 var imageUrl = await _cloudinaryService.Upload(court.ImageUrl, allowedExtension, folder);
 
-                isExistCourt.Name = court.Name;
-                isExistCourt.Description = court.Description;
-                isExistCourt.Location = court.Location;
-                isExistCourt.PricePerHour = court.PricePerHour;
                 isExistCourt.ImageUrl = imageUrl;
-                isExistCourt.CourtStatus = court.CourtStatus;
-
-                _unitOfWork.Court.Update(isExistCourt);
-                await _unitOfWork.CompleteAsync();
             }
 
             isExistCourt.Name = court.Name;
@@ -169,10 +180,26 @@ namespace PickleBall.Service
             isExistCourt.PricePerHour = court.PricePerHour;
             isExistCourt.CourtStatus = court.CourtStatus;
 
+            var uniqueIds = court.TimeSlotIDs.Distinct();
+
+            var oldMappings = await _unitOfWork.CourtTimeSlot.FindAsyncByCourtId(isExistCourt.ID);
+            _unitOfWork.CourtTimeSlot.RemoveRange(oldMappings);
+
+            foreach (var slotId in uniqueIds)
+            {
+                var newMapping = new CourtTimeSlot
+                {
+                    CourtID = isExistCourt.ID,
+                    TimeSlotID = slotId
+                };
+
+                isExistCourt.CourtTimeSlots.Add(newMapping);
+            }
+
             _unitOfWork.Court.Update(isExistCourt);
             await _unitOfWork.CompleteAsync();
 
-            return Result<string>.Ok("Xóa thành công");
+            return Result<string>.Ok("Cập nhật thành công");
         }
     }
 }

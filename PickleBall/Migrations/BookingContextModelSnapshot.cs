@@ -227,9 +227,6 @@ namespace PickleBall.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
                     b.Property<int>("PaymentStatus")
                         .HasColumnType("integer");
 
@@ -237,11 +234,8 @@ namespace PickleBall.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("TimeSlotID")
-                        .HasColumnType("uuid");
-
-                    b.Property<decimal>("TotalAmount")
-                        .HasColumnType("numeric");
+                    b.Property<int>("TotalAmount")
+                        .HasColumnType("integer");
 
                     b.Property<string>("UserID")
                         .IsRequired()
@@ -251,11 +245,27 @@ namespace PickleBall.Migrations
 
                     b.HasIndex("CourtID");
 
-                    b.HasIndex("TimeSlotID");
-
                     b.HasIndex("UserID");
 
                     b.ToTable("Bookings");
+                });
+
+            modelBuilder.Entity("PickleBall.Models.BookingTimeSlots", b =>
+                {
+                    b.Property<Guid>("BookingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TimeSlotId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("BookingId", "TimeSlotId");
+
+                    b.HasIndex("TimeSlotId");
+
+                    b.ToTable("BookingTimeSlots");
                 });
 
             modelBuilder.Entity("PickleBall.Models.Court", b =>
@@ -278,9 +288,6 @@ namespace PickleBall.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("Location")
                         .IsRequired()
                         .HasColumnType("text");
@@ -297,6 +304,24 @@ namespace PickleBall.Migrations
                     b.ToTable("Courts");
                 });
 
+            modelBuilder.Entity("PickleBall.Models.CourtTimeSlot", b =>
+                {
+                    b.Property<Guid>("CourtID")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TimeSlotID")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ID")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("CourtID", "TimeSlotID");
+
+                    b.HasIndex("TimeSlotID");
+
+                    b.ToTable("CourtTimeSlots");
+                });
+
             modelBuilder.Entity("PickleBall.Models.Payment", b =>
                 {
                     b.Property<Guid>("ID")
@@ -306,24 +331,23 @@ namespace PickleBall.Migrations
                     b.Property<Guid>("BookingID")
                         .HasColumnType("uuid");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("MethodPayment")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<decimal>("PaidAmount")
-                        .HasColumnType("numeric");
+                    b.Property<long>("OrderCode")
+                        .HasColumnType("bigint");
 
-                    b.Property<DateTime>("PaidAt")
+                    b.Property<int>("PaidAmount")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("PaidAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("PaymentStatus")
                         .HasColumnType("integer");
 
                     b.Property<string>("TransactionID")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("ID");
@@ -383,50 +407,6 @@ namespace PickleBall.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("TimeSlots");
-
-                    b.HasData(
-                        new
-                        {
-                            ID = new Guid("416f2e3b-e150-413c-8313-36ec2db031fb"),
-                            EndTime = new TimeOnly(10, 0, 0),
-                            StartTime = new TimeOnly(8, 0, 0)
-                        },
-                        new
-                        {
-                            ID = new Guid("f5a6b30e-57e3-42be-ab42-ee4dfa8e181f"),
-                            EndTime = new TimeOnly(12, 0, 0),
-                            StartTime = new TimeOnly(10, 0, 0)
-                        },
-                        new
-                        {
-                            ID = new Guid("453e9de8-8d47-485e-b3fd-29b98c4bf3b3"),
-                            EndTime = new TimeOnly(14, 0, 0),
-                            StartTime = new TimeOnly(12, 0, 0)
-                        },
-                        new
-                        {
-                            ID = new Guid("c335bbce-cbc5-40e6-8e08-099aae56a95e"),
-                            EndTime = new TimeOnly(16, 0, 0),
-                            StartTime = new TimeOnly(14, 0, 0)
-                        },
-                        new
-                        {
-                            ID = new Guid("24e9923b-42cb-4f50-90c6-9c3e536b3083"),
-                            EndTime = new TimeOnly(18, 0, 0),
-                            StartTime = new TimeOnly(16, 0, 0)
-                        },
-                        new
-                        {
-                            ID = new Guid("5aa53b67-60dc-4676-b6b2-f05b6e23edbb"),
-                            EndTime = new TimeOnly(20, 0, 0),
-                            StartTime = new TimeOnly(18, 0, 0)
-                        },
-                        new
-                        {
-                            ID = new Guid("72a1ed19-47dd-4c19-adfa-cd175b8af688"),
-                            EndTime = new TimeOnly(22, 0, 0),
-                            StartTime = new TimeOnly(20, 0, 0)
-                        });
                 });
 
             modelBuilder.Entity("PickleBall.Models.User", b =>
@@ -575,15 +555,9 @@ namespace PickleBall.Migrations
 
             modelBuilder.Entity("PickleBall.Models.Booking", b =>
                 {
-                    b.HasOne("PickleBall.Models.Court", "Courts")
+                    b.HasOne("PickleBall.Models.Court", "Court")
                         .WithMany("Bookings")
                         .HasForeignKey("CourtID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PickleBall.Models.TimeSlot", "TimeSlots")
-                        .WithMany("Bookings")
-                        .HasForeignKey("TimeSlotID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -593,11 +567,47 @@ namespace PickleBall.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Courts");
-
-                    b.Navigation("TimeSlots");
+                    b.Navigation("Court");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("PickleBall.Models.BookingTimeSlots", b =>
+                {
+                    b.HasOne("PickleBall.Models.Booking", "Booking")
+                        .WithMany("BookingTimeSlots")
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PickleBall.Models.TimeSlot", "TimeSlot")
+                        .WithMany("BookingTimeSlots")
+                        .HasForeignKey("TimeSlotId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Booking");
+
+                    b.Navigation("TimeSlot");
+                });
+
+            modelBuilder.Entity("PickleBall.Models.CourtTimeSlot", b =>
+                {
+                    b.HasOne("PickleBall.Models.Court", "Court")
+                        .WithMany("CourtTimeSlots")
+                        .HasForeignKey("CourtID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PickleBall.Models.TimeSlot", "TimeSlot")
+                        .WithMany("CourtTimeSlots")
+                        .HasForeignKey("TimeSlotID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Court");
+
+                    b.Navigation("TimeSlot");
                 });
 
             modelBuilder.Entity("PickleBall.Models.Payment", b =>
@@ -624,6 +634,8 @@ namespace PickleBall.Migrations
 
             modelBuilder.Entity("PickleBall.Models.Booking", b =>
                 {
+                    b.Navigation("BookingTimeSlots");
+
                     b.Navigation("Payments")
                         .IsRequired();
                 });
@@ -631,11 +643,15 @@ namespace PickleBall.Migrations
             modelBuilder.Entity("PickleBall.Models.Court", b =>
                 {
                     b.Navigation("Bookings");
+
+                    b.Navigation("CourtTimeSlots");
                 });
 
             modelBuilder.Entity("PickleBall.Models.TimeSlot", b =>
                 {
-                    b.Navigation("Bookings");
+                    b.Navigation("BookingTimeSlots");
+
+                    b.Navigation("CourtTimeSlots");
                 });
 
             modelBuilder.Entity("PickleBall.Models.User", b =>

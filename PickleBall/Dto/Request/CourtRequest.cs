@@ -10,5 +10,6 @@ namespace PickleBall.Dto.Request
         public decimal PricePerHour { get; set; }
         public IFormFile? ImageUrl { get; set; }
         public CourtStatus CourtStatus { get; set; }
+        public List<Guid> TimeSlotIDs { get; set; } = new List<Guid>();
     }
 }

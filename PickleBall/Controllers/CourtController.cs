@@ -31,11 +31,11 @@ namespace PickleBall.Controllers
                 });
             }catch (Exception ex)
             {
-                Log.Error($"Lỗi khác : ${ex.Message}");
+                Log.Error($"Lỗi khác : ${ex.InnerException.Message ?? ex.Message}");
 
                 return BadRequest(new
                 {
-                    Message = ex.Message,
+                    Message = ex.InnerException.Message ?? ex.Message,
                     StatusCode = StatusCodes.Status400BadRequest
                 });
             }
@@ -66,10 +66,10 @@ namespace PickleBall.Controllers
             }
             catch (Exception ex)
             {
-                Log.Error($"Lỗi khác : ${ex.Message}");
+                Log.Error($"Lỗi khác : ${ex.InnerException.Message ?? ex.Message}");
                 return BadRequest(new
                 {
-                    Message = ex.Message,
+                    Message = ex.InnerException.Message ?? ex.Message,
                     StatusCode = StatusCodes.Status400BadRequest
                 });
             }

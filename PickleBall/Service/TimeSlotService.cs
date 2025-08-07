@@ -3,7 +3,6 @@ using PickleBall.Dto;
 using PickleBall.Dto.Request;
 using PickleBall.Models;
 using PickleBall.UnitOfWork;
-using System.Threading.Tasks;
 
 namespace PickleBall.Service
 {
@@ -63,6 +62,23 @@ namespace PickleBall.Service
             await _unitOfWork.CompleteAsync();
 
             return Result<string>.Ok("Xóa thành công");
+        }
+
+        public async Task<IEnumerable<TimeSlotDto>> GetAllBooked(Guid courtId, DateOnly date)
+        {
+            var slots = await _unitOfWork.CourtTimeSlot.FindAsyncByCourtId(courtId);
+
+            var bookedSlotIds = _unitOfWork.BookingTimeSlot.FindBookedSlot(courtId, date);
+
+            var result = slots.Select(s => new TimeSlotDto
+            {
+                ID = s.TimeSlotID,
+                StartTime = s.TimeSlot.StartTime,
+                EndTime = s.TimeSlot.EndTime,
+                IsBooked = bookedSlotIds.Contains(s.TimeSlotID)
+            });
+
+            return result.ToList();
         }
     }
 }

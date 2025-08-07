@@ -13,7 +13,7 @@ namespace PickleBall.Dto
         public decimal PricePerHour { get; set; }
         public string ImageUrl { get; set; }
         public CourtStatus CourtStatus { get; set; }
-        public bool IsDeleted { get; set; }
         public DateTime Created { get; set; }
+        //public List<TimeSlotDto> TimeSlotIDs { get; set; } = new List<TimeSlotDto>();
     }
 }
