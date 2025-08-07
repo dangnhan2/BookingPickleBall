@@ -8,10 +8,11 @@ namespace PickleBall.Models
         public Guid BookingID { get; set; }
         public Booking Bookings { get; set; }
         public string MethodPayment { get; set; }
-        public string TransactionID { get; set; }
-        public decimal PaidAmount { get; set; }
-        public DateTime PaidAt { get; set; }
+        public long OrderCode { get; set; }
+        public string? TransactionID { get; set; }
+        public int PaidAmount { get; set; }
+        public DateTime? PaidAt { get; set; }
         public PaymentStatus PaymentStatus { get; set; }
-        public bool IsDeleted { get; set; }
+        //public bool IsDeleted { get; set; }
     }
 }

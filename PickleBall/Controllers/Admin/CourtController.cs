@@ -84,7 +84,7 @@ namespace PickleBall.Controllers.Admin
             }
         }
 
-        [HttpPatch("{id}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
             try
@@ -102,7 +102,7 @@ namespace PickleBall.Controllers.Admin
                 return Ok(new
                 {
                     Message = result.Data,
-                    StatusCode = StatusCodes.Status201Created
+                    StatusCode = StatusCodes.Status200OK
                 });
             }
             catch (Exception ex)

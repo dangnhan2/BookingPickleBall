@@ -14,6 +14,8 @@ namespace PickleBall.Data
         public DbSet<RefreshTokens> RefreshTokens { get; set; }
         public DbSet<TimeSlot> TimeSlots { get; set; }
         public DbSet<Blog> Blogs { get; set; }
+        public DbSet<BookingTimeSlots> BookingTimeSlots { get; set; }
+        public DbSet<CourtTimeSlot> CourtTimeSlots { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder builder)
         {

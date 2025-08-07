@@ -7,26 +7,44 @@ namespace PickleBall.Data
     {
         public static ModelBuilder Configuration(this ModelBuilder model) {
 
+            model.Entity<BookingTimeSlots>()
+                .HasKey(bts => new { bts.BookingId, bts.TimeSlotId });
+
+            model.Entity<CourtTimeSlot>()
+                .HasKey(cts => new {cts.CourtID, cts.TimeSlotID });
+
+            model.Entity<CourtTimeSlot>()
+                .HasOne(ctl => ctl.Court)
+                .WithMany(ctl => ctl.CourtTimeSlots)
+                .HasForeignKey(tl => tl.CourtID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            model.Entity<CourtTimeSlot>()
+                .HasOne(ctl => ctl.TimeSlot)
+                .WithMany(ctl => ctl.CourtTimeSlots)
+                .HasForeignKey(tl => tl.TimeSlotID);
+
             model.Entity<Booking>()
                 .HasOne(b => b.Payments)
                 .WithOne(b => b.Bookings)
                 .HasForeignKey<Payment>(c => c.BookingID);
 
             model.Entity<Court>()
-                .HasQueryFilter(r => !r.IsDeleted)
+                //.HasQueryFilter(r => !r.IsDeleted)
                 .HasMany(c => c.Bookings)
-                .WithOne(c => c.Courts)
+                .WithOne(c => c.Court)
                 .HasForeignKey(c => c.CourtID)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            model.Entity<Booking>()
-                .HasQueryFilter(r => !r.IsDeleted);
 
-            model.Entity<User>()
-                .HasQueryFilter(u => !u.IsDeleted);
+            //model.Entity<Booking>()
+            //    .HasQueryFilter(r => !r.IsDeleted);
 
-            model.Entity<Payment>()
-                .HasQueryFilter(p => !p.IsDeleted);
+            //model.Entity<User>()
+            //    .HasQueryFilter(u => !u.IsDeleted);
+
+            //model.Entity<Payment>()
+            //    .HasQueryFilter(p => !p.IsDeleted);
 
             model.Entity<Blog>()
                 .HasQueryFilter(p => !p.IsDeleted)

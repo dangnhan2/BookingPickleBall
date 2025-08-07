@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PickleBall.Dto.Request;
 using PickleBall.Service;
+using Serilog;
 using System.Security.Claims;
 
 namespace PickleBall.Controllers
 {
-    [Authorize]   
+    //[Authorize]   
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
@@ -26,26 +26,29 @@ namespace PickleBall.Controllers
             {
                 var result = await _userService.GetById(id);
 
+                if (result.Success != true)
+                {
+                    return BadRequest(new
+                    {
+                        Message = result.Error,
+                        StatusCode = StatusCodes.Status404NotFound
+                    });
+                }
+
                 return Ok(new
                 {
                     Message = "Lấy dữ liệu thành công",
                     StatusCode = StatusCodes.Status200OK,
-                    Data = result
-                });
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new
-                {
-                    Message = ex.Message,
-                    StatusCode = StatusCodes.Status404NotFound
+                    Data = result.Data
                 });
             }
             catch (Exception ex)
             {
+                Log.Error($"Lỗi lấy thông tin người dùng bằng id : ${ex.InnerException.Message ?? ex.Message}");
+
                 return BadRequest(new
                 {
-                    Message = ex.Message,
+                    Message = ex.InnerException.Message ?? ex.Message,
                     StatusCode = StatusCodes.Status400BadRequest
                 });
             }
@@ -84,9 +87,11 @@ namespace PickleBall.Controllers
             }
             catch (Exception ex)
             {
+                Log.Error($"Lỗi cập nhật user avatar : ${ex.InnerException.Message ?? ex.Message}");
+
                 return BadRequest(new
                 {
-                    Message = ex.Message,
+                    Message = ex.InnerException.Message ?? ex.Message,
                     StatusCode = StatusCodes.Status400BadRequest
                 });
             }
@@ -101,11 +106,20 @@ namespace PickleBall.Controllers
 
                 if (id == userId)
                 {
-                    await _userService.UpdateByUser(userId, user);
+                    var result = await _userService.UpdateByUser(userId, user);
+
+                    if (result.Success != true)
+                    {
+                        return BadRequest(new
+                        {
+                            Message = result.Error,
+                            StatusCode = StatusCodes.Status400BadRequest
+                        });
+                    }
 
                     return Ok(new
                     {
-                        Message = "Cập nhật thành công",
+                        Message = result.Data,
                         StatusCode = StatusCodes.Status200OK,
                     });
                 }                    
@@ -116,19 +130,13 @@ namespace PickleBall.Controllers
                     StatusCode = StatusCodes.Status401Unauthorized
                 });
             }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new
-                {
-                    Message = ex.Message,
-                    StatusCode = StatusCodes.Status404NotFound
-                });
-            }
             catch (Exception ex)
             {
+                Log.Error($"Lỗi cập nhật user : ${ex.InnerException.Message ?? ex.Message}");
+
                 return BadRequest(new
                 {
-                    Message = ex.Message,
+                    Message = ex.InnerException.Message ?? ex.Message,
                     StatusCode = StatusCodes.Status400BadRequest
                 });
             }

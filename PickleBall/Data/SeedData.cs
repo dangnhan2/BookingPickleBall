@@ -24,51 +24,51 @@ namespace PickleBall.Data
                     }
                 );
 
-            model.Entity<TimeSlot>()
-                .HasData(
-                    new TimeSlot
-                    {
-                        ID = Guid.NewGuid(),
-                        StartTime = new TimeOnly(8, 0),
-                        EndTime = new TimeOnly(10, 0)
-                    },
-                     new TimeSlot
-                     {
-                         ID = Guid.NewGuid(),
-                         StartTime = new TimeOnly(10, 0),
-                         EndTime = new TimeOnly(12, 0)
-                     },
-                     new TimeSlot
-                     {
-                         ID = Guid.NewGuid(),
-                         StartTime = new TimeOnly(12, 0),
-                         EndTime = new TimeOnly(14, 0)
-                     },
-                     new TimeSlot
-                     {
-                         ID = Guid.NewGuid(),
-                         StartTime = new TimeOnly(14, 0),
-                         EndTime = new TimeOnly(16, 0)
-                     },
-                     new TimeSlot
-                     {
-                         ID = Guid.NewGuid(),
-                         StartTime = new TimeOnly(16, 0),
-                         EndTime = new TimeOnly(18, 0)
-                     },
-                     new TimeSlot
-                     {
-                         ID = Guid.NewGuid(),
-                         StartTime = new TimeOnly(18, 0),
-                         EndTime = new TimeOnly(20, 0)
-                     },
-                      new TimeSlot
-                      {
-                          ID = Guid.NewGuid(),
-                          StartTime = new TimeOnly(20, 0),
-                          EndTime = new TimeOnly(22, 0)
-                      }
-                );
+            //model.Entity<TimeSlot>()
+            //    .HasData(
+            //        new TimeSlot
+            //        {
+            //            ID = Guid.NewGuid(),
+            //            StartTime = new TimeOnly(8, 0),
+            //            EndTime = new TimeOnly(10, 0)
+            //        },
+            //         new TimeSlot
+            //         {
+            //             ID = Guid.NewGuid(),
+            //             StartTime = new TimeOnly(10, 0),
+            //             EndTime = new TimeOnly(12, 0)
+            //         },
+            //         new TimeSlot
+            //         {
+            //             ID = Guid.NewGuid(),
+            //             StartTime = new TimeOnly(12, 0),
+            //             EndTime = new TimeOnly(14, 0)
+            //         },
+            //         new TimeSlot
+            //         {
+            //             ID = Guid.NewGuid(),
+            //             StartTime = new TimeOnly(14, 0),
+            //             EndTime = new TimeOnly(16, 0)
+            //         },
+            //         new TimeSlot
+            //         {
+            //             ID = Guid.NewGuid(),
+            //             StartTime = new TimeOnly(16, 0),
+            //             EndTime = new TimeOnly(18, 0)
+            //         },
+            //         new TimeSlot
+            //         {
+            //             ID = Guid.NewGuid(),
+            //             StartTime = new TimeOnly(18, 0),
+            //             EndTime = new TimeOnly(20, 0)
+            //         },
+            //          new TimeSlot
+            //          {
+            //              ID = Guid.NewGuid(),
+            //              StartTime = new TimeOnly(20, 0),
+            //              EndTime = new TimeOnly(22, 0)
+            //          }
+            //    );
 
             return model;
         }

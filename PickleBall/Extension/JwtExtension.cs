@@ -13,6 +13,7 @@ namespace PickleBall.Extension
         public static IServiceCollection AddJwt(this IServiceCollection services)
         {
             Env.Load();
+
             services.Configure<IdentityOptions>(options =>
             {
                 options.Password.RequireDigit = false;

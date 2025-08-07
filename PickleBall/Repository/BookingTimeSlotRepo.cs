@@ -1,0 +1,28 @@
+﻿using Microsoft.EntityFrameworkCore;
+using PickleBall.Data;
+using PickleBall.Models;
+
+namespace PickleBall.Repository
+{
+    public interface IBookingTimeSlotRepo
+    {
+        public IQueryable<Guid> FindBookedSlot(Guid courtId, DateOnly date);
+    }
+
+    public class BookingTimeSlotRepo : IBookingTimeSlotRepo
+    {
+        private readonly BookingContext _bookingContext;
+
+        public BookingTimeSlotRepo(BookingContext bookingContext)
+        {
+            _bookingContext = bookingContext;
+        }
+
+        public IQueryable<Guid> FindBookedSlot(Guid courtId, DateOnly date)
+        {
+            return _bookingContext.BookingTimeSlots
+                .Include(bts => bts.Booking)
+                .Where(bts => bts.Booking.CourtID == courtId && bts.Booking.BookingDate == date).Select(tl => tl.TimeSlotId);
+        }
+    }
+}

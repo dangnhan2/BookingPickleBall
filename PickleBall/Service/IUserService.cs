@@ -7,9 +7,9 @@ namespace PickleBall.Service
     public interface IUserService 
     {
         public Task<DataReponse<UsersDto>> GetAll(UserParams user);
-        public Task<UsersDto> GetById(string id);
-        public Task UpdateByUser(string userId, UserRequest user);
+        public Task<Result<UsersDto>> GetById(string id);
+        public Task<Result<string>> UpdateByUser(string userId, UserRequest user);
         public Task UploadAvatarByUser(string userId, IFormFile file);
-        public Task UpdateByAdmin(string userId, UserRequestByAdmin user);
+        public Task<Result<string>> UpdateByAdmin(string userId, UserRequestByAdmin user);
     }
 }

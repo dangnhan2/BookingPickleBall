@@ -43,7 +43,10 @@ namespace PickleBall.Repository
 
         public async Task<Court?> GetById(Guid id)
         {
-            return await _bookingContext.Courts.FirstOrDefaultAsync(b => b.ID == id);
+            return await _bookingContext.Courts
+                .Include(c => c.CourtTimeSlots)
+                .ThenInclude(cts => cts.TimeSlot)
+                .FirstOrDefaultAsync(b => b.ID == id);
         }
     }
 }

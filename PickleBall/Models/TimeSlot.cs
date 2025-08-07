@@ -5,6 +5,8 @@
         public Guid ID { get; set; }
         public TimeOnly StartTime { get; set; }
         public TimeOnly EndTime { get; set; }
-        public List<Booking> Bookings { get; set; } = new List<Booking>();
+        public List<CourtTimeSlot>? CourtTimeSlots { get; set; } 
+        public List<BookingTimeSlots>? BookingTimeSlots { get; set; } 
+
     }
 }
