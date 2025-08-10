@@ -10,6 +10,7 @@ namespace PickleBall.Models
         public DateTime CreatedAt { get; set; }
         public string PhoneNumber { get; set; }
         public bool IsDeleted { get; set; }
+        public bool IsAdmin { get; set; }
         public string Avatar { get; set; }
         public RefreshTokens RefreshTokens { get; set; }
         public List<Booking> Bookings { get; set; } = new List<Booking>();

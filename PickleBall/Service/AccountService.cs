@@ -22,6 +22,7 @@ namespace PickleBall.Service
         private readonly IEmailService _email;
         private readonly IJwtService _jwtService;
         private readonly IUnitOfWorks _unitOfWorks;
+        private readonly string avatar = "https://res.cloudinary.com/dtihvekmn/image/upload/v1751645852/istockphoto-1337144146-612x612_llpkam.jpg";
 
         public AccountService(UserManager<User> userManager, BookingContext bookingContext, IEmailService email, IJwtService jwtService, IUnitOfWorks unitOfWorks)
         {
@@ -98,8 +99,9 @@ namespace PickleBall.Service
                 FullName = request.FullName,
                 UserName = request.FullName,
                 PhoneNumber = request.PhoneNumber,
-                Avatar = "https://res.cloudinary.com/dtihvekmn/image/upload/v1751645852/istockphoto-1337144146-612x612_llpkam.jpg",
+                Avatar = avatar,
                 IsDeleted = false,
+                IsAdmin = false,
                 EmailConfirmed = false,
                 Email = request.Email,
                 NormalizedEmail = request.Email.ToUpper(),
@@ -110,7 +112,7 @@ namespace PickleBall.Service
 
             if (!result.Succeeded)
             {
-                throw new Exception("Không thể khởi tạo tài khoản");
+                return Result<string>.Fail(result.Errors.ToString());
             }
 
             await _userManager.AddToRoleAsync(newUser, "Customer");
@@ -189,5 +191,60 @@ namespace PickleBall.Service
 
             return Result<string>.Ok("Đổi mật khẩu thành công");
         }
+
+        public async Task<Result<string>> RegisterForAdmin(RegisterRequest request)
+        {
+            var isExistEmail = await _userManager.FindByEmailAsync(request.Email);
+            var users = _unitOfWorks.User.Get();
+
+            if (isExistEmail != null)
+            {
+                return Result<string>.Fail("Email đã được đăng kí");
+            }
+
+            if (users.Any(u => u.PhoneNumber == request.PhoneNumber))
+            {
+                return Result<string>.Fail("Số điện thoại đã được đăng kí");
+            }
+
+            var newUser = new User
+            {
+                FullName = request.FullName,
+                UserName = request.FullName,
+                NormalizedUserName = request.FullName.ToUpper(),
+                Status = UserStatus.Active,
+                CreatedAt = DateTime.UtcNow,
+                PhoneNumber = request.PhoneNumber,
+                Avatar = avatar,
+                Email = request.Email,
+                IsDeleted = false,
+                IsAdmin = true,
+                NormalizedEmail = request.Email.ToUpper(),
+                EmailConfirmed = false,
+            };
+
+            var result = await _userManager.CreateAsync(newUser, request.Password);
+
+            if (!result.Succeeded)
+            {
+                return Result<string>.Fail(result.Errors.ToString());
+            }
+
+            await _userManager.AddToRoleAsync(newUser, "Admin");
+
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
+            token = WebUtility.UrlEncode(token);
+
+            string subject = "Xác nhận đăng ký";
+
+            var confirmationUrl = $"{Env.GetString("BASE_URL")}/api/Email/confirm-email?userId={newUser.Id}&token={token}";
+
+            string htmlBody = $"<p>Nhấn vào link sau để xác nhận tài khoản:</p><a href='{confirmationUrl}'>Confirm</a>";
+
+            await _email.EmailSender(newUser.Email, subject, htmlBody);
+
+            return Result<string>.Ok("Email đã được gửi, hãy kiểm tra email để xác nhận đăng kí");
+        }
+
     }
 }

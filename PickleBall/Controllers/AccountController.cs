@@ -104,6 +104,39 @@ namespace PickleBall.Controllers
             }
         }
 
+        [HttpPost("admin-register")]
+        public async Task<IActionResult> RegisterForAdmin(RegisterRequest request)
+        {
+            try
+            {
+                var result = await _accountService.RegisterForAdmin(request);
+
+                if (result.Success != true)
+                {
+                    return BadRequest(new
+                    {
+                        Message = result.Error,
+                        StatusCode = StatusCodes.Status400BadRequest
+                    });
+                }
+
+                return Ok(new
+                {
+                     Message = result.Data,
+                     StatusCode = StatusCodes.Status200OK,
+                });
+            }catch(Exception ex)
+            {
+                Log.Error($"Lỗi không đăng kí tài khoàn cho role admin: {ex.InnerException.Message ?? ex.Message}");
+
+                return BadRequest(new
+                {
+                    Message = ex.InnerException.Message ?? ex.Message,
+                    StatusCode = StatusCodes.Status400BadRequest
+                });
+            }
+        }
+
         [Authorize]
         [HttpPost("change-password")]
         public async Task<IActionResult> ChangePassword(string userId, ChangePasswordRequest passwordRequest)
