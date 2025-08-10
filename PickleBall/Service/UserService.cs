@@ -24,6 +24,7 @@ namespace PickleBall.Service
             _unitOfWorks = unitOfWorks;
             _cloudinaryService = cloudinaryService;
             _userManager = userManager;
+         
         }
 
         public async Task<DataReponse<UsersDto>> GetAll(UserParams user)
@@ -50,7 +51,7 @@ namespace PickleBall.Service
                 users = users.Where(u => u.Status == user.Status);
             }
 
-            var usersToDto = users.Select(u => new UsersDto
+            var usersToDto = users.Where(u => u.IsAdmin == true).Select(u => new UsersDto
             {
                 ID = u.Id,
                 FullName = u.FullName,
@@ -59,7 +60,7 @@ namespace PickleBall.Service
                 PhoneNumber = u.PhoneNumber,
                 Avatar = u.Avatar,
                 Status = u.Status
-            }).AsNoTracking().Paging(user.Page, user.PageSize);
+            }).Paging(user.Page, user.PageSize);
 
             return new DataReponse<UsersDto>
             {
