@@ -39,27 +39,29 @@ namespace PickleBall.Controllers
         [HttpGet("confirm-resetpassword")]
         public async Task<IActionResult> SendEmailConfirmResetPassword(string email, string token)
         {
-            var user = await _userManager.FindByEmailAsync(email);
+            //var user = await _userManager.FindByEmailAsync(email);
 
-            //if (user == null)
-            //    return Redirect("https://localhost:5173/login?confirm=fail");
+            ////if (user == null)
+            ////    return Redirect("https://localhost:5173/login?confirm=fail");
 
-            var result = await _userManager.ConfirmEmailAsync(user, token);
+            //var result = await _userManager.ConfirmEmailAsync(user, token);
 
-            //if (!result.Succeeded)
-            //    return Redirect("https://localhost:5173/login?confirm=fail");
+            ////if (!result.Succeeded)
+            ////    return Redirect("https://localhost:5173/login?confirm=fail");
 
-            //user.EmailConfirmed = true;
+            ////user.EmailConfirmed = true;
 
-            //return Redirect("https://localhost:5173/login?confirm=success");
+            ////return Redirect("https://localhost:5173/login?confirm=success");
 
-            return Ok(new
-            {
-                Message = "Reset password",
-                StatusCode = StatusCodes.Status200OK,
-                Email = email,
-                Token = token
-            });
+            //return Ok(new
+            //{
+            //    Message = "Reset password",
+            //    StatusCode = StatusCodes.Status200OK,
+            //    Email = email,
+            //    Token = token
+            //});
+            var url = $"https://localhost:7279/api/Email/confirm-resetpassword?email={email}&token={token}";
+            return Redirect(url);
         }
     }
 }

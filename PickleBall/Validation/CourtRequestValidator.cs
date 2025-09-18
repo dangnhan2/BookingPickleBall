@@ -3,9 +3,9 @@ using PickleBall.Dto.Request;
 
 namespace PickleBall.Validation
 {
-    public class CourtRequestValidation : AbstractValidator<CourtRequest>
+    public class CourtRequestValidator : AbstractValidator<CourtRequest>
     {
-        public CourtRequestValidation() {
+        public CourtRequestValidator() {
             RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Tên sân không được để trống.")
             .Length(3, 100).WithMessage("Tên sân phải có độ dài từ 3 đến 100 ký tự.");

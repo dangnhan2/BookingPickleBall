@@ -1,7 +1,7 @@
 ﻿using PickleBall.UnitOfWork;
 using Serilog;
 
-namespace PickleBall.Service.SoftService
+namespace PickleBall.Service.Storage
 {
     public class CronJobService : ICronJobService
     {

@@ -1,9 +1,8 @@
-﻿
-using PickleBall.Dto;
+﻿using PickleBall.Dto;
 using PickleBall.Dto.Request;
 using PickleBall.Models;
 
-namespace PickleBall.Service
+namespace PickleBall.Service.Auth
 {
     public interface IAccountService
     {

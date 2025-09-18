@@ -1,4 +1,4 @@
-﻿namespace PickleBall.Service.SoftService
+﻿namespace PickleBall.Service.Email
 {
     public interface IEmailService
     {

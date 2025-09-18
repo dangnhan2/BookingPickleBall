@@ -3,7 +3,7 @@ using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using DotNetEnv;
 
-namespace PickleBall.Service.SoftService
+namespace PickleBall.Service.Storage
 {
     public class CloudinaryService : ICloudinaryService
     {

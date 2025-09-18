@@ -10,7 +10,7 @@ using System.Net;
 using System.Security.Claims;
 using System.Text;
 
-namespace PickleBall.Service
+namespace PickleBall.Service.Auth
 {
     public class JwtService : IJwtService
     {

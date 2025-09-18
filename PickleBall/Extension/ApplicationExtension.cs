@@ -10,7 +10,6 @@ namespace PickleBall.Extension
             services.AddJwt();
             services.AddDI();
             services.AddCors();
-            services.AddValidation();
             services.AddCronJob();
             
             return services;

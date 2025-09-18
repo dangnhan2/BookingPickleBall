@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="Validation\CourtRequestValidatorcs.cs" />
+    <None Include="Validation\CourtRequestValidator.cs" />
   </ItemGroup>
 
   <ItemGroup>
