@@ -4,8 +4,9 @@ using PickleBall.Dto.QueryParams;
 using PickleBall.Dto.Request;
 using PickleBall.Extension;
 using PickleBall.Models;
-using PickleBall.Service.SoftService;
+using PickleBall.Service.Storage;
 using PickleBall.UnitOfWork;
+using PickleBall.Validation;
 
 namespace PickleBall.Service
 {
@@ -21,7 +22,19 @@ namespace PickleBall.Service
         }
 
         public async Task<Result<string>> Add(CourtRequest court)
-        {  
+        {
+            var validator = new CourtRequestValidator();
+
+            var result = validator.Validate(court);
+
+            if (!result.IsValid)
+            {
+                foreach (var error in result.Errors)
+                {
+                    return Result<string>.Fail(error.ErrorMessage);
+                }
+            }
+
             var courts = _unitOfWork.Court.Get();
 
             if(await courts.AnyAsync(c => c.Name.ToLower() == court.Name.ToLower()))
@@ -150,7 +163,19 @@ namespace PickleBall.Service
         }
 
         public async Task<Result<string>> Update(Guid id, CourtRequest court)
-        {   
+        {
+            var validator = new CourtRequestValidator();
+
+            var result = validator.Validate(court);
+
+            if (!result.IsValid)
+            {
+                foreach (var error in result.Errors)
+                {
+                    return Result<string>.Fail(error.ErrorMessage);
+                }
+            }
+
             var isExistCourt = await _unitOfWork.Court.GetById(id);
 
             if(isExistCourt == null)

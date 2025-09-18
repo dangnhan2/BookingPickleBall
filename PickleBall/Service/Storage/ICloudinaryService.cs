@@ -1,4 +1,4 @@
-﻿namespace PickleBall.Service.SoftService
+﻿namespace PickleBall.Service.Storage
 {
     public interface ICloudinaryService
     {

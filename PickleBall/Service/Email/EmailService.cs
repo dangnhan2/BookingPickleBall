@@ -3,7 +3,7 @@ using DotNetEnv;
 using System.Net;
 using System.Net.Mail;
 
-namespace PickleBall.Service.SoftService
+namespace PickleBall.Service.Email
 {
     public class EmailService : IEmailService
     {

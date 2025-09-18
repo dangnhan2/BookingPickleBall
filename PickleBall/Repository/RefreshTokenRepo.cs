@@ -1,4 +1,5 @@
-﻿using PickleBall.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using PickleBall.Data;
 using PickleBall.Models;
 
 namespace PickleBall.Repository
@@ -6,6 +7,7 @@ namespace PickleBall.Repository
     public interface IRefreshTokenRepo
     {
         public IQueryable<RefreshTokens> Get();
+        public Task<RefreshTokens?> GetAsync(string token);
         public void Delete(RefreshTokens refreshTokens);
     }
 
@@ -26,6 +28,11 @@ namespace PickleBall.Repository
         public IQueryable<RefreshTokens> Get()
         {
             return _bookingContext.RefreshTokens.AsQueryable();
+        }
+
+        public async Task<RefreshTokens?> GetAsync(string token)
+        {
+            return await _bookingContext.RefreshTokens.Include(t => t.User).FirstOrDefaultAsync(r => r.RefreshToken == token);
         }
     }
 

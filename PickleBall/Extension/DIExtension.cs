@@ -1,6 +1,9 @@
 ﻿using PickleBall.Repository;
 using PickleBall.Service;
+using PickleBall.Service.Auth;
+using PickleBall.Service.Email;
 using PickleBall.Service.SoftService;
+using PickleBall.Service.Storage;
 using PickleBall.UnitOfWork;
 
 namespace PickleBall.Extension

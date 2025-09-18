@@ -1,7 +1,7 @@
 ﻿using PickleBall.Dto;
 using PickleBall.Models;
 
-namespace PickleBall.Service
+namespace PickleBall.Service.Auth
 {
     public interface IJwtService
     {

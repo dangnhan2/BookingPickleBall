@@ -4,8 +4,9 @@ using PickleBall.Dto.QueryParams;
 using PickleBall.Dto.Request;
 using PickleBall.Extension;
 using PickleBall.Models;
-using PickleBall.Service.SoftService;
+using PickleBall.Service.Storage;
 using PickleBall.UnitOfWork;
+using PickleBall.Validation;
 
 namespace PickleBall.Service
 {
@@ -23,13 +24,20 @@ namespace PickleBall.Service
         }
 
         public async Task<Result<string>> Create(BlogRequest request)
-        {
-            var blogs = _unitOfWork.Blog.Get();
+        {   
+            var validator = new BlogRequestValidator();
 
-            if (await blogs.AnyAsync(b => b.Title.ToLower().Trim() == request.Title.ToLower().Trim()))
+            var result = validator.Validate(request);
+
+            if (!result.IsValid)
             {
-                return Result<string>.Fail("Blog đã tồn tại");
+                foreach (var error in result.Errors)
+                {
+                    return Result<string>.Fail(error.ErrorMessage);
+                }
             }
+
+            var blogs = _unitOfWork.Blog.Get();
 
             var newBlog = new Blog
             {
@@ -127,12 +135,19 @@ namespace PickleBall.Service
 
         public async Task<Result<string>> Update(Guid id, BlogRequest request)
         {
-            var blogs = _unitOfWork.Blog.Get();
+            var validator = new BlogRequestValidator();
 
-            if (await blogs.AnyAsync(b => b.Title.ToLower().Trim() == request.Title.ToLower().Trim() && b.ID != id))
+            var result = validator.Validate(request);
+
+            if (!result.IsValid)
             {
-                return Result<string>.Fail("Blog đã tồn tại");
+                foreach (var error in result.Errors)
+                {
+                    return Result<string>.Fail(error.ErrorMessage);
+                }
             }
+
+            var blogs = _unitOfWork.Blog.Get();
 
             var isExistBlog = await _unitOfWork.Blog.GetById(id);
 
@@ -147,15 +162,7 @@ namespace PickleBall.Service
 
                 var thumbnailUrl = await _cloudinaryService.Upload(request.ThumbnailUrl, allowedExtension, folder);
 
-                isExistBlog.Title = request.Title;
-                isExistBlog.Content = request.Content;
-                isExistBlog.UserID = request.UserID;
                 isExistBlog.ThumbnailUrl = thumbnailUrl;
-                isExistBlog.BlogStatus = request.BlogStatus;
-                isExistBlog.UpdatedAt = DateTime.UtcNow;
-
-                _unitOfWork.Blog.Update(isExistBlog);
-                await _unitOfWork.CompleteAsync();
             }
 
             isExistBlog.Title = request.Title;
