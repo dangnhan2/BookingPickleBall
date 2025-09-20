@@ -3,6 +3,7 @@ using PickleBall.Dto;
 using PickleBall.Dto.Request;
 using PickleBall.Models;
 using PickleBall.UnitOfWork;
+using PickleBall.Validation;
 
 namespace PickleBall.Service
 {
@@ -31,6 +32,18 @@ namespace PickleBall.Service
 
         public async Task<Result<string>> Add(TimeSlotRequest timeSlot)
         {
+            var validator = new TimeSlotRequestValidator();
+
+            var result = await validator.ValidateAsync(timeSlot);
+
+            if (!result.IsValid)
+            {
+                foreach(var error in result.Errors)
+                {
+                    return Result<string>.Fail(error.ErrorMessage);
+                }
+            }
+
             var isExistTimeSlot = _unitOfWork.TimeSlot.Get();
 
             if(await isExistTimeSlot.AnyAsync(tl => tl.StartTime == timeSlot.StartTime || tl.EndTime == timeSlot.EndTime)){

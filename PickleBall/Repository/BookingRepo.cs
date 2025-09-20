@@ -7,10 +7,12 @@ namespace PickleBall.Repository
     public interface IBookingRepo
     {
         public IQueryable<Booking> Get();
+        public Task<IEnumerable<Booking>> GetExpiredBookings();
         public Task<Booking?> GetById(Guid id);
-        public Task CreateAsync(Booking booking);
+        public void Create(Booking booking);
         public void Update(Booking booking);
         public void Delete(Booking booking);
+        public void DeleteExpiredBookings(IEnumerable<Booking> bookings);
     }
 
     public class BookingRepo : IBookingRepo
@@ -22,14 +24,19 @@ namespace PickleBall.Repository
             _bookingContext = bookingContext;
         }
 
-        public async Task CreateAsync(Booking booking)
+        public void Create(Booking booking)
         {
-           await _bookingContext.Bookings.AddAsync(booking);
+           _bookingContext.Bookings.Add(booking);
         }
 
         public void Delete(Booking booking)
         {
             _bookingContext.Bookings.Remove(booking);
+        }
+
+        public void DeleteExpiredBookings(IEnumerable<Booking> bookings)
+        {
+            _bookingContext.Bookings.RemoveRange(bookings);
         }
 
         public IQueryable<Booking> Get()
@@ -39,7 +46,16 @@ namespace PickleBall.Repository
 
         public async Task<Booking?> GetById(Guid id)
         {
-            return await _bookingContext.Bookings.Include(b => b.Payments).FirstOrDefaultAsync(b => b.ID == id);
+            return await _bookingContext.Bookings.Include(b => b.User).FirstOrDefaultAsync(b => b.ID == id);
+        }
+
+        public async Task<IEnumerable<Booking>> GetExpiredBookings()
+        {
+            return await _bookingContext.Bookings
+                .Include(b => b.BookingTimeSlots)
+                   .ThenInclude(s => s.TimeSlot)
+                .Where(b => b.BookingStatus == Models.Enum.BookingStatus.Pending && b.ExpriedAt < DateTime.UtcNow)
+                .ToListAsync();
         }
 
         public void Update(Booking booking)

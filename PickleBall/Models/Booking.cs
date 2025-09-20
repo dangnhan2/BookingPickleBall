@@ -10,12 +10,12 @@ namespace PickleBall.Models
         public Guid CourtID { get; set; }
         public Court Court { get; set; }
         public DateOnly BookingDate { get; set; }
-        public int TotalAmount { get; set; }
-        public Payment Payments { get; set; }
-        public PaymentStatus PaymentStatus { get; set; }
         public BookingStatus BookingStatus { get; set; }
-        public string QRCodeUrl { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime ExpriedAt { get; set; } = DateTime.UtcNow.AddMinutes(10);
+        public string TransactionId { get; set; } = string.Empty;
+        public int TotalAmount { get; set; }
+        public string QRCodeUrl { get; set; } = string.Empty;
         public List<BookingTimeSlots> BookingTimeSlots { get; set; } = new List<BookingTimeSlots>();
     }
 }

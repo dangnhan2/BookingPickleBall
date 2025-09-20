@@ -1,6 +1,8 @@
 ﻿using PickleBall.Repository;
 using PickleBall.Service;
 using PickleBall.Service.Auth;
+using PickleBall.Service.BackgoundJob;
+using PickleBall.Service.Checkout;
 using PickleBall.Service.Email;
 using PickleBall.Service.SoftService;
 using PickleBall.Service.Storage;
@@ -18,7 +20,6 @@ namespace PickleBall.Extension
           services.AddScoped<IUnitOfWorks, UnitOfWorks>();
           services.AddScoped<IUserRepo, UserRepo>();
           services.AddScoped<IBookingRepo, BookingRepo>();
-          services.AddScoped<IPaymentRepo, PaymentRepo>();
           services.AddScoped<IBookingTimeSlotRepo, BookingTimeSlotRepo>();
             
           services.AddScoped<IJwtService, JwtService>();    
@@ -31,8 +32,8 @@ namespace PickleBall.Extension
           services.AddTransient<ICloudinaryService, CloudinaryService>();
           services.AddTransient<ICheckoutService, CheckoutService>();
           services.AddScoped<IBookingService, BookingService>();
-          services.AddScoped<ICronJobService, CronJobService>();
-          services.AddScoped<IPayOsWebHookService, PayOsWebHookService>();
+          services.AddScoped<IBackgroundJob, BackgroundJob>();
+          services.AddScoped<IPayOSService, PayOSService>();
           return services;
         }
     }

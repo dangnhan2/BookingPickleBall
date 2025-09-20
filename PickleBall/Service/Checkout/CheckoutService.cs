@@ -1,46 +1,46 @@
-﻿using DotNetEnv;
+﻿
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using Net.payOS;
 using Net.payOS.Types;
 using PickleBall.Dto.Request;
 using PickleBall.Models;
 using PickleBall.Models.Enum;
+using PickleBall.Service.BackgoundJob;
+using PickleBall.Service.Checkout;
+using PickleBall.Service.SignalR;
 using PickleBall.UnitOfWork;
+using PickleBall.Validation;
 
 namespace PickleBall.Service.SoftService
 {
     public class CheckoutService : ICheckoutService
     {
         private readonly IUnitOfWorks _unitOfWorks;
+        private readonly IPayOSService _payOSService;
+        private readonly IHubContext<BookingHub> _hubContext;
 
-        public CheckoutService(IUnitOfWorks unitOfWorks)
+        public CheckoutService(IUnitOfWorks unitOfWorks, IPayOSService payOSService, IHubContext<BookingHub> hubContext)
         {
             _unitOfWorks = unitOfWorks;
+            _payOSService = payOSService;
+            _hubContext = hubContext;
         }
-        public async Task<object> Checkout(BookingRequest booking)
+        public async Task<dynamic> Checkout(BookingRequest booking)
         {
-            object result;
-            Env.Load();
+            dynamic result;
+            var validator = new BookingRequestValidator();
+            var response = await validator.ValidateAsync(booking);
 
-            var clientId = Env.GetString("PAYOS_CLIENT_ID");
-            var apiKey = Env.GetString("PAYOS_API_KEY");
-            var checkSumKey = Env.GetString("PAYOS_CHECKSUM_KEY");
+            if (!response.IsValid)
+            {
+                foreach(var error in response.Errors)
+                {
+                    result = error.ErrorMessage;
+                    break;
+                }
+            }      
 
-            var payOs = new PayOS(clientId, apiKey, checkSumKey);
-
-            var domain = Env.GetString("BASE_URL");
-
-            var paymentLinkRequest = new PaymentData(
-                orderCode: int.Parse(DateTimeOffset.Now.ToString("fffff")),
-                amount : booking.Quantity * booking.Amount,
-                description : GeneratePaymentContent(),
-                items : [new(booking.Name, booking.Quantity, booking.Quantity * booking.Amount)],
-                expiredAt: DateTimeOffset.UtcNow.AddMinutes(2).ToUnixTimeSeconds(),
-                returnUrl: domain,
-                cancelUrl : domain
-            );
-
-            var isExistCourt = await _unitOfWorks.Court.GetById(booking.CourtID) ?? throw new KeyNotFoundException("Sân không tồn tại");
+            //var isExistCourt = await _unitOfWorks.Court.GetById(booking.CourtID) ?? throw new KeyNotFoundException("Sân không tồn tại");
 
             var newBooking = new Booking
             {
@@ -48,11 +48,8 @@ namespace PickleBall.Service.SoftService
                 UserID = booking.UserID,
                 CourtID = booking.CourtID,
                 BookingDate = booking.BookingDate,
-                TotalAmount = booking.Quantity * booking.Amount,
-                PaymentStatus = PaymentStatus.Unpaid,
+                TotalAmount = booking.TimeSlots.Count * booking.Amount,
                 BookingStatus = BookingStatus.Pending,
-                QRCodeUrl = "",
-                BookingTimeSlots = new List<BookingTimeSlots>()
             };
 
             foreach (var slot in booking.TimeSlots)
@@ -63,38 +60,48 @@ namespace PickleBall.Service.SoftService
                     BookingId = newBooking.ID,
                     TimeSlotId = slot
                 };
-
                 newBooking.BookingTimeSlots.Add(timeSlot);
             }
 
-            var newPayment = new Payment
+            foreach (var bt in newBooking.BookingTimeSlots)
             {
-                BookingID = newBooking.ID,
-                MethodPayment = "QRCode",
-                TransactionID = paymentLinkRequest.orderCode.ToString(),
-                OrderCode = paymentLinkRequest.orderCode,
-                PaidAmount = newBooking.TotalAmount,
-                PaymentStatus = PaymentStatus.Unpaid
-            };
+                if (bt.TimeSlot == null) continue;
+                var slot = bt.TimeSlot;
 
-            _unitOfWorks.Court.Update(isExistCourt);
-            await _unitOfWorks.Booking.CreateAsync(newBooking);
-            await _unitOfWorks.Payment.CreateAsync(newPayment);
+                var payload = new SlotEventPayload
+                {
+                    CourtId = booking.CourtID,
+                    BookingDate = booking.BookingDate,
+                    TimeSlotId = slot.ID,
+                    StartTime = slot.StartTime,
+                    EndTime = slot.EndTime,
+                    Status = SlotStatus.Confirmed
+                };
+
+                await _hubContext.Clients.Group(newBooking.ID.ToString())
+               .SendAsync("SlotReserved", payload);
+            }
+
+            //_unitOfWorks.Court.Update(isExistCourt);
+            _unitOfWorks.Booking.Create(newBooking);
             await _unitOfWorks.CompleteAsync();
-
-            result = await payOs.createPaymentLink(paymentLinkRequest);
+      
+            result = await _payOSService.CreatePaymentLink(
+                [new ItemData("Pickleball Court Booking", booking.TimeSlots.Count, newBooking.TotalAmount)],
+                newBooking.TotalAmount            
+            );
 
             return result;
 
         }
 
-        public static string GeneratePaymentContent()
-        {
-            var prefix = "PKB"; // có thể thay đổi theo hệ thống bạn
-            var timestamp = DateTime.Now.ToString("HHmmss"); // giờ phút giây để tăng độ ngẫu nhiên
-            var random = new Random().Next(1000, 9999); // số ngẫu nhiên 4 chữ số
-            return $"{prefix}{timestamp}{random}";
-        }
+        //public static string GeneratePaymentContent()
+        //{
+        //    var prefix = "PKB"; // có thể thay đổi theo hệ thống bạn
+        //    var timestamp = DateTime.Now.ToString("HHmmss"); // giờ phút giây để tăng độ ngẫu nhiên
+        //    var random = new Random().Next(1000, 9999); // số ngẫu nhiên 4 chữ số
+        //    return $"{prefix}{timestamp}{random}";
+        //}
 
     }
 }

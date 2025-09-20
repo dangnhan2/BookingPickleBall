@@ -10,7 +10,6 @@ namespace PickleBall.Data
 
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<Court> Courts { get; set; }
-        public DbSet<Payment> Payments { get; set; }
         public DbSet<RefreshTokens> RefreshTokens { get; set; }
         public DbSet<TimeSlot> TimeSlots { get; set; }
         public DbSet<Blog> Blogs { get; set; }

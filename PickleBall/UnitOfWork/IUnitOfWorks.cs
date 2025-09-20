@@ -9,7 +9,6 @@ namespace PickleBall.UnitOfWork
         public ICourtRepo Court { get; }
         public IBookingRepo Booking { get; }
         public ITimeSlotRepo TimeSlot { get; }
-        public IPaymentRepo Payment { get; }
         public ICourtTimeSlotRepo CourtTimeSlot { get; }
         public IBookingTimeSlotRepo BookingTimeSlot { get; }
         public IRefreshTokenRepo RefreshToken { get; }

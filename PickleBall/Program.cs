@@ -1,7 +1,8 @@
-using Hangfire;
+﻿using Hangfire;
 using Microsoft.OpenApi.Models;
 using PickleBall.Extension;
-using PickleBall.Service.Storage;
+using PickleBall.Service.BackgoundJob;
+using PickleBall.Service.SignalR;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -63,19 +64,21 @@ app.UseAuthentication();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+app.MapHub<BookingHub>("/bookingHub");
 
 app.UseHangfireDashboard("/hangfire");
 
-//RecurringJob.AddOrUpdate<IPaymentJobService>(
-//             "CheckExpiredBookings",
-//             service => service.CheckExpiredBoookings(),
-//             "*/3 * * * *"
-//           );
 
-RecurringJob.AddOrUpdate<ICronJobService>(
+RecurringJob.AddOrUpdate<IBackgroundJob>(
             "DeleteExpiredRefreshToken",
             service => service.DeleteExpiredRefreshToken(),
             "0 3 * * *"
+);
+
+RecurringJob.AddOrUpdate<IBackgroundJob>(
+     "CheckAndReleaseExpiredBookings",
+     service => service.CheckAndReleaseExpiredBookings(),
+     "*/1 * * * *"  // chạy mỗi phút
 );
 
 app.MapControllers();

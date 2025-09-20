@@ -24,11 +24,6 @@ namespace PickleBall.Data
                 .WithMany(ctl => ctl.CourtTimeSlots)
                 .HasForeignKey(tl => tl.TimeSlotID);
 
-            model.Entity<Booking>()
-                .HasOne(b => b.Payments)
-                .WithOne(b => b.Bookings)
-                .HasForeignKey<Payment>(c => c.BookingID);
-
             model.Entity<Court>()
                 //.HasQueryFilter(r => !r.IsDeleted)
                 .HasMany(c => c.Bookings)

@@ -15,7 +15,6 @@ namespace PickleBall.UnitOfWork
             Court = new CourtRepo(_context);
             Booking = new BookingRepo(_context);
             TimeSlot = new TimeSlotRepo(_context);
-            Payment = new PaymentRepo(_context);
             CourtTimeSlot = new CourtTimeSlotRepo(_context);
             BookingTimeSlot = new BookingTimeSlotRepo(_context);
             RefreshToken = new RefreshTokenRepo(_context);  
@@ -30,8 +29,6 @@ namespace PickleBall.UnitOfWork
         public IBookingRepo Booking { get; }
 
         public ITimeSlotRepo TimeSlot { get; }
-
-        public IPaymentRepo Payment { get; }
 
         public ICourtTimeSlotRepo CourtTimeSlot { get; }
 

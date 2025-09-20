@@ -1,7 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using PickleBall.Dto;
 using PickleBall.Dto.QueryParams;
 using PickleBall.Extension;
+using PickleBall.Service.SignalR;
 using PickleBall.UnitOfWork;
 
 namespace PickleBall.Service
@@ -9,9 +11,11 @@ namespace PickleBall.Service
     public class BookingService : IBookingService
     {
         private readonly IUnitOfWorks _unitOfWorks;
+        
         public BookingService(IUnitOfWorks unitOfWorks)
         {
             _unitOfWorks = unitOfWorks;
+            
         }
 
         public async Task<DataReponse<BookingDto>> Get(BookingParams bookingParams)
@@ -36,8 +40,6 @@ namespace PickleBall.Service
                 Court = b.Court.Name,
                 BookingDate = b.BookingDate,
                 BookingStatus = b.BookingStatus,
-                PaymentStatus = b.PaymentStatus,
-                PaymentMethod = b.Payments.MethodPayment,
                 TotalAmount = b.TotalAmount,
                 CreatedAt = b.CreatedAt,
                 TimeSlots = b.BookingTimeSlots.Select(s => new TimeSlotDto
@@ -47,6 +49,8 @@ namespace PickleBall.Service
                     EndTime = s.TimeSlot.EndTime
                 }).ToList()
             }).Paging(bookingParams.Page, bookingParams.PageSize);
+
+            
 
             return new DataReponse<BookingDto>
             {
