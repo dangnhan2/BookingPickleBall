@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PickleBall.Models;
 
-namespace PickleBall.Controllers
+namespace PickleBall.Controllers.Email
 {
     [Route("api/[controller]")]
     [ApiController]

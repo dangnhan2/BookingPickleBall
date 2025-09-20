@@ -7,8 +7,10 @@ namespace PickleBall.Repository
     public interface IRefreshTokenRepo
     {
         public IQueryable<RefreshTokens> Get();
+        public Task<IEnumerable<RefreshTokens>> GetExpiredRefreshToken();
         public Task<RefreshTokens?> GetAsync(string token);
         public void Delete(RefreshTokens refreshTokens);
+        public void RemoveRefreshTokens(IEnumerable<RefreshTokens> tokens);
     }
 
     public class RefreshTokenRepo : IRefreshTokenRepo
@@ -33,6 +35,16 @@ namespace PickleBall.Repository
         public async Task<RefreshTokens?> GetAsync(string token)
         {
             return await _bookingContext.RefreshTokens.Include(t => t.User).FirstOrDefaultAsync(r => r.RefreshToken == token);
+        }
+
+        public async Task<IEnumerable<RefreshTokens>> GetExpiredRefreshToken()
+        {
+            return await _bookingContext.RefreshTokens.Where(t => t.ExpiresAt < DateTime.UtcNow).ToListAsync();
+        }
+
+        public void RemoveRefreshTokens(IEnumerable<RefreshTokens> tokens)
+        {
+            _bookingContext.RefreshTokens.RemoveRange(tokens);
         }
     }
 

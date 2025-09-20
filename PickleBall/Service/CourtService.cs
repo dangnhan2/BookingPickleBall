@@ -15,7 +15,7 @@ namespace PickleBall.Service
         private readonly IUnitOfWorks _unitOfWork;
         private readonly ICloudinaryService _cloudinaryService;
         private readonly string[] allowedExtension = { ".jpg", ".png", ".jpeg", };
-        private readonly string folder = "Court";
+        private const string folder = "Court";
         public CourtService(IUnitOfWorks unitOfWork, ICloudinaryService cloudinaryService) { 
           _unitOfWork = unitOfWork;
           _cloudinaryService = cloudinaryService;

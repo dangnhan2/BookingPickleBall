@@ -9,21 +9,21 @@ namespace PickleBall.Controllers
     [ApiController]
     public class WebHookController : ControllerBase
     {
-        private readonly IPayOsWebHookService _payOsWebHookService;
+        //private readonly IPayOsService _payOsWebHookService;
 
-        public WebHookController(IPayOsWebHookService payOsWebHookService)
-        {
-            _payOsWebHookService = payOsWebHookService;
-        }
+        //public WebHookController(IPayOsService payOsWebHookService)
+        //{
+        //    _payOsWebHookService = payOsWebHookService;
+        //}
 
-        [HttpPost]
-        public async Task<IActionResult> HandleWebHook(dynamic payload)
-        {
+        //[HttpPost]
+        //public async Task<IActionResult> HandleWebHook(dynamic payload)
+        //{
             
-                await _payOsWebHookService.HanleWebHook(payload);
+        //        await _payOsWebHookService.HanleWebHook(payload);
 
-                return Ok();
+        //        return Ok();
             
-        }
+        //}
     }
 }

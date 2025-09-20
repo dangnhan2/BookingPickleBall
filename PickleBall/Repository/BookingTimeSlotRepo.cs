@@ -24,5 +24,7 @@ namespace PickleBall.Repository
                 .Include(bts => bts.Booking)
                 .Where(bts => bts.Booking.CourtID == courtId && bts.Booking.BookingDate == date).Select(tl => tl.TimeSlotId);
         }
+
+
     }
 }

@@ -11,7 +11,8 @@ namespace PickleBall.Extension
             services.AddDI();
             services.AddCors();
             services.AddCronJob();
-            
+            services.AddSignalR();
+
             return services;
         }
     }

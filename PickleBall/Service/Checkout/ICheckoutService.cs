@@ -1,6 +1,6 @@
 ﻿using PickleBall.Dto.Request;
 
-namespace PickleBall.Service.SoftService
+namespace PickleBall.Service.Checkout
 {
     public interface ICheckoutService
     {
