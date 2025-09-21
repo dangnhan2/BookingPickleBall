@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PickleBall.Dto.Request;
-using PickleBall.Service;
+using PickleBall.Service.Courts;
 using Serilog;
 
 namespace PickleBall.Controllers.Admin
@@ -25,18 +25,18 @@ namespace PickleBall.Controllers.Admin
             {
                 var result = await _courtService.Add(court);
 
-                if (result.Success != true) {
+                if (!result.Success) {
                     return BadRequest(new
                     {
                         Message = result.Error,
-                        StatusCode = StatusCodes.Status400BadRequest
+                        StatusCode = result.StatusCode,
                     });
                 }
 
                 return Ok(new
                 {
                     Message = result.Data,
-                    StatusCode = StatusCodes.Status201Created
+                    StatusCode = result.StatusCode
                 });
             }
             catch (Exception ex)
@@ -58,18 +58,18 @@ namespace PickleBall.Controllers.Admin
             {
                 var result =  await _courtService.Update(id, court);
 
-                if (result.Success != true) {
+                if (!result.Success) {
                     return BadRequest(new
                     {
                         Message = result.Error,
-                        StatusCode = StatusCodes.Status400BadRequest
+                        StatusCode = result.StatusCode
                     });
                 }
 
                 return Ok(new
                 {
                     Message = result.Data,
-                    StatusCode = StatusCodes.Status201Created
+                    StatusCode = result.StatusCode
                 });
             }
             catch (Exception ex)
@@ -91,18 +91,18 @@ namespace PickleBall.Controllers.Admin
             {
                 var result = await _courtService.Delete(id);
 
-                if (result.Success != true)
+                if (!result.Success)
                 {
                     return BadRequest(new
                     {
                         Message = result.Error,
-                        StatusCode = StatusCodes.Status400BadRequest
+                        StatusCode = result.StatusCode 
                     });              
                 }
                 return Ok(new
                 {
                     Message = result.Data,
-                    StatusCode = StatusCodes.Status200OK
+                    StatusCode = result.StatusCode
                 });
             }
             catch (Exception ex)

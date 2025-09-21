@@ -5,7 +5,7 @@ using PickleBall.Models;
 using PickleBall.UnitOfWork;
 using PickleBall.Validation;
 
-namespace PickleBall.Service
+namespace PickleBall.Service.TimeSlots
 {
     public class TimeSlotService : ITimeSlotService
     {
@@ -40,14 +40,14 @@ namespace PickleBall.Service
             {
                 foreach(var error in result.Errors)
                 {
-                    return Result<string>.Fail(error.ErrorMessage);
+                    return Result<string>.Fail(error.ErrorMessage, StatusCodes.Status400BadRequest);
                 }
             }
 
             var isExistTimeSlot = _unitOfWork.TimeSlot.Get();
 
             if(await isExistTimeSlot.AnyAsync(tl => tl.StartTime == timeSlot.StartTime || tl.EndTime == timeSlot.EndTime)){
-                return Result<string>.Fail("Thời gian bắt đầu hoặc thời gian kết thúc bị trùng lặp với một khung giờ đã tồn tại.");
+                return Result<string>.Fail("Thời gian bắt đầu hoặc thời gian kết thúc bị trùng lặp với một khung giờ đã tồn tại.", StatusCodes.Status400BadRequest);
             }
 
             var newTimeSlot = new TimeSlot
@@ -59,7 +59,7 @@ namespace PickleBall.Service
             await _unitOfWork.TimeSlot.CreateAsync(newTimeSlot);
             await _unitOfWork.CompleteAsync();
 
-            return Result<string>.Ok("Thêm mới thành công");
+            return Result<string>.Ok("Thêm mới thành công", StatusCodes.Status201Created);
         }
 
         public async Task<Result<string>> Delete(Guid id)
@@ -68,13 +68,13 @@ namespace PickleBall.Service
 
             if (isExistTimeSlot == null)
             {
-                return Result<string>.Fail("Không tìm thấy khung thời gian");
+                return Result<string>.Fail("Không tìm thấy khung thời gian", StatusCodes.Status404NotFound);
             }
 
             _unitOfWork.TimeSlot.Delete(isExistTimeSlot);
             await _unitOfWork.CompleteAsync();
 
-            return Result<string>.Ok("Xóa thành công");
+            return Result<string>.Ok("Xóa thành công", StatusCodes.Status200OK);
         }
 
         public async Task<IEnumerable<TimeSlotDto>> GetAllBooked(Guid courtId, DateOnly date)

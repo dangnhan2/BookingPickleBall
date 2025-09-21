@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PickleBall.Dto.QueryParams;
-using PickleBall.Service;
+using PickleBall.Service.Courts;
 using Serilog;
 
 namespace PickleBall.Controllers

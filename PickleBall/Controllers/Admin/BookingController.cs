@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PickleBall.Dto.QueryParams;
-using PickleBall.Service;
+using PickleBall.Service.Bookings;
 using Serilog;
 
 namespace PickleBall.Controllers.Admin

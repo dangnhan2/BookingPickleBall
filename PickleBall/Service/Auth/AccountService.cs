@@ -1,9 +1,6 @@
 ﻿using DotNetEnv;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Linq;
-using PickleBall.Data;
 using PickleBall.Dto;
 using PickleBall.Dto.Request;
 using PickleBall.Extension;
@@ -14,6 +11,7 @@ using PickleBall.UnitOfWork;
 using PickleBall.Validation;
 using System.Net;
 
+
 namespace PickleBall.Service.Auth
 {
     public class AccountService : IAccountService
@@ -22,7 +20,7 @@ namespace PickleBall.Service.Auth
         private readonly IEmailService _email;
         private readonly IJwtService _jwtService;
         private readonly IUnitOfWorks _unitOfWorks;
-        private readonly string avatar = "https://res.cloudinary.com/dtihvekmn/image/upload/v1751645852/istockphoto-1337144146-612x612_llpkam.jpg";
+        private const string avatar = "https://res.cloudinary.com/dtihvekmn/image/upload/v1751645852/istockphoto-1337144146-612x612_llpkam.jpg";
 
         public AccountService(UserManager<User> userManager, IEmailService email, IJwtService jwtService, IUnitOfWorks unitOfWorks)
         {
@@ -31,7 +29,7 @@ namespace PickleBall.Service.Auth
             _jwtService = jwtService;
             _unitOfWorks = unitOfWorks;
         }
-        public async Task<Result<UserDto>> Login(LoginRequest request)
+        public async Task<Result<string>> Login(LoginRequest request, HttpContext context)
         {
             var validator = new LoginRequestValidator();
 
@@ -41,55 +39,78 @@ namespace PickleBall.Service.Auth
             {
                 foreach (var error in result.Errors)
                 {
-                    return Result<UserDto>.Fail(error.ErrorMessage);
+                    return Result<string>.Fail(error.ErrorMessage, StatusCodes.Status400BadRequest);
                 }
             }
             
             var user = await _userManager.FindByEmailAsync(request.Email);
 
             //Console.Write(user);
-
-            if (user == null)
-            {
-               return Result<UserDto>.Fail("Thông tin đăng nhập không đúng");
-            }
-
             var isPassword = await _userManager.CheckPasswordAsync(user, request.Password);
+
+
+            if (user == null && !isPassword)
+            {
+               return Result<string>.Fail("Thông tin đăng nhập không đúng", StatusCodes.Status400BadRequest);
+            }
 
             //Console.Write(isPassword);
 
-            if (isPassword == false)
-            {
-               return Result<UserDto>.Fail("Thông tin đăng nhập không đúng");
-            }
-
             if (user.Status == UserStatus.Inactive)
             {
-               return Result<UserDto>.Fail("Tài khoản đã bị khóa, vui lòng liên hệ với admin");
+               return Result<string>.Fail("Tài khoản đã bị khóa, vui lòng liên hệ với admin", StatusCodes.Status400BadRequest);
             }
 
 
             if (!user.EmailConfirmed)
             {
-               return Result<UserDto>.Fail("Tài khoản chưa được đăng kí");
+               return Result<string>.Fail("Tài khoản chưa được đăng kí", StatusCodes.Status400BadRequest);
             }     
 
             var reponse = await _jwtService.GenerateToken(user);
 
-            return Result<UserDto>.Ok(reponse);
+            context.Response.Cookies.Append(
+                   "refresh_token",
+                   reponse.RefreshToken,
+
+                   new CookieOptions
+                   {
+                       HttpOnly = true,
+                       Secure = true,
+                       SameSite = SameSiteMode.None,
+                       Path = "/",
+                       Expires = DateTime.UtcNow.AddMinutes(15)
+                   });
+
+            return Result<string>.Ok(reponse.AccessToken, StatusCodes.Status200OK);
         }
 
-        public async Task<Result<string>> Logout(string refreshToken)
+        public async Task<Result<string>> Logout(HttpContext context)
         {
-            var isTokenExist = await _unitOfWorks.RefreshToken.GetAsync(refreshToken);
+            var refreshToken = context.Request.Cookies["refresh_token"];
+
+            var isTokenExist = await _unitOfWorks.RefreshToken.GetAsync(refreshToken.HashRefreshToken());
 
             if(isTokenExist == null)
-                return Result<string>.Fail("Token không hợp lệ / không tìm thấy");
+                return Result<string>.Fail("Token không hợp lệ / không tìm thấy", StatusCodes.Status401Unauthorized);
 
             _unitOfWorks.RefreshToken.Delete(isTokenExist);
             await _unitOfWorks.CompleteAsync();
 
-            return Result<string>.Ok("Đăng xuất thành công");
+            context.Response.Cookies.Append(
+                    "refresh_token",
+                    string.Empty,
+                    new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = true,
+                        SameSite = SameSiteMode.None,
+                        Path = "/",
+                        Expires = DateTimeOffset.UnixEpoch,
+                    });
+
+
+            return Result<string>.Ok("Đăng xuất thành công", StatusCodes.Status200OK);
         }
 
         public async Task<Result<string>> Register(RegisterRequest request)
@@ -102,20 +123,20 @@ namespace PickleBall.Service.Auth
             {
                 foreach(var error in result.Errors)
                 {
-                    return Result<string>.Fail(error.ErrorMessage);
+                    return Result<string>.Fail(error.ErrorMessage, StatusCodes.Status400BadRequest);
                 }
             }
 
             var users = _unitOfWorks.User.Get();
 
             if (await users.AnyAsync(u => u.PhoneNumber == request.PhoneNumber))
-                return Result<string>.Fail("Số điện thoại đã được đăng kí");
+                return Result<string>.Fail("Số điện thoại đã được đăng kí", StatusCodes.Status400BadRequest);
 
             Env.Load();
             var checkMail = await CheckEmail(request.Email);
 
             if (!checkMail) 
-                return Result<string>.Fail("Email đã được đăng kí");
+                return Result<string>.Fail("Email đã được đăng kí", StatusCodes.Status400BadRequest);
 
             var newUser = new User
             {
@@ -135,7 +156,7 @@ namespace PickleBall.Service.Auth
 
             if (!reponse.Succeeded)
             {
-                return Result<string>.Fail("Đăng kí thất bại");
+                return Result<string>.Fail("Đăng kí thất bại", StatusCodes.Status400BadRequest);
             }
 
             await _userManager.AddToRoleAsync(newUser, "Customer");
@@ -145,19 +166,8 @@ namespace PickleBall.Service.Auth
 
             await SendEmail("ConfirmEmail", newUser.Email, newUser.Id, token);
             
-            return Result<string>.Ok("Email đã được gửi, hãy kiểm tra email để xác nhận đăng kí");
+            return Result<string>.Ok("Email đã được gửi, hãy kiểm tra email để xác nhận đăng kí", StatusCodes.Status201Created);
 
-        }
-
-        public async Task<bool> CheckEmail(string email)
-        {
-            var isEmailExist = await _userManager.FindByEmailAsync(email);
-
-            if (isEmailExist == null) {
-                return true;
-            }
-
-            return false;
         }
 
         public async Task<Result<string>> ChangePassword(string userId, ChangePasswordRequest passwordRequest)
@@ -170,34 +180,39 @@ namespace PickleBall.Service.Auth
             {
                 foreach (var error in result.Errors)
                 {
-                    return Result<string>.Fail(error.ErrorMessage);
+                    return Result<string>.Fail(error.ErrorMessage, StatusCodes.Status400BadRequest);
                 }
             }
            
             var user = await _userManager.FindByIdAsync(userId);
 
             if (user == null)
-                return Result<string>.Fail("Không tìm thấy người dùng");
+                return Result<string>.Fail("Không tìm thấy người dùng", StatusCodes.Status404NotFound);
 
             var reponse = await _userManager.ChangePasswordAsync(user, passwordRequest.CurrentPassword, passwordRequest.NewPassword);
 
             if (!reponse.Succeeded)        
-                return Result<string>.Fail("Đổi mật khẩu không thành công");
+                return Result<string>.Fail("Đổi mật khẩu không thành công", StatusCodes.Status400BadRequest);
 
-            return Result<string>.Ok("Đổi mật khẩu thành công");
+            return Result<string>.Ok("Đổi mật khẩu thành công", StatusCodes.Status200OK );
 
         }
 
         public async Task<Result<User>> ForgotPassword(string email)
         {
-            var user = await _userManager.FindByEmailAsync(email) ?? throw new KeyNotFoundException("Không tìm thấy người dùng");
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if(user == null)
+            {
+                return Result<User>.Fail("Không tìm thấy người dùng", StatusCodes.Status404NotFound);
+            }
 
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             token = WebUtility.UrlEncode(token);
 
             await SendEmail("ForgotPassword", user.Email, null, token);
 
-            return Result<User>.Ok(user);
+            return Result<User>.Ok(user, StatusCodes.Status200OK);
         }
 
         public async Task<Result<string>> ResetPassword(ForgetPasswordRequest passwordRequest)
@@ -210,22 +225,22 @@ namespace PickleBall.Service.Auth
             {
                 foreach(var error in result.Errors)
                 {
-                    return Result<string>.Fail(error.ErrorMessage);
+                    return Result<string>.Fail(error.ErrorMessage, StatusCodes.Status400BadRequest);
                 }
             }
 
             var user = await _userManager.FindByEmailAsync(passwordRequest.Email);
 
             if (user == null)
-                return Result<string>.Fail("Không tìm thấy người dùng");
+                return Result<string>.Fail("Không tìm thấy người dùng", StatusCodes.Status404NotFound);
 
             var resetPasswordResult = await _userManager.ResetPasswordAsync(user, passwordRequest.Token, passwordRequest.Password);
 
             if (!resetPasswordResult.Succeeded) 
-                return Result<string>.Fail("Đổi mật khẩu không thành công");
+                return Result<string>.Fail("Đổi mật khẩu không thành công", StatusCodes.Status400BadRequest);
             
 
-            return Result<string>.Ok("Đổi mật khẩu thành công");
+            return Result<string>.Ok("Đổi mật khẩu thành công", StatusCodes.Status200OK);
         }
 
         public async Task<Result<string>> RegisterForAdmin(RegisterRequest request)
@@ -235,12 +250,12 @@ namespace PickleBall.Service.Auth
 
             if (isExistEmail != null)
             {
-                return Result<string>.Fail("Email đã được đăng kí");
+                return Result<string>.Fail("Email đã được đăng kí", StatusCodes.Status400BadRequest);
             }
 
             if (users.Any(u => u.PhoneNumber == request.PhoneNumber))
             {
-                return Result<string>.Fail("Số điện thoại đã được đăng kí");
+                return Result<string>.Fail("Số điện thoại đã được đăng kí", StatusCodes.Status400BadRequest);
             }
 
             var newUser = new User
@@ -263,7 +278,7 @@ namespace PickleBall.Service.Auth
 
             if (!result.Succeeded)
             {
-                return Result<string>.Fail("Đăng kí thất bại");
+                return Result<string>.Fail("Đăng kí thất bại", StatusCodes.Status400BadRequest);
             }
 
             await _userManager.AddToRoleAsync(newUser, "Admin");
@@ -273,7 +288,7 @@ namespace PickleBall.Service.Auth
 
             await SendEmail("ConfirmEmail", newUser.Email, newUser.Id, token);
 
-            return Result<string>.Ok("Email đã được gửi, hãy kiểm tra email để xác nhận đăng kí");
+            return Result<string>.Ok("Email đã được gửi, hãy kiểm tra email để xác nhận đăng kí" , StatusCodes.Status200OK);
         }
 
         public async Task SendEmail(string type, string email, string? id, string token)
@@ -299,6 +314,51 @@ namespace PickleBall.Service.Auth
                 await _email.EmailSender(email, subject, htmlBody);
             }
             
+        }
+
+        public async Task<bool> CheckEmail(string email)
+        {
+            var isEmailExist = await _userManager.FindByEmailAsync(email);
+
+            if (isEmailExist == null)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public async Task<Result<string>> RefreshToken(HttpContext context)
+        {
+            var refreshToken = context.Request.Cookies["refresh_token"];
+
+            var isExistToken = await _unitOfWorks.RefreshToken.GetAsync(refreshToken.HashRefreshToken());
+
+            if (isExistToken == null)
+                return Result<string>.Fail("Token không hợp/không tìm thấy", StatusCodes.Status401Unauthorized);
+
+            if (isExistToken.IsLocked == true)
+                return Result<string>.Fail("Tài khoản đã bị khóa, vui lòng đăng nhập lại", StatusCodes.Status400BadRequest);
+
+            if (isExistToken.ExpiresAt < DateTime.UtcNow)
+                return Result<string>.Fail("Token đã hết hạn, vui lòng đăng nhập lại", StatusCodes.Status401Unauthorized);
+
+            var userToDto = await _jwtService.GenerateToken(isExistToken.User);
+
+            context.Response.Cookies.Append(
+                  "refresh_token",
+                  userToDto.RefreshToken,
+
+                  new CookieOptions
+                  {
+                      HttpOnly = true,
+                      Secure = true,
+                      SameSite = SameSiteMode.None,
+                      Path = "/",
+                      Expires = DateTime.UtcNow.AddMinutes(15)
+                  });
+
+            return Result<string>.Ok(userToDto.AccessToken, StatusCodes.Status200OK);
         }
     }
 }

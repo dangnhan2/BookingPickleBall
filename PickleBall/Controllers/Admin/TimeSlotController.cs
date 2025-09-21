@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PickleBall.Dto.Request;
-using PickleBall.Service;
+using PickleBall.Service.TimeSlots;
 using Serilog;
 
 namespace PickleBall.Controllers.Admin
@@ -31,7 +31,7 @@ namespace PickleBall.Controllers.Admin
                     return BadRequest(new
                     {
                         Message = result.Error,
-                        StatusCode = StatusCodes.Status400BadRequest
+                        StatusCode = result.StatusCode
                     });
                 }
 
@@ -39,7 +39,7 @@ namespace PickleBall.Controllers.Admin
                 return Ok(new
                 {
                     Message = result.Data,
-                    StatusCode = StatusCodes.Status200OK
+                    StatusCode = result.StatusCode
                 });
             }
             catch (Exception ex) {
@@ -63,14 +63,14 @@ namespace PickleBall.Controllers.Admin
                     return BadRequest(new
                     {
                         Message = result.Error,
-                        StatusCode = StatusCodes.Status400BadRequest
+                        StatusCode = result.StatusCode
                     });
                 }
 
                 return Ok(new
                 {
                     Message = result.Data,
-                    StatusCode = StatusCodes.Status200OK
+                    StatusCode = result.StatusCode
                 });
             }
             catch (Exception ex)

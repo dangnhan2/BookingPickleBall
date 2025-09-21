@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PickleBall.Dto.QueryParams;
 using PickleBall.Dto.Request;
-using PickleBall.Service;
+using PickleBall.Service.Users;
 
 namespace PickleBall.Controllers.Admin
 {

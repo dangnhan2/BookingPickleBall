@@ -5,7 +5,7 @@ namespace PickleBall.Service.Auth
 {
     public interface IJwtService
     {
-        public Task<UserDto> GenerateToken(User user);
-        public Task<Result<UserDto>> GenerateRefreshToken(string refreshToken);
+        public Task<TokenResponse> GenerateToken(User user);
+        public Task<Result<TokenResponse>> GenerateRefreshToken(string refreshToken);
     }
 }
