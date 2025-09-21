@@ -1,4 +1,9 @@
-﻿using PickleBall.Repository;
+﻿using PickleBall.Repository.Blogs;
+using PickleBall.Repository.Bookings;
+using PickleBall.Repository.Courts;
+using PickleBall.Repository.Other;
+using PickleBall.Repository.TimeSlots;
+using PickleBall.Repository.Users;
 using PickleBall.Service.Auth;
 using PickleBall.Service.BackgoundJob;
 using PickleBall.Service.Blogs;

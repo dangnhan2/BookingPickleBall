@@ -10,7 +10,9 @@ namespace PickleBall.Service.Storage
         private readonly Cloudinary _cloudinary;
         public CloudinaryService()
         {
-            Env.Load();
+            var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+
+            Env.Load($".env.{env.ToLower()}");
             var account = new Account
             {
                 Cloud = Env.GetString("CLOUD_NAME"),

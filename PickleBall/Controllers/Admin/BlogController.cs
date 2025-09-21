@@ -9,7 +9,7 @@ namespace PickleBall.Controllers.Admin
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     public class BlogController : ControllerBase
     {
         private readonly IBlogService _blogService;

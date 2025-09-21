@@ -13,7 +13,9 @@ namespace PickleBall.Service.Checkout
         private const string cancelUrl = "Cancel";
         public async Task<dynamic> CreatePaymentLink(List<ItemData> items, int amount)
         {
-            Env.Load();
+            var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+            Env.Load($".env.{env.ToLower()}");
+
             PayOS payOS = new PayOS(
                 Env.GetString("PAYOS_CLIENT_ID"), 
                 Env.GetString("PAYOS_API_KEY"),
