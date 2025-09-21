@@ -1,12 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using PickleBall.Dto.Request;
 using PickleBall.Service.Auth;
 using Serilog;
 using System.ComponentModel.DataAnnotations;
-using System.Security.Claims;
 
 namespace PickleBall.Controllers
 {
@@ -15,12 +12,10 @@ namespace PickleBall.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService;
-        private readonly IJwtService _jwtService;
 
-        public AccountController(IAccountService accountService, IJwtService jwtService)
+        public AccountController(IAccountService accountService)
         {
             _accountService = accountService;
-            _jwtService = jwtService;
         }
 
         [HttpPost("login")]
