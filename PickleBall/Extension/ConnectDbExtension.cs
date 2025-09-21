@@ -10,12 +10,14 @@ namespace PickleBall.Extension
     {
         public static IServiceCollection AddConnetion(this IServiceCollection services)
         {
-            Env.Load();
-
-            var connStr = Env.GetString("CONNECTION_STRING").ToString();
-
             try
             {
+                var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+
+                Env.Load($".env.{env.ToLower()}");
+
+                var connStr = Env.GetString("CONNECTION_STRING");
+
                 services.AddEntityFrameworkNpgsql().AddDbContext<BookingContext>(opt =>
                 {
                     opt.UseNpgsql(connStr);

@@ -2,7 +2,7 @@
 using PickleBall.Data;
 using PickleBall.Models;
 
-namespace PickleBall.Repository
+namespace PickleBall.Repository.RefreshToken
 {
     public interface IRefreshTokenRepo
     {

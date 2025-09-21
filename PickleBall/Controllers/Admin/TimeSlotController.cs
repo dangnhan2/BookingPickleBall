@@ -9,7 +9,7 @@ namespace PickleBall.Controllers.Admin
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     public class TimeSlotController : ControllerBase
     {
         private readonly ITimeSlotService _timeSlotService;

@@ -3,7 +3,7 @@ using PickleBall.Data;
 using PickleBall.Models;
 using System.Reflection.Metadata;
 
-namespace PickleBall.Repository
+namespace PickleBall.Repository.Blogs
 {
     public interface IBlogRepo
     {
