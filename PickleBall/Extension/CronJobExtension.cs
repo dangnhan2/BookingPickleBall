@@ -8,7 +8,7 @@ namespace PickleBall.Extension
     {
         public static IServiceCollection AddCronJob(this IServiceCollection services)
         {
-            var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+            var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
 
             Env.Load($".env.{env.ToLower()}");
 
