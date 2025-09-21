@@ -1,6 +1,6 @@
 ﻿namespace PickleBall.Dto
 {
-    public class UserDto
+    public class TokenResponse
     {
         public string AccessToken { get; set; }
         public string RefreshToken { get; set; }

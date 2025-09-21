@@ -8,7 +8,7 @@ using PickleBall.Service.Storage;
 using PickleBall.UnitOfWork;
 using PickleBall.Validation;
 
-namespace PickleBall.Service
+namespace PickleBall.Service.Courts
 {
     public class CourtService : ICourtService
     {
@@ -31,7 +31,7 @@ namespace PickleBall.Service
             {
                 foreach (var error in result.Errors)
                 {
-                    return Result<string>.Fail(error.ErrorMessage);
+                    return Result<string>.Fail(error.ErrorMessage, StatusCodes.Status400BadRequest);
                 }
             }
 
@@ -39,7 +39,7 @@ namespace PickleBall.Service
 
             if(await courts.AnyAsync(c => c.Name.ToLower() == court.Name.ToLower()))
             {
-                return Result<string>.Fail("Sân đã tồn tại");
+                return Result<string>.Fail("Sân đã tồn tại", StatusCodes.Status400BadRequest);
             }
 
             var newCourt = new Court
@@ -67,7 +67,7 @@ namespace PickleBall.Service
 
             if (court.ImageUrl == null || court.ImageUrl.Length == 0)
             {
-                return Result<string>.Fail("File phải được upload");
+                return Result<string>.Fail("File phải được upload", StatusCodes.Status400BadRequest);
             }
 
             var imageUrl = await _cloudinaryService.Upload(court.ImageUrl, allowedExtension, folder);
@@ -77,7 +77,7 @@ namespace PickleBall.Service
             await _unitOfWork.Court.CreateAsync(newCourt);
             await _unitOfWork.CompleteAsync();
 
-            return Result<string>.Ok("Thêm mới thành công");
+            return Result<string>.Ok("Thêm mới thành công", StatusCodes.Status201Created);
         }
 
         public async Task<Result<string>> Delete(Guid id)
@@ -86,14 +86,14 @@ namespace PickleBall.Service
 
             if(isExistCourt == null)
             {
-                return Result<string>.Fail("Không tìm thấy sân");
+                return Result<string>.Fail("Không tìm thấy sân", StatusCodes.Status404NotFound);
             }
 
             _unitOfWork.Court.Delete(isExistCourt);
             await _cloudinaryService.Delete(isExistCourt.ImageUrl);
             await _unitOfWork.CompleteAsync();
 
-            return Result<string>.Ok("Xóa thành công");
+            return Result<string>.Ok("Xóa thành công", StatusCodes.Status200OK);
         }
 
         public async Task<DataReponse<CourtDto>> GetAll(CourtParams court)
@@ -138,7 +138,7 @@ namespace PickleBall.Service
 
             if( isExistCourt == null)
             {
-                return Result<CourtForIdDto>.Fail("Không tìm thấy sân");
+                return Result<CourtForIdDto>.Fail("Không tìm thấy sân", StatusCodes.Status404NotFound);
             }
            
             var courtToDto = new CourtForIdDto
@@ -159,7 +159,7 @@ namespace PickleBall.Service
                 }).ToList()
             };
 
-            return Result<CourtForIdDto>.Ok(courtToDto);
+            return Result<CourtForIdDto>.Ok(courtToDto, StatusCodes.Status200OK);
         }
 
         public async Task<Result<string>> Update(Guid id, CourtRequest court)
@@ -172,7 +172,7 @@ namespace PickleBall.Service
             {
                 foreach (var error in result.Errors)
                 {
-                    return Result<string>.Fail(error.ErrorMessage);
+                    return Result<string>.Fail(error.ErrorMessage, StatusCodes.Status400BadRequest);
                 }
             }
 
@@ -180,14 +180,14 @@ namespace PickleBall.Service
 
             if(isExistCourt == null)
             {
-                return Result<string>.Fail("Không tìm thấy sân");
+                return Result<string>.Fail("Không tìm thấy sân", StatusCodes.Status404NotFound);
             }
 
             var courts = _unitOfWork.Court.Get();
 
             if (await courts.AnyAsync(c => c.Name.ToLower() == court.Name.ToLower() && c.ID != id))
             {
-                return Result<string>.Fail("Sân đã tồn tại");
+                return Result<string>.Fail("Sân đã tồn tại", StatusCodes.Status400BadRequest);
             }
 
             if (court.ImageUrl != null)
@@ -224,7 +224,7 @@ namespace PickleBall.Service
             _unitOfWork.Court.Update(isExistCourt);
             await _unitOfWork.CompleteAsync();
 
-            return Result<string>.Ok("Cập nhật thành công");
+            return Result<string>.Ok("Cập nhật thành công", StatusCodes.Status200OK);
         }
     }
 }

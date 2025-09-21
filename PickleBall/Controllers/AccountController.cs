@@ -28,35 +28,22 @@ namespace PickleBall.Controllers
         {
             try
             {
-                var result = await _accountService.Login(request);
+                var result = await _accountService.Login(request, HttpContext);
 
                 if (!result.Success)
                 {
                     return BadRequest(new
                     {
                        Message = result.Error,
-                       StatusCode = StatusCodes.Status400BadRequest
+                       StatusCode = result.StatusCode
                     });
                 }
-
-                Response.Cookies.Append(
-                    "refresh_token",
-                    result.Data.RefreshToken,
-
-                    new CookieOptions
-                    {
-                        HttpOnly = true,
-                        Secure = true,
-                        SameSite = SameSiteMode.None,
-                        Path = "/",
-                        Expires = DateTime.UtcNow.AddMinutes(15)
-                    });
 
                 return Ok(new
                 {
                     Message = "Đăng nhập thành công",
-                    StatusCode = StatusCodes.Status200OK,
-                    AccessToken = result.Data.AccessToken,
+                    StatusCode = result.StatusCode,
+                    AccessToken = result.Data
                 });
 
             }
@@ -83,14 +70,14 @@ namespace PickleBall.Controllers
                     return BadRequest(new
                     {
                         Message = result.Error,
-                        StatusCode = StatusCodes.Status400BadRequest
+                        StatusCode = result.StatusCode
                     });
                 }
 
                 return Ok(new
                 {
                     Message = result.Data,
-                    StatusCode = StatusCodes.Status200OK,
+                    StatusCode = result.StatusCode
                 });
             }
             catch (Exception ex)
@@ -116,14 +103,14 @@ namespace PickleBall.Controllers
                     return BadRequest(new
                     {
                         Message = result.Error,
-                        StatusCode = StatusCodes.Status400BadRequest
+                        StatusCode = result.StatusCode
                     });
                 }
 
                 return Ok(new
                 {
                      Message = result.Data,
-                     StatusCode = StatusCodes.Status200OK,
+                     StatusCode = result.StatusCode
                 });
             }catch(Exception ex)
             {
@@ -150,13 +137,13 @@ namespace PickleBall.Controllers
                     return BadRequest(new
                     {
                         Message = result.Error,
-                        StatusCode = StatusCodes.Status400BadRequest
+                        StatusCode = result.StatusCode
                     });
                 }
                 return Ok(new
                 {
                     Message = result.Data,
-                    StatusCode = StatusCodes.Status200OK,
+                    StatusCode = result.StatusCode
                 });
             }catch (Exception ex)
             {   
@@ -172,11 +159,10 @@ namespace PickleBall.Controllers
         [Authorize]
         [HttpGet("logout")]
         public async Task<IActionResult> Logout()
-        {
-            var refreshToken = Request.Cookies["refresh_token"];
+        {           
             try
             {   
-                var result = await _accountService.Logout(refreshToken);
+                var result = await _accountService.Logout(HttpContext);
 
                 if (!result.Success)
                 {
@@ -184,26 +170,14 @@ namespace PickleBall.Controllers
                     return Unauthorized(new
                     {
                         Message = result.Error,
-                        StatusCode = StatusCodes.Status401Unauthorized
+                        StatusCode = result.StatusCode
                     });
                 }
-
-                Response.Cookies.Append(
-                    "refresh_token",
-                    string.Empty,
-                    new CookieOptions
-                    {
-                        HttpOnly = true,
-                        Secure = true,
-                        SameSite = SameSiteMode.None,
-                        Path = "/",
-                        Expires = DateTimeOffset.UnixEpoch,
-                    });
 
                 return Ok(new
                 {
                     Message = result.Data,
-                    StatusCode = StatusCodes.Status200OK,
+                    StatusCode = result.StatusCode
                 });
             }
             catch (Exception ex)
@@ -221,39 +195,25 @@ namespace PickleBall.Controllers
         [HttpGet("refresh-token")]
         public async Task<IActionResult> RefreshToken()
         {
-            var refreshToken = Request.Cookies["refresh_token"];
 
             try
             {
-                var result = await _jwtService.GenerateRefreshToken(refreshToken);
+                var result = await _accountService.RefreshToken(HttpContext);
 
                 if (!result.Success)
                 {
                     return BadRequest(new
                     {
                         Message = result.Error,
-                        StatusCode = StatusCodes.Status400BadRequest
+                        StatusCode = result.StatusCode
                     });
                 }
-
-                Response.Cookies.Append(
-                   "refresh_token",
-                   result.Data.AccessToken,
-
-                   new CookieOptions
-                   {
-                       HttpOnly = true,
-                       Secure = true,
-                       SameSite = SameSiteMode.None,
-                       Path = "/",
-                       Expires = DateTime.UtcNow.AddMinutes(15)
-                   });
 
                 return Ok(new
                 {
                     Message = "Refresh token succeed",
-                    StatusCode = StatusCodes.Status200OK,
-                    AccessToken = result.Data.AccessToken,
+                    StatusCode = result.StatusCode,
+                    AccessToken = result.Data
                 });
             }
             catch (Exception ex)

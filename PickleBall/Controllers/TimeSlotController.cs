@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using PickleBall.Service;
+using PickleBall.Service.TimeSlots;
 using Serilog;
 
 namespace PickleBall.Controllers

@@ -6,7 +6,7 @@ using PickleBall.Extension;
 using PickleBall.Service.SignalR;
 using PickleBall.UnitOfWork;
 
-namespace PickleBall.Service
+namespace PickleBall.Service.Bookings
 {
     public class BookingService : IBookingService
     {

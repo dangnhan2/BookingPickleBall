@@ -2,7 +2,7 @@
 using PickleBall.Dto.QueryParams;
 using PickleBall.Dto.Request;
 
-namespace PickleBall.Service
+namespace PickleBall.Service.Bookings
 {
     public interface IBookingService
     {

@@ -1,11 +1,15 @@
 ﻿using PickleBall.Repository;
-using PickleBall.Service;
 using PickleBall.Service.Auth;
 using PickleBall.Service.BackgoundJob;
+using PickleBall.Service.Blogs;
+using PickleBall.Service.Bookings;
 using PickleBall.Service.Checkout;
+using PickleBall.Service.Courts;
 using PickleBall.Service.Email;
 using PickleBall.Service.SoftService;
 using PickleBall.Service.Storage;
+using PickleBall.Service.TimeSlots;
+using PickleBall.Service.Users;
 using PickleBall.UnitOfWork;
 
 namespace PickleBall.Extension

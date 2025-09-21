@@ -9,22 +9,19 @@ using PickleBall.Service.Storage;
 using PickleBall.UnitOfWork;
 using System.Security.Claims;
 
-namespace PickleBall.Service
+namespace PickleBall.Service.Users
 {
     public class UserService : IUserService
     {
         private readonly IUnitOfWorks _unitOfWorks;
         private readonly ICloudinaryService _cloudinaryService;
-        private readonly UserManager<User> _userManager; 
         private readonly string[] allowedExtension = { ".jpg", ".png", ".jpeg", };
-        private readonly string folder = "Avatar";
+        private const string folder = "Avatar";
 
-        public UserService(IUnitOfWorks unitOfWorks, ICloudinaryService cloudinaryService, UserManager<User> userManager)
+        public UserService(IUnitOfWorks unitOfWorks, ICloudinaryService cloudinaryService)
         {
             _unitOfWorks = unitOfWorks;
-            _cloudinaryService = cloudinaryService;
-            _userManager = userManager;
-         
+            _cloudinaryService = cloudinaryService;        
         }
 
         public async Task<DataReponse<UsersDto>> GetAll(UserParams user)
@@ -77,7 +74,7 @@ namespace PickleBall.Service
 
             if (isExistUser == null)
             {
-                return Result<UsersDto>.Fail("Không tìm thấy người dùng");
+                return Result<UsersDto>.Fail("Không tìm thấy người dùng", StatusCodes.Status404NotFound);
             }
 
             var userToDto = new UsersDto
@@ -91,7 +88,7 @@ namespace PickleBall.Service
                 Status = isExistUser.Status
             };
 
-            return Result<UsersDto>.Ok(userToDto);
+            return Result<UsersDto>.Ok(userToDto, StatusCodes.Status200OK);
         }
 
         public async Task<Result<string>> UpdateByAdmin(string userId, UserRequestByAdmin user)
@@ -100,7 +97,7 @@ namespace PickleBall.Service
 
             if (isExistUser == null)
             {
-                return Result<string>.Fail("Không tìm thấy người dùng");
+                return Result<string>.Fail("Không tìm thấy người dùng", StatusCodes.Status404NotFound);
             }
 
             isExistUser.Status = user.Status;
@@ -108,7 +105,7 @@ namespace PickleBall.Service
             _unitOfWorks.User.Update(isExistUser);
             await _unitOfWorks.CompleteAsync();
 
-            return Result<string>.Ok("Cập nhật thành công");
+            return Result<string>.Ok("Cập nhật thành công", StatusCodes.Status200OK);
         }
 
         public async Task<Result<string>> UpdateByUser(string userId, UserRequest user)
@@ -120,12 +117,12 @@ namespace PickleBall.Service
 
             if (isExistUser == null)
             {
-                return Result<string>.Fail("Không tìm thấy người dùng");
+                return Result<string>.Fail("Không tìm thấy người dùng", StatusCodes.Status404NotFound);
             }
 
             if (await users.AnyAsync(u => u.PhoneNumber == user.PhoneNumber && u.Id != userId))
             {
-                return Result<string>.Fail("Số điện thoại đã được đăng kí");
+                return Result<string>.Fail("Số điện thoại đã được đăng kí", StatusCodes.Status404NotFound);
             }
 
             isExistUser.FullName = user.FullName;
@@ -135,7 +132,7 @@ namespace PickleBall.Service
             _unitOfWorks.User.Update(isExistUser);
             await _unitOfWorks.CompleteAsync();
 
-            return Result<string>.Ok("Cập nhật thành công");
+            return Result<string>.Ok("Cập nhật thành công", StatusCodes.Status200OK);
         }
 
         public async Task UploadAvatarByUser(string userId, IFormFile file)

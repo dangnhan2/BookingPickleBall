@@ -1,7 +1,7 @@
 ﻿using PickleBall.Dto;
 using PickleBall.Dto.Request;
 
-namespace PickleBall.Service
+namespace PickleBall.Service.TimeSlots
 {
     public interface ITimeSlotService
     {

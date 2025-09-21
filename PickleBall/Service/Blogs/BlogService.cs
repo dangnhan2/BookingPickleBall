@@ -8,14 +8,14 @@ using PickleBall.Service.Storage;
 using PickleBall.UnitOfWork;
 using PickleBall.Validation;
 
-namespace PickleBall.Service
+namespace PickleBall.Service.Blogs
 {
     public class BlogService : IBlogService
     {
         private readonly IUnitOfWorks _unitOfWork;
         private readonly ICloudinaryService _cloudinaryService;
         private readonly string[] allowedExtension = { ".jpg", ".png", ".jpeg", };
-        private readonly string folder = "Thumbnail";
+        private const string folder = "Thumbnail";
 
         public BlogService(IUnitOfWorks unitOfWork, ICloudinaryService cloudinaryService)
         {
@@ -33,7 +33,7 @@ namespace PickleBall.Service
             {
                 foreach (var error in result.Errors)
                 {
-                    return Result<string>.Fail(error.ErrorMessage);
+                    return Result<string>.Fail(error.ErrorMessage, StatusCodes.Status400BadRequest);
                 }
             }
 
@@ -55,7 +55,7 @@ namespace PickleBall.Service
             await _unitOfWork.Blog.CreateAsync(newBlog);
             await _unitOfWork.CompleteAsync();
 
-            return Result<string>.Ok("Thêm blog thành công");
+            return Result<string>.Ok("Thêm blog thành công", StatusCodes.Status201Created);
            
         }
 
@@ -65,7 +65,7 @@ namespace PickleBall.Service
             
             if (isExistBlog == null)
             {
-                return Result<string>.Fail("Không tìm thấy blog");
+                return Result<string>.Fail("Không tìm thấy blog", StatusCodes.Status404NotFound);
             }
 
             isExistBlog.IsDeleted = true;
@@ -73,7 +73,7 @@ namespace PickleBall.Service
             _unitOfWork.Blog.Update(isExistBlog);
             await _unitOfWork.CompleteAsync();
 
-            return Result<string>.Ok("Xóa blog thành công");
+            return Result<string>.Ok("Xóa blog thành công", StatusCodes.Status200OK);
         }
 
         public async Task<DataReponse<BlogDto>> GetAll(BlogParams blog)
@@ -116,7 +116,7 @@ namespace PickleBall.Service
 
             if(blog == null)
             {
-                return Result<BlogDto>.Fail("Không tìm thấy blog");
+                return Result<BlogDto>.Fail("Không tìm thấy blog", StatusCodes.Status404NotFound);
             }
 
             var blogToDto = new BlogDto
@@ -130,7 +130,7 @@ namespace PickleBall.Service
                 CreatedAt = blog.CreatedAt,
             };
 
-            return Result<BlogDto>.Ok(blogToDto);
+            return Result<BlogDto>.Ok(blogToDto, StatusCodes.Status200OK);
         }
 
         public async Task<Result<string>> Update(Guid id, BlogRequest request)
@@ -143,7 +143,7 @@ namespace PickleBall.Service
             {
                 foreach (var error in result.Errors)
                 {
-                    return Result<string>.Fail(error.ErrorMessage);
+                    return Result<string>.Fail(error.ErrorMessage, StatusCodes.Status400BadRequest);
                 }
             }
 
@@ -153,7 +153,7 @@ namespace PickleBall.Service
 
             if (isExistBlog == null)
             {
-                return Result<string>.Fail("Không tìm thấy blog");
+                return Result<string>.Fail("Không tìm thấy blog", StatusCodes.Status404NotFound);
             }
 
             if (request.ThumbnailUrl != null || request?.ThumbnailUrl?.Length > 0)
@@ -174,7 +174,7 @@ namespace PickleBall.Service
             _unitOfWork.Blog.Update(isExistBlog);
             await _unitOfWork.CompleteAsync();
 
-            return Result<string>.Ok("Cập nhật thành công");
+            return Result<string>.Ok("Cập nhật thành công", StatusCodes.Status200OK);
         }
     }
 }

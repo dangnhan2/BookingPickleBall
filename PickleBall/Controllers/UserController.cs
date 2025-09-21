@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PickleBall.Dto.Request;
-using PickleBall.Service;
+using PickleBall.Service.Users;
 using Serilog;
 using System.Security.Claims;
 
@@ -31,14 +31,14 @@ namespace PickleBall.Controllers
                     return BadRequest(new
                     {
                         Message = result.Error,
-                        StatusCode = StatusCodes.Status404NotFound
+                        StatusCode = result.StatusCode
                     });
                 }
 
                 return Ok(new
                 {
                     Message = "Lấy dữ liệu thành công",
-                    StatusCode = StatusCodes.Status200OK,
+                    StatusCode = result.StatusCode,
                     Data = result.Data
                 });
             }
@@ -78,13 +78,6 @@ namespace PickleBall.Controllers
                     StatusCode = StatusCodes.Status401Unauthorized
                 });
             }
-            catch (KeyNotFoundException ex) {
-                return NotFound(new
-                {
-                    Message = ex.Message,
-                    StatusCode = StatusCodes.Status404NotFound
-                });
-            }
             catch (Exception ex)
             {
                 Log.Error($"Lỗi cập nhật user avatar : ${ex.InnerException.Message ?? ex.Message}");
@@ -108,19 +101,19 @@ namespace PickleBall.Controllers
                 {
                     var result = await _userService.UpdateByUser(userId, user);
 
-                    if (result.Success != true)
+                    if (!result.Success)
                     {
                         return BadRequest(new
                         {
                             Message = result.Error,
-                            StatusCode = StatusCodes.Status400BadRequest
+                            StatusCode = result.StatusCode
                         });
                     }
 
                     return Ok(new
                     {
                         Message = result.Data,
-                        StatusCode = StatusCodes.Status200OK,
+                        StatusCode = result.StatusCode
                     });
                 }                    
 

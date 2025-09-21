@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PickleBall.Dto.QueryParams;
-using PickleBall.Service;
+using PickleBall.Service.Blogs;
 using Serilog;
 
 namespace PickleBall.Controllers
@@ -55,14 +55,14 @@ namespace PickleBall.Controllers
                     return NotFound(new
                     {
                         Message = result.Error,
-                        StatusCode = StatusCodes.Status404NotFound
+                        StatusCode = result.StatusCode
                     });
                 }
 
                 return Ok(new
                 {
                     Message = "Lấy dữ liệu thành công",
-                    StatusCode = StatusCodes.Status200OK,
+                    StatusCode = result.StatusCode,
                     Data = result.Data
                 });
             }
