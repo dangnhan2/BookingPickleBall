@@ -245,6 +245,18 @@ namespace PickleBall.Service.Auth
 
         public async Task<Result<string>> RegisterForAdmin(RegisterRequest request)
         {
+            var validator = new RegisterRequestValidator();
+
+            var result = validator.Validate(request);
+
+            if (!result.IsValid)
+            {
+                foreach (var error in result.Errors)
+                {
+                    return Result<string>.Fail(error.ErrorMessage, StatusCodes.Status400BadRequest);
+                }
+            }
+
             var isExistEmail = await _userManager.FindByEmailAsync(request.Email);
             var users = _unitOfWorks.User.Get();
 
@@ -262,7 +274,6 @@ namespace PickleBall.Service.Auth
             {
                 FullName = request.FullName,
                 UserName = request.FullName,
-                NormalizedUserName = request.FullName.ToUpper(),
                 Status = UserStatus.Active,
                 CreatedAt = DateTime.UtcNow,
                 PhoneNumber = request.PhoneNumber,
@@ -274,11 +285,11 @@ namespace PickleBall.Service.Auth
                 EmailConfirmed = false,
             };
 
-            var result = await _userManager.CreateAsync(newUser, request.Password);
+            var response = await _userManager.CreateAsync(newUser, request.Password);
 
-            if (!result.Succeeded)
+            if (!response.Succeeded)
             {
-                return Result<string>.Fail("Đăng kí thất bại", StatusCodes.Status400BadRequest);
+                return Result<string>.Fail($"Đăng kí thất bại: {response.Errors}", StatusCodes.Status400BadRequest);
             }
 
             await _userManager.AddToRoleAsync(newUser, "Admin");

@@ -126,7 +126,7 @@ namespace PickleBall.Service.Users
             }
 
             isExistUser.FullName = user.FullName;
-            isExistUser.UserName = user.UserName;
+            //isExistUser.UserName = user.UserName;
             isExistUser.PhoneNumber = user.PhoneNumber;
 
             _unitOfWorks.User.Update(isExistUser);
