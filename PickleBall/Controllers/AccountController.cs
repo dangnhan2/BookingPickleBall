@@ -93,7 +93,7 @@ namespace PickleBall.Controllers
             {
                 var result = await _accountService.RegisterForAdmin(request);
 
-                if (result.Success != true)
+                if (!result.Success)
                 {
                     return BadRequest(new
                     {

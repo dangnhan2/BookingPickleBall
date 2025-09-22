@@ -23,7 +23,8 @@ namespace PickleBall.Extension
                 options.Password.RequireNonAlphanumeric = false;
 
                 options.User.RequireUniqueEmail = true;
-                options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -._@+ ";
+                //options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -._@+ ";
+                options.User.AllowedUserNameCharacters = null;
             });
 
             services.AddIdentity<User, IdentityRole>()
