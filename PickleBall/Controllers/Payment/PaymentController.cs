@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DotNetEnv;
+using Microsoft.AspNetCore.Mvc;
+using Net.payOS;
 using PickleBall.Dto.Request;
 using PickleBall.Service.Checkout;
 using Serilog;
@@ -11,10 +13,11 @@ namespace PickleBall.Controllers.Payment
     public class PaymentController : ControllerBase
     {
         private readonly ICheckoutService _checkoutService;
-
-        public PaymentController(ICheckoutService checkoutService)
+        private readonly IPayOSService _payOS;
+        public PaymentController(ICheckoutService checkoutService, IPayOSService payOS)
         {
             _checkoutService = checkoutService;
+            _payOS = payOS;          
         }
 
         [HttpPost]
@@ -40,6 +43,13 @@ namespace PickleBall.Controllers.Payment
                     StatusCode = StatusCodes.Status400BadRequest,
                 });
             }
+        }
+
+        [HttpPost("confirm")]
+        public async Task<IActionResult> ConfirmWebhook()
+        {
+            var result = await _payOS.ConfirmPayOSWebHook();
+            return Ok(result);
         }
     }
 }
