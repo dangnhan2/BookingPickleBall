@@ -17,7 +17,6 @@ namespace PickleBall.Service.Bookings
             _unitOfWorks = unitOfWorks;
             
         }
-
         public async Task<DataReponse<BookingDto>> Get(BookingParams bookingParams)
         {
             var bookings = _unitOfWorks.Booking.Get();
@@ -49,8 +48,6 @@ namespace PickleBall.Service.Bookings
                     EndTime = s.TimeSlot.EndTime
                 }).ToList()
             }).Paging(bookingParams.Page, bookingParams.PageSize);
-
-            
 
             return new DataReponse<BookingDto>
             {

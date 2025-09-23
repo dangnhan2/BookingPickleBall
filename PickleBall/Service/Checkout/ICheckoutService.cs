@@ -1,9 +1,10 @@
-﻿using PickleBall.Dto.Request;
+﻿using PickleBall.Dto;
+using PickleBall.Dto.Request;
 
 namespace PickleBall.Service.Checkout
 {
     public interface ICheckoutService
     {
-        public Task<object> Checkout(BookingRequest booking);
+        public Task<Result<dynamic>> Checkout(BookingRequest booking);
     }
 }
