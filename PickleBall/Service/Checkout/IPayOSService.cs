@@ -5,7 +5,8 @@ namespace PickleBall.Service.Checkout
 {
     public interface IPayOSService
     {
-        public Task<dynamic> CreatePaymentLink(List<ItemData> items,int amount);
-        public Task<dynamic> ConfirmPayOSWebHook();
+        public Task<dynamic> CreatePaymentLink(List<ItemData> items,int amount, int orderCode);
+        public Task<string> ConfirmPayOSWebHook();
+        public Task<Result<string>> CallBack(HttpRequest request);
     }
 }

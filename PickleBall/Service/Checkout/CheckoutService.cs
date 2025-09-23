@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Net.payOS.Types;
+using PickleBall.Dto;
 using PickleBall.Dto.Request;
 using PickleBall.Models;
 using PickleBall.Models.Enum;
@@ -25,22 +26,32 @@ namespace PickleBall.Service.SoftService
             _payOSService = payOSService;
             _hubContext = hubContext;
         }
-        public async Task<dynamic> Checkout(BookingRequest booking)
+        public async Task<Result<dynamic>> Checkout(BookingRequest booking)
         {
             dynamic result;
             var validator = new BookingRequestValidator();
             var response = await validator.ValidateAsync(booking);
-
             if (!response.IsValid)
             {
                 foreach(var error in response.Errors)
                 {
-                    result = error.ErrorMessage;
-                    break;
+                    return Result<dynamic>.Fail(error.ErrorMessage, StatusCodes.Status400BadRequest);
                 }
-            }      
+            }
 
-            //var isExistCourt = await _unitOfWorks.Court.GetById(booking.CourtID) ?? throw new KeyNotFoundException("Sân không tồn tại");
+            var requestTimeSlots = booking.TimeSlots;
+
+            var conflictingsSlots = await _unitOfWorks.BookingTimeSlot.Get()
+                .Where(bt => requestTimeSlots.Contains(bt.TimeSlotId)
+                &&
+                (bt.Booking.BookingStatus == BookingStatus.Pending || bt.Booking.BookingStatus == BookingStatus.Paid)
+                &&
+                bt.Booking.ExpriedAt > DateTime.UtcNow).Select(bt => bt.TimeSlotId).ToArrayAsync();
+
+            if (conflictingsSlots.Any())
+                return Result<dynamic>.Fail("Một hoặc nhiều slot đã được đặt. Vui lòng chọn slot khác.", StatusCodes.Status400BadRequest);
+
+            int orderCode = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
 
             var newBooking = new Booking
             {
@@ -48,6 +59,7 @@ namespace PickleBall.Service.SoftService
                 UserID = booking.UserID,
                 CourtID = booking.CourtID,
                 BookingDate = booking.BookingDate,
+                TransactionId = orderCode.ToString(),
                 TotalAmount = booking.TimeSlots.Count * booking.Amount,
                 BookingStatus = BookingStatus.Pending,
             };
@@ -88,10 +100,10 @@ namespace PickleBall.Service.SoftService
       
             result = await _payOSService.CreatePaymentLink(
                 [new ItemData("Pickleball Court Booking", booking.TimeSlots.Count, newBooking.TotalAmount)],
-                newBooking.TotalAmount            
+                newBooking.TotalAmount, orderCode          
             );
 
-            return result;
+            return Result<dynamic>.Ok(result, StatusCodes.Status200OK);
 
         }
 

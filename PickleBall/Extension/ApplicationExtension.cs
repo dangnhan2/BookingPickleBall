@@ -12,7 +12,7 @@ namespace PickleBall.Extension
             services.AddCors();
             services.AddCronJob();
             services.AddSignalR();
-
+         
             return services;
         }
     }

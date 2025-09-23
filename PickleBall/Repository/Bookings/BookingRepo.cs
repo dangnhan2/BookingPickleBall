@@ -9,10 +9,11 @@ namespace PickleBall.Repository.Bookings
         public IQueryable<Booking> Get();
         public Task<IEnumerable<Booking>> GetExpiredBookings();
         public Task<Booking?> GetById(Guid id);
+        public Task<Booking?> GetByOrderCode(string orderCode);
         public void Create(Booking booking);
         public void Update(Booking booking);
         public void Delete(Booking booking);
-        public void DeleteExpiredBookings(IEnumerable<Booking> bookings);
+        public void DeleteExpiredBookingTimeSlot(IEnumerable<BookingTimeSlots> bookings);
     }
 
     public class BookingRepo : IBookingRepo
@@ -39,6 +40,11 @@ namespace PickleBall.Repository.Bookings
             _bookingContext.Bookings.RemoveRange(bookings);
         }
 
+        public void DeleteExpiredBookingTimeSlot(IEnumerable<BookingTimeSlots> bookings)
+        {
+            _bookingContext.BookingTimeSlots.RemoveRange(bookings);
+        }
+
         public IQueryable<Booking> Get()
         {
             return _bookingContext.Bookings.AsQueryable();
@@ -47,6 +53,14 @@ namespace PickleBall.Repository.Bookings
         public async Task<Booking?> GetById(Guid id)
         {
             return await _bookingContext.Bookings.Include(b => b.User).FirstOrDefaultAsync(b => b.ID == id);
+        }
+
+        public async Task<Booking?> GetByOrderCode(string orderCode)
+        {
+            return await _bookingContext.Bookings
+                .Include(b => b.BookingTimeSlots)
+                .ThenInclude(s => s.TimeSlot)
+                .FirstOrDefaultAsync(b => b.TransactionId == orderCode);
         }
 
         public async Task<IEnumerable<Booking>> GetExpiredBookings()

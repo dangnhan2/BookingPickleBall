@@ -45,12 +45,13 @@ namespace PickleBall.Service.BackgoundJob
                        .SendAsync("SlotReleased", payload);
 
                     }
-                   
+
+                    _unitOfWorks.Booking.DeleteExpiredBookingTimeSlot(booking.BookingTimeSlots);
                 }
                 
                 if(expiredBookings.Count() > 0)
-                {
-                    await _unitOfWorks.CompleteAsync();
+                {     
+                   await _unitOfWorks.CompleteAsync();
                 }
 
             }catch(Exception ex)

@@ -12,10 +12,9 @@ namespace PickleBall.Models
         public DateOnly BookingDate { get; set; }
         public BookingStatus BookingStatus { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime ExpriedAt { get; set; } = DateTime.UtcNow.AddMinutes(10);
-        public string TransactionId { get; set; } = string.Empty;
+        public DateTime ExpriedAt { get; set; } = DateTime.UtcNow.AddMinutes(2);
+        public string TransactionId { get; set; }
         public int TotalAmount { get; set; }
-        public string QRCodeUrl { get; set; } = string.Empty;
         public List<BookingTimeSlots> BookingTimeSlots { get; set; } = new List<BookingTimeSlots>();
     }
 }

@@ -7,6 +7,7 @@ namespace PickleBall.Repository.Other
     public interface IBookingTimeSlotRepo
     {
         public IQueryable<Guid> FindBookedSlot(Guid courtId, DateOnly date);
+        public IQueryable<BookingTimeSlots> Get();
     }
 
     public class BookingTimeSlotRepo : IBookingTimeSlotRepo
@@ -25,6 +26,9 @@ namespace PickleBall.Repository.Other
                 .Where(bts => bts.Booking.CourtID == courtId && bts.Booking.BookingDate == date).Select(tl => tl.TimeSlotId);
         }
 
-
+        public IQueryable<BookingTimeSlots> Get()
+        {
+            return _bookingContext.BookingTimeSlots.AsQueryable();
+        }
     }
 }
