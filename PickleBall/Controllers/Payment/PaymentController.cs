@@ -49,7 +49,7 @@ namespace PickleBall.Controllers.Payment
                 Log.Error($"Lỗi khác : ${ex.Message}");
                 return BadRequest(new
                 {
-                    ex.Message,
+                    message = ex.InnerException.Message ?? ex.Message,
                     StatusCode = StatusCodes.Status400BadRequest,
                 });
             }
