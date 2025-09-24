@@ -60,6 +60,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors("PickleBall");
 app.UseAuthentication();
 app.UseHttpsRedirection();
 
