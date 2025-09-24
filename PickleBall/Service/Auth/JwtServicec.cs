@@ -88,7 +88,7 @@ namespace PickleBall.Service.Auth
                 RefreshToken = refresh.HashRefreshToken(),
                 IsLocked = false,
                 CreatedAt = DateTime.UtcNow,
-                ExpiresAt = DateTime.UtcNow.AddDays(7),
+                ExpiresAt = DateTime.UtcNow.AddMonths(7)
             };
 
             _unitOfWork.RefreshToken.Add(refreshToken);
