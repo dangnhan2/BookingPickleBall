@@ -79,7 +79,7 @@ namespace PickleBall.Service.Auth
                        Secure = true,
                        SameSite = SameSiteMode.None,
                        Path = "/",
-                       Expires = DateTime.UtcNow.AddMinutes(15)
+                       Expires = DateTime.UtcNow.AddMonths(1)
                    });
 
             return Result<string>.Ok(reponse.AccessToken, StatusCodes.Status200OK);
@@ -366,7 +366,7 @@ namespace PickleBall.Service.Auth
                       Secure = true,
                       SameSite = SameSiteMode.None,
                       Path = "/",
-                      Expires = DateTime.UtcNow.AddMinutes(15)
+                      Expires = DateTime.UtcNow.AddMonths(1)
                   });
 
             return Result<string>.Ok(userToDto.AccessToken, StatusCodes.Status200OK);

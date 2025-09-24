@@ -46,7 +46,7 @@ namespace PickleBall.Service.Checkout
                 amount : amount,
                 description : "Thanh toan don hang",
                 items : items,
-                expiredAt : (int)DateTimeOffset.UtcNow.AddMinutes(2).ToUnixTimeSeconds(),
+                expiredAt : (int)DateTimeOffset.UtcNow.AddMinutes(10).ToUnixTimeSeconds(),
                 returnUrl: returnUrl,
                 cancelUrl: cancelUrl
                 );
