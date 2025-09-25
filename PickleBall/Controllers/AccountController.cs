@@ -125,7 +125,7 @@ namespace PickleBall.Controllers
         {
             try
             {
-                var result = await _accountService.ChangePassword(userId, passwordRequest);
+                var result = await _accountService.ChangePassword(userId, passwordRequest, HttpContext);
 
                 if (!result.Success)
                 {
