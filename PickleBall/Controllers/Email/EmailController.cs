@@ -21,19 +21,19 @@ namespace PickleBall.Controllers.Email
             var user = await _userManager.FindByIdAsync(userId);
 
             if (user == null)
-              return Redirect("https://localhost:5173/login?confirm=fail");
+              return Redirect("https://pickleboom.vercel.app/login?confirm=fail");
 
             var result = await _userManager.ConfirmEmailAsync(user, token);
 
             if (!result.Succeeded)
             {
               await _userManager.DeleteAsync(user);
-              return Redirect("https://localhost:5173/login?confirm=fail");
+              return Redirect("https://pickleboom.vercel.app/login?confirm=fail");
             }
 
             user.EmailConfirmed = true;
 
-             return Redirect("https://localhost:5173/login?confirm=success");
+             return Redirect("https://pickleboom.vercel.app/login?confirm=success");
         }
 
         [HttpGet("confirm-resetpassword")]
@@ -60,7 +60,7 @@ namespace PickleBall.Controllers.Email
             //    Email = email,
             //    Token = token
             //});
-            var url = $"https://localhost:7279/api/Email/confirm-resetpassword?email={email}&token={token}";
+            var url = $"https://pickleboom.vercel.app/api/Email/confirm-resetpassword?email={email}&token={token}";
             return Redirect(url);
         }
     }
