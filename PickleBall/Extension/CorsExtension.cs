@@ -6,7 +6,7 @@
             services.AddCors(options =>
             {
                 options.AddPolicy("PickleBall", policy =>
-                    policy.WithOrigins("http://localhost:5173", "https://localhost:5173", "https://pickleboom.vercel.app/")
+                    policy.WithOrigins("http://localhost:5173", "https://localhost:5173", "https://pickleboom.vercel.app")
                           .AllowAnyHeader()
                           .AllowAnyMethod()
                           .AllowCredentials()
