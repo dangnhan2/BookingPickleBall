@@ -149,7 +149,7 @@ namespace PickleBall.Service.Auth
                 Avatar = avatar,
                 IsDeleted = false,
                 IsAdmin = false,
-                EmailConfirmed = false,
+                EmailConfirmed = true,
                 Email = request.Email,
                 NormalizedEmail = request.Email.ToUpper(),
                 CreatedAt = DateTime.UtcNow
@@ -164,13 +164,13 @@ namespace PickleBall.Service.Auth
 
             await _userManager.AddToRoleAsync(newUser, "Customer");
 
-            var token = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
-            token = WebUtility.UrlEncode(token);
+            //var token = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
+            //token = WebUtility.UrlEncode(token);
 
-            _backgroundJob.Enqueue(() => SendEmail("ConfirmEmail", newUser.Email, newUser.Id, token));
+            //_backgroundJob.Enqueue(() => SendEmail("ConfirmEmail", newUser.Email, newUser.Id, token));
             
             
-            return Result<string>.Ok("Email đã được gửi, hãy kiểm tra email để xác nhận đăng kí", StatusCodes.Status201Created);
+            return Result<string>.Ok("Đăng kí thành công", StatusCodes.Status201Created);
 
         }
 
