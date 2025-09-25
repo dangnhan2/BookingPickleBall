@@ -170,8 +170,22 @@ namespace PickleBall.Service.Auth
 
         }
 
-        public async Task<Result<string>> ChangePassword(string userId, ChangePasswordRequest passwordRequest)
-        {   
+        public async Task<Result<string>> ChangePassword(string userId, ChangePasswordRequest passwordRequest, HttpContext context)
+        {
+            var refreshToken = context.Request.Cookies["refresh_token"];
+
+            var isExistToken = await _unitOfWorks.RefreshToken.GetAsync(refreshToken.HashRefreshToken());
+
+            if (isExistToken == null)
+                return Result<string>.Fail("Token không hợp/không tìm thấy", StatusCodes.Status401Unauthorized);
+
+            if (isExistToken.IsLocked == true)
+                return Result<string>.Fail("Tài khoản đã bị khóa, vui lòng đăng nhập lại", StatusCodes.Status400BadRequest);
+
+            if (isExistToken.ExpiresAt < DateTime.UtcNow)
+                return Result<string>.Fail("Token đã hết hạn, vui lòng đăng nhập lại", StatusCodes.Status401Unauthorized);
+
+           
             var validator = new ChangePasswordRequestValidator();
 
             var result = validator.Validate(passwordRequest);
@@ -193,6 +207,21 @@ namespace PickleBall.Service.Auth
 
             if (!reponse.Succeeded)        
                 return Result<string>.Fail("Đổi mật khẩu không thành công", StatusCodes.Status400BadRequest);
+
+            _unitOfWorks.RefreshToken.Delete(isExistToken);
+            await _unitOfWorks.CompleteAsync();
+
+            context.Response.Cookies.Append(
+                   "refresh_token",
+                   string.Empty,
+                   new CookieOptions
+                   {
+                       HttpOnly = true,
+                       Secure = true,
+                       SameSite = SameSiteMode.None,
+                       Path = "/",
+                       Expires = DateTimeOffset.UnixEpoch,
+                   });
 
             return Result<string>.Ok("Đổi mật khẩu thành công", StatusCodes.Status200OK );
 

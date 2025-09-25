@@ -10,7 +10,7 @@ namespace PickleBall.Service.Auth
         public Task<Result<string>> Register(RegisterRequest request);
         public Task<Result<string>> RegisterForAdmin(RegisterRequest request);
         public Task<Result<string>> Logout(HttpContext context);
-        public Task<Result<string>> ChangePassword(string userId, ChangePasswordRequest passwordRequest);
+        public Task<Result<string>> ChangePassword(string userId, ChangePasswordRequest passwordRequest, HttpContext context);
         public Task<Result<User>> ForgotPassword(string email);
         public Task<Result<string>> ResetPassword(ForgetPasswordRequest passwordRequest);
         public Task<Result<string>> RefreshToken(HttpContext context);
