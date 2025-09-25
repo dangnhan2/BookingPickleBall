@@ -67,20 +67,20 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapHub<BookingHub>("/bookingHub");
 
-app.UseHangfireDashboard("/hangfire");
+//app.UseHangfireDashboard("/hangfire");
 
 
-RecurringJob.AddOrUpdate<IBackgroundJob>(
-            "DeleteExpiredRefreshToken",
-            service => service.DeleteExpiredRefreshToken(),
-            "0 3 * * *"
-);
+//RecurringJob.AddOrUpdate<IBackgroundJob>(
+//            "DeleteExpiredRefreshToken",
+//            service => service.DeleteExpiredRefreshToken(),
+//            "0 3 * * *"
+//);
 
-RecurringJob.AddOrUpdate<IBackgroundJob>(
-     "CheckAndReleaseExpiredBookings",
-     service => service.CheckAndReleaseExpiredBookings(),
-     "*/1 * * * *"  // chạy mỗi phút
-);
+//RecurringJob.AddOrUpdate<IBackgroundJob>(
+//     "CheckAndReleaseExpiredBookings",
+//     service => service.CheckAndReleaseExpiredBookings(),
+//     "*/1 * * * *"  // chạy mỗi phút
+//);
 
 app.MapControllers();
 
