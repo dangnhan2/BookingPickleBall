@@ -1,4 +1,5 @@
 ﻿using DotNetEnv;
+using Hangfire;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PickleBall.Dto;
@@ -20,14 +21,16 @@ namespace PickleBall.Service.Auth
         private readonly IEmailService _email;
         private readonly IJwtService _jwtService;
         private readonly IUnitOfWorks _unitOfWorks;
+        private readonly IBackgroundJobClient _backgroundJob;
         private const string avatar = "https://res.cloudinary.com/dtihvekmn/image/upload/v1751645852/istockphoto-1337144146-612x612_llpkam.jpg";
 
-        public AccountService(UserManager<User> userManager, IEmailService email, IJwtService jwtService, IUnitOfWorks unitOfWorks)
+        public AccountService(UserManager<User> userManager, IEmailService email, IJwtService jwtService, IUnitOfWorks unitOfWorks, IBackgroundJobClient backgroundJob)
         {
             _userManager = userManager;
             _email = email;
             _jwtService = jwtService;
             _unitOfWorks = unitOfWorks;
+            _backgroundJob = backgroundJob;
         }
         public async Task<Result<string>> Login(LoginRequest request, HttpContext context)
         {
@@ -164,7 +167,8 @@ namespace PickleBall.Service.Auth
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
             token = WebUtility.UrlEncode(token);
 
-            await SendEmail("ConfirmEmail", newUser.Email, newUser.Id, token);
+            _backgroundJob.Enqueue(() => SendEmail("ConfirmEmail", newUser.Email, newUser.Id, token));
+            
             
             return Result<string>.Ok("Email đã được gửi, hãy kiểm tra email để xác nhận đăng kí", StatusCodes.Status201Created);
 
@@ -239,7 +243,7 @@ namespace PickleBall.Service.Auth
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             token = WebUtility.UrlEncode(token);
 
-            await SendEmail("ForgotPassword", user.Email, null, token);
+            _backgroundJob.Enqueue(() => SendEmail("ForgotPassword", user.Email, null, token));
 
             return Result<User>.Ok(user, StatusCodes.Status200OK);
         }
