@@ -1,5 +1,6 @@
 ﻿
 using DotNetEnv;
+using Serilog;
 using System.Net;
 using System.Net.Mail;
 
@@ -9,32 +10,40 @@ namespace PickleBall.Service.Email
     {
         public async Task EmailSender(string email, string subject, string body)
         {
-            Env.Load();
-            var host = Env.GetString("SMTP_HOST");
-            var port = Env.GetInt("SMTP_PORT");
-            var enableSsl = Env.GetBool("SMTP_ENABLE_SSL");
-            var userName = Env.GetString("SMTP_USERNAME");
-            var authPassword = Env.GetString("SMTP_PASSWORD");
-            var senderEmail = Env.GetString("SMTP_FROM_EMAIL");
-            var senderName = Env.GetString("SMTP_FROM_NAME");
-
-            var mailMessage = new MailMessage
+            try
             {
-                From = new MailAddress(senderEmail, senderName),
-                Subject = subject,
-                Body = body,
-                IsBodyHtml = true,
-            };
-            mailMessage.To.Add(email);
+                Env.Load();
+                var host = Env.GetString("SMTP_HOST");
+                var port = Env.GetInt("SMTP_PORT");
+                var enableSsl = Env.GetBool("SMTP_ENABLE_SSL");
+                var userName = Env.GetString("SMTP_USERNAME");
+                var authPassword = Env.GetString("SMTP_PASSWORD");
+                var senderEmail = Env.GetString("SMTP_FROM_EMAIL");
+                var senderName = Env.GetString("SMTP_FROM_NAME");
 
-            using (var client = new SmtpClient(host, port))
+                var mailMessage = new MailMessage
+                {
+                    From = new MailAddress(senderEmail, senderName),
+                    Subject = subject,
+                    Body = body,
+                    IsBodyHtml = true,
+                };
+                mailMessage.To.Add(email);
+
+                using (var client = new SmtpClient(host, port))
+                {
+                    client.EnableSsl = enableSsl;
+                    client.Credentials = new NetworkCredential(userName, authPassword);
+                    client.DeliveryMethod = SmtpDeliveryMethod.Network;
+
+                    await client.SendMailAsync(mailMessage);
+                }
+            }catch(Exception ex)
             {
-                client.EnableSsl = enableSsl;
-                client.Credentials = new NetworkCredential(userName, authPassword);
-                client.DeliveryMethod = SmtpDeliveryMethod.Network;
-
-                await client.SendMailAsync(mailMessage);
+                Log.Error($"Email send error: {ex.Message}");
+                throw;
             }
+           
         }
     }
 }
