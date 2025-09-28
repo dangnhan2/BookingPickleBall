@@ -6,7 +6,7 @@ namespace PickleBall.Repository.Bookings
 {
     public interface IBookingRepo
     {
-        public IQueryable<Booking> Get();
+        public IQueryable<Booking> GetAllByPartner(Guid id);
         public Task<IEnumerable<Booking>> GetExpiredBookings();
         public Task<Booking?> GetById(Guid id);
         public Task<Booking?> GetByOrderCode(string orderCode);
@@ -35,31 +35,25 @@ namespace PickleBall.Repository.Bookings
             _bookingContext.Bookings.Remove(booking);
         }
 
-        public void DeleteExpiredBookings(IEnumerable<Booking> bookings)
-        {
-            _bookingContext.Bookings.RemoveRange(bookings);
-        }
-
         public void DeleteExpiredBookingTimeSlot(IEnumerable<BookingTimeSlots> bookings)
         {
             _bookingContext.BookingTimeSlots.RemoveRange(bookings);
         }
 
-        public IQueryable<Booking> Get()
+        public  IQueryable<Booking> GetAllByPartner(Guid id)
         {
-            return _bookingContext.Bookings.AsQueryable();
+            return  _bookingContext.Bookings.Where(b => b.Court.PartnerId == id).AsQueryable();
         }
 
         public async Task<Booking?> GetById(Guid id)
         {
-            return await _bookingContext.Bookings.Include(b => b.User).FirstOrDefaultAsync(b => b.ID == id);
+            return await _bookingContext.Bookings.FirstOrDefaultAsync(b => b.ID == id);
         }
 
         public async Task<Booking?> GetByOrderCode(string orderCode)
         {
             return await _bookingContext.Bookings
                 .Include(b => b.BookingTimeSlots)
-                .ThenInclude(s => s.TimeSlot)
                 .FirstOrDefaultAsync(b => b.TransactionId == orderCode);
         }
 
@@ -67,7 +61,7 @@ namespace PickleBall.Repository.Bookings
         {
             return await _bookingContext.Bookings
                 .Include(b => b.BookingTimeSlots)
-                   .ThenInclude(s => s.TimeSlot)
+                   //.ThenInclude(s => s.TimeSlot)
                 .Where(b => b.BookingStatus == Models.Enum.BookingStatus.Pending && b.ExpriedAt < DateTime.UtcNow)
                 .ToListAsync();
         }

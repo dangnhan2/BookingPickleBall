@@ -7,6 +7,7 @@ namespace PickleBall.Repository.Courts
     public interface ICourtRepo
     {
         public IQueryable<Court> Get();
+        public IQueryable<Court> GetAllByPartner(Guid id);
         public Task<Court?> GetById(Guid id);
         public Task CreateAsync(Court court);
         public void Update(Court court);
@@ -47,6 +48,11 @@ namespace PickleBall.Repository.Courts
                 .Include(c => c.CourtTimeSlots)
                 .ThenInclude(cts => cts.TimeSlot)
                 .FirstOrDefaultAsync(b => b.ID == id);
+        }
+
+        public IQueryable<Court> GetAllByPartner(Guid id)
+        {
+            return _bookingContext.Courts.Where(c => c.PartnerId == id).AsQueryable();
         }
     }
 }

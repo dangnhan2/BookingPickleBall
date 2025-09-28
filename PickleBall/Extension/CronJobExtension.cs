@@ -16,7 +16,7 @@ namespace PickleBall.Extension
                  .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
                  .UseSimpleAssemblyNameTypeSerializer()
                  .UseRecommendedSerializerSettings()
-                 .UsePostgreSqlStorage(Env.GetString("CONNECTION_STRING")));        
+                 .UsePostgreSqlStorage(Env.GetString("CONNECTION_STRING")));
 
             services.AddHangfireServer();
             return services;

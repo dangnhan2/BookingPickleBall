@@ -27,18 +27,20 @@ namespace PickleBall.Service.BackgoundJob
                 {
                     booking.BookingStatus = BookingStatus.Cancelled;
 
-                    foreach(var bt in booking.BookingTimeSlots)
+                    foreach (var bt in booking.BookingTimeSlots)
                     {
-                        var slot = bt.TimeSlot;
+                        var slot = bt.CourtTimeSlots;
+
+                        if (slot == null) continue;
 
                         var payload = new SlotEventPayload
                         {
                             CourtId = booking.CourtID,
                             BookingDate = booking.BookingDate,
                             TimeSlotId = slot.ID,
-                            StartTime = slot.StartTime,
-                            EndTime = slot.EndTime,
-                            Status = SlotStatus.Released,
+                            StartTime = slot.TimeSlot.StartTime,
+                            EndTime = slot.TimeSlot.EndTime,
+                            Status = BookingStatus.Free,
                         };
 
                         await _hubContext.Clients.Group(booking.CourtID.ToString())
@@ -48,17 +50,18 @@ namespace PickleBall.Service.BackgoundJob
 
                     _unitOfWorks.Booking.DeleteExpiredBookingTimeSlot(booking.BookingTimeSlots);
                 }
-                
-                if(expiredBookings.Count() > 0)
-                {     
-                   await _unitOfWorks.CompleteAsync();
+
+                if (expiredBookings.Count() > 0)
+                {
+                    await _unitOfWorks.CompleteAsync();
                 }
 
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 Log.Error($"Lỗi xóa refreshToken : ${ex.InnerException.Message ?? ex.Message}");
             }
-            
+
         }
 
         public async Task DeleteExpiredRefreshToken()

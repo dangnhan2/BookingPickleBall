@@ -30,8 +30,8 @@ namespace PickleBall.Extension
           services.AddScoped<IUserRepo, UserRepo>();
           services.AddScoped<IBookingRepo, BookingRepo>();
           services.AddScoped<IBookingTimeSlotRepo, BookingTimeSlotRepo>();
-            
-          services.AddScoped<IJwtService, JwtService>();    
+
+          services.AddScoped<IJwtService, JwtService>();
           services.AddScoped<IAccountService, AccountService>();
           services.AddScoped<ICourtService, CourtService>();
           services.AddScoped<ITimeSlotService, TimeSlotService>();

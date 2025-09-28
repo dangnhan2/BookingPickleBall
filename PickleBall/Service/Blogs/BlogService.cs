@@ -43,7 +43,7 @@ namespace PickleBall.Service.Blogs
             {
                 Title = request.Title,
                 Content = request.Content,
-                UserID = request.UserID,
+                PartnerID = request.ParnerID,
                 BlogStatus = request.BlogStatus,
                 CreatedAt = DateTime.UtcNow
             };
@@ -167,7 +167,7 @@ namespace PickleBall.Service.Blogs
 
             isExistBlog.Title = request.Title;
             isExistBlog.Content = request.Content;
-            isExistBlog.UserID = request.UserID;
+            isExistBlog.PartnerID = request.ParnerID;
             isExistBlog.BlogStatus = request.BlogStatus;
             isExistBlog.UpdatedAt = DateTime.UtcNow;
 

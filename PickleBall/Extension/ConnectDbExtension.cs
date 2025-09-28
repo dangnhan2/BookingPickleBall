@@ -77,7 +77,6 @@ namespace PickleBall.Extension
                 Log.Error($"Stack trace: {ex.StackTrace}");
             }
 
-
             return services;
         }
     }

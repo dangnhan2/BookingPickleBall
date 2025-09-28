@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PickleBall.Models;
+using System.Runtime.InteropServices;
 
 namespace PickleBall.Data
 {
@@ -8,67 +9,40 @@ namespace PickleBall.Data
     {
         public static ModelBuilder Seed(this ModelBuilder model)
         {
-            model.Entity<IdentityRole>()
+            model.Entity<IdentityRole<Guid>>()
                 .HasData(
-                    new IdentityRole
+                    new IdentityRole<Guid>
                     {
-                        Id = "e6081ef2-337b-436d-b1cc-c66cb49203c1",
-                        Name = "Customer",
-                        NormalizedName = "Customer".ToUpper()
+                        Id = Guid.Parse("89aa6827-4e1e-4d25-8a54-d16bb532768c"),
+                        Name = "Partner",
+                        NormalizedName = "PARTNER".ToUpper()
                     },
-                    new IdentityRole
+                    new IdentityRole<Guid>
                     {
-                        Id = "afcab8c4-ba4f-4331-83c1-80d44c2c8e78",
+                        Id = Guid.Parse("be39c154-0a91-4fdc-b47e-1be4f4e7f685"),
                         Name = "Admin",
-                        NormalizedName = "Admin".ToUpper(),
+                        NormalizedName = "ADMIN".ToUpper(),
                     }
                 );
 
-            //model.Entity<TimeSlot>()
-            //    .HasData(
-            //        new TimeSlot
-            //        {
-            //            ID = Guid.NewGuid(),
-            //            StartTime = new TimeOnly(8, 0),
-            //            EndTime = new TimeOnly(10, 0)
-            //        },
-            //         new TimeSlot
-            //         {
-            //             ID = Guid.NewGuid(),
-            //             StartTime = new TimeOnly(10, 0),
-            //             EndTime = new TimeOnly(12, 0)
-            //         },
-            //         new TimeSlot
-            //         {
-            //             ID = Guid.NewGuid(),
-            //             StartTime = new TimeOnly(12, 0),
-            //             EndTime = new TimeOnly(14, 0)
-            //         },
-            //         new TimeSlot
-            //         {
-            //             ID = Guid.NewGuid(),
-            //             StartTime = new TimeOnly(14, 0),
-            //             EndTime = new TimeOnly(16, 0)
-            //         },
-            //         new TimeSlot
-            //         {
-            //             ID = Guid.NewGuid(),
-            //             StartTime = new TimeOnly(16, 0),
-            //             EndTime = new TimeOnly(18, 0)
-            //         },
-            //         new TimeSlot
-            //         {
-            //             ID = Guid.NewGuid(),
-            //             StartTime = new TimeOnly(18, 0),
-            //             EndTime = new TimeOnly(20, 0)
-            //         },
-            //          new TimeSlot
-            //          {
-            //              ID = Guid.NewGuid(),
-            //              StartTime = new TimeOnly(20, 0),
-            //              EndTime = new TimeOnly(22, 0)
-            //          }
-            //    );
+            //model.Entity<IdentityUser<Guid>>().HasData(
+            //    new IdentityUser<Guid>
+            //    {
+            //        Id = Guid.Parse("7b7247e1-89b0-4a88-aaaa-a2fa6950e1f6"),
+            //        UserName = "admin",
+            //        NormalizedUserName = "ADMIN",
+            //        PasswordHash = new PasswordHasher<IdentityUser>().HashPassword(null, "123456"),
+            //        Email = "admin@gmail.com",
+            //        NormalizedEmail = "ADMIN@GMAIL.COM"
+            //    });
+
+            //model.Entity<IdentityUserRole<Guid>>().HasData(
+            //    new IdentityUserRole<Guid>
+            //    {
+            //        RoleId = Guid.Parse("be39c154-0a91-4fdc-b47e-1be4f4e7f685"),
+            //        UserId = Guid.Parse("7b7247e1-89b0-4a88-aaaa-a2fa6950e1f6")
+
+            //    });
 
             return model;
         }

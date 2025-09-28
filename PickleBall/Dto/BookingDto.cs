@@ -12,9 +12,8 @@ namespace PickleBall.Dto
         public PaymentStatus PaymentStatus { get; set; }
         public BookingStatus BookingStatus { get; set; }
         public int TotalAmount { get; set; }
-        public string PaymentMethod { get; set; }
         public DateTime CreatedAt { get; set; } 
-        public List<TimeSlotDto> TimeSlots { get; set; } 
+        public List<BookingTimeSlotDto> BookingTimeSlots { get; set; } 
        
     }
 }

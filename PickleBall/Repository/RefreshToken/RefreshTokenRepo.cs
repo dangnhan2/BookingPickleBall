@@ -6,7 +6,6 @@ namespace PickleBall.Repository.RefreshToken
 {
     public interface IRefreshTokenRepo
     {
-        public IQueryable<RefreshTokens> Get();
         public Task<IEnumerable<RefreshTokens>> GetExpiredRefreshToken();
         public Task<RefreshTokens?> GetAsync(string token);
         public void Add(RefreshTokens tokens);
@@ -31,11 +30,6 @@ namespace PickleBall.Repository.RefreshToken
         public void Delete(RefreshTokens refreshTokens)
         {
             _bookingContext.RefreshTokens.Remove(refreshTokens);
-        }
-
-        public IQueryable<RefreshTokens> Get()
-        {
-            return _bookingContext.RefreshTokens.AsQueryable();
         }
 
         public async Task<RefreshTokens?> GetAsync(string token)

@@ -14,16 +14,16 @@ namespace PickleBall.Service.Bookings
         
         public BookingService(IUnitOfWorks unitOfWorks)
         {
-            _unitOfWorks = unitOfWorks;
-            
+            _unitOfWorks = unitOfWorks;      
         }
-        public async Task<DataReponse<BookingDto>> Get(BookingParams bookingParams)
+
+        public async Task<DataReponse<BookingDto>> GetByPartner(Guid id, BookingParams bookingParams)
         {
-            var bookings = _unitOfWorks.Booking.Get();
+            var bookings = _unitOfWorks.Booking.GetAllByPartner(id);
 
             if (bookingParams.Customer != null)
             {
-                bookings = bookings.Where(c => c.User.FullName.ToLower().Trim().Contains(bookingParams.Customer.ToLower().Trim()));
+                bookings = bookings.Where(c => c.CustomerName.ToLower().Trim().Contains(bookingParams.Customer.ToLower().Trim()));
             }
 
             if (bookingParams.BookingStatus.HasValue)
@@ -34,18 +34,18 @@ namespace PickleBall.Service.Bookings
             var bookingsToDto = bookings.OrderByDescending(b => b.CreatedAt).Select(b => new BookingDto
             {
                 ID = b.ID,
-                Customer = b.User.FullName,
-                Phone = b.User.PhoneNumber,
+                Customer = b.CustomerName,
+                Phone = b.PhoneNumber,
                 Court = b.Court.Name,
                 BookingDate = b.BookingDate,
                 BookingStatus = b.BookingStatus,
                 TotalAmount = b.TotalAmount,
                 CreatedAt = b.CreatedAt,
-                TimeSlots = b.BookingTimeSlots.Select(s => new TimeSlotDto
+                BookingTimeSlots = b.BookingTimeSlots.Select(bts => new BookingTimeSlotDto
                 {
-                    ID = s.Id,
-                    StartTime = s.TimeSlot.StartTime,
-                    EndTime = s.TimeSlot.EndTime
+                    Id = bts.CourtTimeSlotId,
+                    StartTime = bts.CourtTimeSlots.TimeSlot.StartTime,
+                    EndTime = bts.CourtTimeSlots.TimeSlot.EndTime
                 }).ToList()
             }).Paging(bookingParams.Page, bookingParams.PageSize);
 

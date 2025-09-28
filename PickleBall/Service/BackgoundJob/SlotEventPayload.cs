@@ -9,6 +9,6 @@ namespace PickleBall.Service.BackgoundJob
         public Guid TimeSlotId { get; set; }       // ID khung giờ
         public TimeOnly StartTime { get; set; }    // Giờ bắt đầu
         public TimeOnly EndTime { get; set; }      // Giờ kết thúc
-        public SlotStatus Status { get; set; }
+        public BookingStatus Status { get; set; }
     }
 }

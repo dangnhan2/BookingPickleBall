@@ -18,10 +18,10 @@ namespace PickleBall.Service.Auth
     public class JwtService : IJwtService
     {
         private readonly IUnitOfWorks _unitOfWork;
-        private readonly UserManager<User> _userManager;
+        private readonly UserManager<Partner> _userManager;
         private readonly SymmetricSecurityKey _symmetricSecurityKey;
 
-        public JwtService(IUnitOfWorks unitOfWorks, UserManager<User> userManager)
+        public JwtService(IUnitOfWorks unitOfWorks, UserManager<Partner> userManager)
         {
             Env.Load();
             _symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Env.GetString("SECRET_KEY")));
@@ -46,7 +46,7 @@ namespace PickleBall.Service.Auth
             return Result<TokenResponse>.Ok(userToDto, StatusCodes.Status200OK);
         }
 
-        public async Task<TokenResponse> GenerateToken(User user)
+        public async Task<TokenResponse> GenerateToken(Partner user)
         {
             var credentials = new SigningCredentials(_symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
             var issuer = Env.GetString("ISSUER");
@@ -76,7 +76,7 @@ namespace PickleBall.Service.Auth
 
             string refresh = Guid.NewGuid().ToString() + "-" + Guid.NewGuid().ToString();
 
-            var userToDto = new TokenResponse
+            var tokens = new TokenResponse
             {
                 AccessToken = token,
                 RefreshToken = refresh,
@@ -94,7 +94,7 @@ namespace PickleBall.Service.Auth
             _unitOfWork.RefreshToken.Add(refreshToken);
             await _unitOfWork.CompleteAsync();
 
-            return userToDto;
+            return tokens;
         }
 
     }

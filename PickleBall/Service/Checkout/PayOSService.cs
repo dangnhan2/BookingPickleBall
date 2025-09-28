@@ -118,15 +118,15 @@ namespace PickleBall.Service.Checkout
                 // Bắn SignalR để client update
                 foreach (var bt in booking.BookingTimeSlots)
                 {
-                    var slot = bt.TimeSlot;
+                    var slot = bt.CourtTimeSlots;
                     var payload = new SlotEventPayload
                     {
                         CourtId = booking.CourtID,
                         BookingDate = booking.BookingDate,
                         TimeSlotId = slot.ID,
-                        StartTime = slot.StartTime,
-                        EndTime = slot.EndTime,
-                        Status = SlotStatus.Confirmed
+                        StartTime = slot.TimeSlot.StartTime,
+                        EndTime = slot.TimeSlot.EndTime,
+                        Status = BookingStatus.Paid
                     };
                     await _hubContext.Clients.Group(booking.CourtID.ToString())
                         .SendAsync("SlotConfirmed", payload);

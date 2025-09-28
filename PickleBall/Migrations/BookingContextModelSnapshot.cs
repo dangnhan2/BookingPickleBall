@@ -22,10 +22,11 @@ namespace PickleBall.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -50,19 +51,19 @@ namespace PickleBall.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "e6081ef2-337b-436d-b1cc-c66cb49203c1",
-                            Name = "Customer",
-                            NormalizedName = "CUSTOMER"
+                            Id = new Guid("89aa6827-4e1e-4d25-8a54-d16bb532768c"),
+                            Name = "Partner",
+                            NormalizedName = "PARTNER"
                         },
                         new
                         {
-                            Id = "afcab8c4-ba4f-4331-83c1-80d44c2c8e78",
+                            Id = new Guid("be39c154-0a91-4fdc-b47e-1be4f4e7f685"),
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         });
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -76,9 +77,8 @@ namespace PickleBall.Migrations
                     b.Property<string>("ClaimValue")
                         .HasColumnType("text");
 
-                    b.Property<string>("RoleId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -87,7 +87,7 @@ namespace PickleBall.Migrations
                     b.ToTable("AspNetRoleClaims", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -101,9 +101,8 @@ namespace PickleBall.Migrations
                     b.Property<string>("ClaimValue")
                         .HasColumnType("text");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -112,7 +111,7 @@ namespace PickleBall.Migrations
                     b.ToTable("AspNetUserClaims", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
                 {
                     b.Property<string>("LoginProvider")
                         .HasColumnType("text");
@@ -123,9 +122,8 @@ namespace PickleBall.Migrations
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("text");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("LoginProvider", "ProviderKey");
 
@@ -134,13 +132,13 @@ namespace PickleBall.Migrations
                     b.ToTable("AspNetUserLogins", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
                 {
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
-                    b.Property<string>("RoleId")
-                        .HasColumnType("text");
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("UserId", "RoleId");
 
@@ -149,10 +147,10 @@ namespace PickleBall.Migrations
                     b.ToTable("AspNetUserRoles", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
                 {
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("LoginProvider")
                         .HasColumnType("text");
@@ -187,6 +185,9 @@ namespace PickleBall.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<Guid>("PartnerID")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("ThumbnailUrl")
                         .IsRequired()
                         .HasColumnType("text");
@@ -198,13 +199,9 @@ namespace PickleBall.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("UserID")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.HasKey("ID");
 
-                    b.HasIndex("UserID");
+                    b.HasIndex("PartnerID");
 
                     b.ToTable("Blogs");
                 });
@@ -227,8 +224,20 @@ namespace PickleBall.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CustomerName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("ExpriedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int>("TotalAmount")
                         .HasColumnType("integer");
@@ -237,15 +246,9 @@ namespace PickleBall.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("UserID")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.HasKey("ID");
 
                     b.HasIndex("CourtID");
-
-                    b.HasIndex("UserID");
 
                     b.ToTable("Bookings");
                 });
@@ -255,15 +258,20 @@ namespace PickleBall.Migrations
                     b.Property<Guid>("BookingId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("TimeSlotId")
+                    b.Property<Guid>("CourtTimeSlotId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
-                    b.HasKey("BookingId", "TimeSlotId");
+                    b.Property<Guid?>("TimeSlotID")
+                        .HasColumnType("uuid");
 
-                    b.HasIndex("TimeSlotId");
+                    b.HasKey("BookingId", "CourtTimeSlotId");
+
+                    b.HasIndex("CourtTimeSlotId");
+
+                    b.HasIndex("TimeSlotID");
 
                     b.ToTable("BookingTimeSlots");
                 });
@@ -280,10 +288,6 @@ namespace PickleBall.Migrations
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<string>("ImageUrl")
                         .IsRequired()
                         .HasColumnType("text");
@@ -296,92 +300,54 @@ namespace PickleBall.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<Guid>("PartnerId")
+                        .HasColumnType("uuid");
+
                     b.Property<decimal>("PricePerHour")
                         .HasColumnType("numeric");
 
                     b.HasKey("ID");
+
+                    b.HasIndex("PartnerId");
 
                     b.ToTable("Courts");
                 });
 
             modelBuilder.Entity("PickleBall.Models.CourtTimeSlot", b =>
                 {
+                    b.Property<Guid>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("CourtID")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("TimeSlotID")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("ID")
-                        .HasColumnType("uuid");
+                    b.HasKey("ID");
 
-                    b.HasKey("CourtID", "TimeSlotID");
+                    b.HasIndex("CourtID");
 
                     b.HasIndex("TimeSlotID");
 
                     b.ToTable("CourtTimeSlots");
                 });
 
-            modelBuilder.Entity("PickleBall.Models.RefreshTokens", b =>
+            modelBuilder.Entity("PickleBall.Models.Partner", b =>
                 {
-                    b.Property<Guid>("ID")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsLocked")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("RefreshToken")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("RevokedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("UserID")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("UserID")
-                        .IsUnique();
-
-                    b.ToTable("RefreshTokens");
-                });
-
-            modelBuilder.Entity("PickleBall.Models.TimeSlot", b =>
-                {
-                    b.Property<Guid>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<TimeOnly>("EndTime")
-                        .HasColumnType("time without time zone");
-
-                    b.Property<TimeOnly>("StartTime")
-                        .HasColumnType("time without time zone");
-
-                    b.HasKey("ID");
-
-                    b.ToTable("TimeSlots");
-                });
-
-            modelBuilder.Entity("PickleBall.Models.User", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer");
 
                     b.Property<string>("Avatar")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("BussinessName")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -406,7 +372,7 @@ namespace PickleBall.Migrations
                     b.Property<bool>("IsAdmin")
                         .HasColumnType("boolean");
 
-                    b.Property<bool>("IsDeleted")
+                    b.Property<bool>("IsApproved")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("LockoutEnabled")
@@ -436,9 +402,6 @@ namespace PickleBall.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean");
 
@@ -458,51 +421,106 @@ namespace PickleBall.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+            modelBuilder.Entity("PickleBall.Models.RefreshTokens", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                    b.Property<Guid>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsLocked")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("RefreshToken")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("RevokedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserID")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("UserID")
+                        .IsUnique();
+
+                    b.ToTable("RefreshTokens");
+                });
+
+            modelBuilder.Entity("PickleBall.Models.TimeSlot", b =>
+                {
+                    b.Property<Guid>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<TimeOnly>("EndTime")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<Guid>("PartnerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<TimeOnly>("StartTime")
+                        .HasColumnType("time without time zone");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("PartnerId");
+
+                    b.ToTable("TimeSlots");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
                 {
-                    b.HasOne("PickleBall.Models.User", null)
+                    b.HasOne("PickleBall.Models.Partner", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
                 {
-                    b.HasOne("PickleBall.Models.User", null)
+                    b.HasOne("PickleBall.Models.Partner", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PickleBall.Models.User", null)
+                    b.HasOne("PickleBall.Models.Partner", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
                 {
-                    b.HasOne("PickleBall.Models.User", null)
+                    b.HasOne("PickleBall.Models.Partner", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -511,13 +529,13 @@ namespace PickleBall.Migrations
 
             modelBuilder.Entity("PickleBall.Models.Blog", b =>
                 {
-                    b.HasOne("PickleBall.Models.User", "User")
+                    b.HasOne("PickleBall.Models.Partner", "Partner")
                         .WithMany("Blogs")
-                        .HasForeignKey("UserID")
+                        .HasForeignKey("PartnerID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("User");
+                    b.Navigation("Partner");
                 });
 
             modelBuilder.Entity("PickleBall.Models.Booking", b =>
@@ -528,15 +546,7 @@ namespace PickleBall.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PickleBall.Models.User", "User")
-                        .WithMany("Bookings")
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Court");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("PickleBall.Models.BookingTimeSlots", b =>
@@ -547,15 +557,30 @@ namespace PickleBall.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PickleBall.Models.TimeSlot", "TimeSlot")
+                    b.HasOne("PickleBall.Models.CourtTimeSlot", "CourtTimeSlots")
                         .WithMany("BookingTimeSlots")
-                        .HasForeignKey("TimeSlotId")
+                        .HasForeignKey("CourtTimeSlotId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("PickleBall.Models.TimeSlot", null)
+                        .WithMany("BookingTimeSlots")
+                        .HasForeignKey("TimeSlotID");
+
                     b.Navigation("Booking");
 
-                    b.Navigation("TimeSlot");
+                    b.Navigation("CourtTimeSlots");
+                });
+
+            modelBuilder.Entity("PickleBall.Models.Court", b =>
+                {
+                    b.HasOne("PickleBall.Models.Partner", "Partner")
+                        .WithMany("Courts")
+                        .HasForeignKey("PartnerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Partner");
                 });
 
             modelBuilder.Entity("PickleBall.Models.CourtTimeSlot", b =>
@@ -579,13 +604,24 @@ namespace PickleBall.Migrations
 
             modelBuilder.Entity("PickleBall.Models.RefreshTokens", b =>
                 {
-                    b.HasOne("PickleBall.Models.User", "User")
+                    b.HasOne("PickleBall.Models.Partner", "User")
                         .WithOne("RefreshTokens")
                         .HasForeignKey("PickleBall.Models.RefreshTokens", "UserID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("PickleBall.Models.TimeSlot", b =>
+                {
+                    b.HasOne("PickleBall.Models.Partner", "Partner")
+                        .WithMany("TimeSlots")
+                        .HasForeignKey("PartnerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Partner");
                 });
 
             modelBuilder.Entity("PickleBall.Models.Booking", b =>
@@ -600,21 +636,28 @@ namespace PickleBall.Migrations
                     b.Navigation("CourtTimeSlots");
                 });
 
+            modelBuilder.Entity("PickleBall.Models.CourtTimeSlot", b =>
+                {
+                    b.Navigation("BookingTimeSlots");
+                });
+
+            modelBuilder.Entity("PickleBall.Models.Partner", b =>
+                {
+                    b.Navigation("Blogs");
+
+                    b.Navigation("Courts");
+
+                    b.Navigation("RefreshTokens")
+                        .IsRequired();
+
+                    b.Navigation("TimeSlots");
+                });
+
             modelBuilder.Entity("PickleBall.Models.TimeSlot", b =>
                 {
                     b.Navigation("BookingTimeSlots");
 
                     b.Navigation("CourtTimeSlots");
-                });
-
-            modelBuilder.Entity("PickleBall.Models.User", b =>
-                {
-                    b.Navigation("Blogs");
-
-                    b.Navigation("Bookings");
-
-                    b.Navigation("RefreshTokens")
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

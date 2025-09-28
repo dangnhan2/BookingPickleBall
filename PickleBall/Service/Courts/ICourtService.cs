@@ -6,8 +6,9 @@ namespace PickleBall.Service.Courts
 {
     public interface ICourtService
     {
-        public Task<DataReponse<CourtDto>> GetAll(CourtParams court);
-        public Task<Result<CourtForIdDto>> GetById(Guid id);
+        public Task<DataReponse<CourtDto>> GetAllByPartner(Guid id, CourtParams court);
+        public Task<IEnumerable<CourtDto>> GetAllInSpecificDate(Guid id, DateOnly date);
+        public Task<Result<CourtDto>> GetById(Guid id);
         public Task<Result<string>> Add(CourtRequest court);
         public Task<Result<string>> Update(Guid id, CourtRequest court);
         public Task<Result<string>> Delete(Guid id);

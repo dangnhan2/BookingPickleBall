@@ -27,13 +27,13 @@ namespace PickleBall.Extension
                 options.User.AllowedUserNameCharacters = null;
             });
 
-            services.AddIdentity<User, IdentityRole>()
-                .AddRoles<IdentityRole>() // add roles
-                .AddRoleManager<RoleManager<IdentityRole>>() //  make use of RoleManager
-                .AddUserManager<UserManager<User>>() // make use of UserManager to create user
-                .AddSignInManager<SignInManager<User>>() // make user of Sign in manager
-                .AddEntityFrameworkStores<BookingContext>()
-                .AddDefaultTokenProviders();
+            services.AddIdentity<Partner, IdentityRole<Guid>>()
+    .AddRoles<IdentityRole<Guid>>()
+    .AddRoleManager<RoleManager<IdentityRole<Guid>>>()
+    .AddUserManager<UserManager<Partner>>()
+    .AddSignInManager<SignInManager<Partner>>()
+    .AddEntityFrameworkStores<BookingContext>()
+    .AddDefaultTokenProviders();
 
             // Add authentication
             services

@@ -8,7 +8,7 @@
         public DateTime ExpiresAt { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime RevokedAt { get; set; }
-        public string UserID { get; set; }
-        public User? User { get; set; }
+        public Guid UserID { get; set; }
+        public Partner? User { get; set; }
     }
 }

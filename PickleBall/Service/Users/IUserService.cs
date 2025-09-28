@@ -6,10 +6,10 @@ namespace PickleBall.Service.Users
 {
     public interface IUserService 
     {
-        public Task<DataReponse<UsersDto>> GetAll(UserParams user);
-        public Task<Result<UsersDto>> GetById(string id);
-        public Task<Result<string>> UpdateByUser(string userId, UserRequest user);
-        public Task UploadAvatarByUser(string userId, IFormFile file);
-        public Task<Result<string>> UpdateByAdmin(string userId, UserRequestByAdmin user);
+        public Task<DataReponse<UserDto>> GetAll(UserParams user);
+        public Task<Result<UserDto>> GetById(Guid id);
+        public Task<Result<string>> UpdateByUser(Guid id, UserRequest user);
+        public Task UploadAvatarByUser(Guid Id, IFormFile file);
+        
     }
 }
