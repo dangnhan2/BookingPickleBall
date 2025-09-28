@@ -6,10 +6,10 @@ namespace PickleBall.Repository.Users
 {
     public interface IUserRepo
     {
-        public IQueryable<User> Get();
-        public Task<User?> GetById(string id);
-        public void Update(User user);
-        public void Delete(User user);
+        public IQueryable<Partner> Get();
+        public Task<Partner?> GetById(Guid id);
+        public void Update(Partner user);
+        public void Delete(Partner user);
     }
 
     public class UserRepo : IUserRepo
@@ -21,22 +21,22 @@ namespace PickleBall.Repository.Users
             _bookingContext = bookingContext;
         }
 
-        public void Delete(User user)
+        public void Delete(Partner user)
         {
             _bookingContext.Users.Remove(user);
         }
 
-        public IQueryable<User> Get()
+        public IQueryable<Partner> Get()
         {
            return _bookingContext.Users.AsQueryable();
         }
 
-        public async Task<User?> GetById(string id)
+        public async Task<Partner?> GetById(Guid id)
         {
             return await _bookingContext.Users.FirstOrDefaultAsync(u => u.Id == id);
         }
 
-        public void Update(User user)
+        public void Update(Partner user)
         {
            _bookingContext.Users.Update(user);
         }

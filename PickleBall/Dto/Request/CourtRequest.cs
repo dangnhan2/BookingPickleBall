@@ -3,9 +3,9 @@
 namespace PickleBall.Dto.Request
 {
     public class CourtRequest
-    {
+    {   
+        public Guid PartnerId { get; set; }
         public string Name { get; set; }
-        public string Description { get; set; }
         public string Location { get; set; }
         public decimal PricePerHour { get; set; }
         public IFormFile? ImageUrl { get; set; }

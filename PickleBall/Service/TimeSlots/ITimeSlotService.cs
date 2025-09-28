@@ -5,8 +5,7 @@ namespace PickleBall.Service.TimeSlots
 {
     public interface ITimeSlotService
     {
-        public Task<IEnumerable<TimeSlotDto>> GetAll();
-        public Task<IEnumerable<TimeSlotDto>> GetAllBooked(Guid courtId, DateOnly date);
+        public Task<IEnumerable<TimeSlotDto>> GetByPartner(Guid partnerId);
         public Task<Result<string>> Add(TimeSlotRequest timeSlot);
         public Task<Result<string>> Delete(Guid id);
     }

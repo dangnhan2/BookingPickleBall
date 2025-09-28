@@ -9,7 +9,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace PickleBall.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialDB : Migration
+    public partial class initialdb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -18,7 +18,7 @@ namespace PickleBall.Migrations
                 name: "AspNetRoles",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "text", nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "text", nullable: true)
@@ -32,12 +32,12 @@ namespace PickleBall.Migrations
                 name: "AspNetUsers",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "text", nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     FullName = table.Column<string>(type: "text", nullable: false),
-                    Status = table.Column<int>(type: "integer", nullable: false),
+                    BussinessName = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     PhoneNumber = table.Column<string>(type: "text", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    IsApproved = table.Column<bool>(type: "boolean", nullable: false),
                     Avatar = table.Column<string>(type: "text", nullable: false),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -59,26 +59,6 @@ namespace PickleBall.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Courts",
-                columns: table => new
-                {
-                    ID = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: false),
-                    Location = table.Column<string>(type: "text", nullable: false),
-                    PricePerHour = table.Column<decimal>(type: "numeric", nullable: false),
-                    ImageUrl = table.Column<string>(type: "text", nullable: false),
-                    CourtTypeID = table.Column<Guid>(type: "uuid", nullable: false),
-                    CourtStatus = table.Column<int>(type: "integer", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
-                    Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Courts", x => x.ID);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "TimeSlots",
                 columns: table => new
                 {
@@ -97,7 +77,7 @@ namespace PickleBall.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    RoleId = table.Column<string>(type: "text", nullable: false),
+                    RoleId = table.Column<Guid>(type: "uuid", nullable: false),
                     ClaimType = table.Column<string>(type: "text", nullable: true),
                     ClaimValue = table.Column<string>(type: "text", nullable: true)
                 },
@@ -118,7 +98,7 @@ namespace PickleBall.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UserId = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     ClaimType = table.Column<string>(type: "text", nullable: true),
                     ClaimValue = table.Column<string>(type: "text", nullable: true)
                 },
@@ -140,7 +120,7 @@ namespace PickleBall.Migrations
                     LoginProvider = table.Column<string>(type: "text", nullable: false),
                     ProviderKey = table.Column<string>(type: "text", nullable: false),
                     ProviderDisplayName = table.Column<string>(type: "text", nullable: true),
-                    UserId = table.Column<string>(type: "text", nullable: false)
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -157,8 +137,8 @@ namespace PickleBall.Migrations
                 name: "AspNetUserRoles",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(type: "text", nullable: false),
-                    RoleId = table.Column<string>(type: "text", nullable: false)
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    RoleId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -181,7 +161,7 @@ namespace PickleBall.Migrations
                 name: "AspNetUserTokens",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     LoginProvider = table.Column<string>(type: "text", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Value = table.Column<string>(type: "text", nullable: true)
@@ -205,7 +185,7 @@ namespace PickleBall.Migrations
                     Title = table.Column<string>(type: "text", nullable: false),
                     Content = table.Column<string>(type: "text", nullable: false),
                     ThumbnailUrl = table.Column<string>(type: "text", nullable: false),
-                    UserID = table.Column<string>(type: "text", nullable: false),
+                    PartnerID = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
@@ -215,11 +195,35 @@ namespace PickleBall.Migrations
                 {
                     table.PrimaryKey("PK_Blogs", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_Blogs_AspNetUsers_UserID",
-                        column: x => x.UserID,
+                        name: "FK_Blogs_AspNetUsers_PartnerID",
+                        column: x => x.PartnerID,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Courts",
+                columns: table => new
+                {
+                    ID = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    PartnerId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Location = table.Column<string>(type: "text", nullable: false),
+                    PricePerHour = table.Column<decimal>(type: "numeric", nullable: false),
+                    ImageUrl = table.Column<string>(type: "text", nullable: false),
+                    CourtStatus = table.Column<int>(type: "integer", nullable: false),
+                    Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Courts", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_Courts_AspNetUsers_PartnerId",
+                        column: x => x.PartnerId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -232,7 +236,7 @@ namespace PickleBall.Migrations
                     ExpiresAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     RevokedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UserID = table.Column<string>(type: "text", nullable: false)
+                    UserID = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -250,34 +254,47 @@ namespace PickleBall.Migrations
                 columns: table => new
                 {
                     ID = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserID = table.Column<string>(type: "text", nullable: false),
                     CourtID = table.Column<Guid>(type: "uuid", nullable: false),
-                    TimeSlotID = table.Column<Guid>(type: "uuid", nullable: false),
                     BookingDate = table.Column<DateOnly>(type: "date", nullable: false),
-                    TotalAmount = table.Column<decimal>(type: "numeric", nullable: false),
-                    PaymentStatus = table.Column<int>(type: "integer", nullable: false),
                     BookingStatus = table.Column<int>(type: "integer", nullable: false),
-                    QRCodeUrl = table.Column<string>(type: "text", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ExpriedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    TransactionId = table.Column<string>(type: "text", nullable: false),
+                    TotalAmount = table.Column<int>(type: "integer", nullable: false),
+                    CustomerName = table.Column<string>(type: "text", nullable: false),
+                    PhoneNumber = table.Column<string>(type: "text", nullable: false),
+                    Email = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Bookings", x => x.ID);
-                    table.ForeignKey(
-                        name: "FK_Bookings_AspNetUsers_UserID",
-                        column: x => x.UserID,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Bookings_Courts_CourtID",
                         column: x => x.CourtID,
                         principalTable: "Courts",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CourtTimeSlots",
+                columns: table => new
+                {
+                    CourtID = table.Column<Guid>(type: "uuid", nullable: false),
+                    TimeSlotID = table.Column<Guid>(type: "uuid", nullable: false),
+                    ID = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CourtTimeSlots", x => new { x.CourtID, x.TimeSlotID });
                     table.ForeignKey(
-                        name: "FK_Bookings_TimeSlots_TimeSlotID",
+                        name: "FK_CourtTimeSlots_Courts_CourtID",
+                        column: x => x.CourtID,
+                        principalTable: "Courts",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CourtTimeSlots_TimeSlots_TimeSlotID",
                         column: x => x.TimeSlotID,
                         principalTable: "TimeSlots",
                         principalColumn: "ID",
@@ -285,25 +302,26 @@ namespace PickleBall.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Payments",
+                name: "BookingTimeSlots",
                 columns: table => new
                 {
-                    ID = table.Column<Guid>(type: "uuid", nullable: false),
-                    BookingID = table.Column<Guid>(type: "uuid", nullable: false),
-                    MethodPayment = table.Column<string>(type: "text", nullable: false),
-                    TransactionID = table.Column<string>(type: "text", nullable: false),
-                    PaidAmount = table.Column<decimal>(type: "numeric", nullable: false),
-                    PaidAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    PaymentStatus = table.Column<int>(type: "integer", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
+                    BookingId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TimeSlotId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Payments", x => x.ID);
+                    table.PrimaryKey("PK_BookingTimeSlots", x => new { x.BookingId, x.TimeSlotId });
                     table.ForeignKey(
-                        name: "FK_Payments_Bookings_BookingID",
-                        column: x => x.BookingID,
+                        name: "FK_BookingTimeSlots_Bookings_BookingId",
+                        column: x => x.BookingId,
                         principalTable: "Bookings",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_BookingTimeSlots_TimeSlots_TimeSlotId",
+                        column: x => x.TimeSlotId,
+                        principalTable: "TimeSlots",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -313,22 +331,8 @@ namespace PickleBall.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "afcab8c4-ba4f-4331-83c1-80d44c2c8e78", null, "Admin", "ADMIN" },
-                    { "e6081ef2-337b-436d-b1cc-c66cb49203c1", null, "Customer", "CUSTOMER" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "TimeSlots",
-                columns: new[] { "ID", "EndTime", "StartTime" },
-                values: new object[,]
-                {
-                    { new Guid("2ff5a33e-c6f1-4765-b8d5-3b622679bac9"), new TimeOnly(20, 0, 0), new TimeOnly(18, 0, 0) },
-                    { new Guid("436ef092-06fb-49df-b294-7f4acfd71d62"), new TimeOnly(10, 0, 0), new TimeOnly(8, 0, 0) },
-                    { new Guid("4b2610bb-ab23-4ed3-ba1a-216ef9b27aee"), new TimeOnly(18, 0, 0), new TimeOnly(16, 0, 0) },
-                    { new Guid("6545ccbc-3174-4c96-b9de-ba389f890a3c"), new TimeOnly(22, 0, 0), new TimeOnly(20, 0, 0) },
-                    { new Guid("b5a96ad0-bdf1-4623-84bc-11a9e33ec84e"), new TimeOnly(16, 0, 0), new TimeOnly(14, 0, 0) },
-                    { new Guid("b6d27507-de76-4043-8e2f-c0264db33989"), new TimeOnly(14, 0, 0), new TimeOnly(12, 0, 0) },
-                    { new Guid("dc7cc6fc-9aaa-42e0-af2d-0b74c8176fe0"), new TimeOnly(12, 0, 0), new TimeOnly(10, 0, 0) }
+                    { new Guid("89aa6827-4e1e-4d25-8a54-d16bb532768c"), null, "Partner", "PARTNER" },
+                    { new Guid("be39c154-0a91-4fdc-b47e-1be4f4e7f685"), null, "Admin", "ADMIN" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -369,9 +373,9 @@ namespace PickleBall.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Blogs_UserID",
+                name: "IX_Blogs_PartnerID",
                 table: "Blogs",
-                column: "UserID");
+                column: "PartnerID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Bookings_CourtID",
@@ -379,20 +383,19 @@ namespace PickleBall.Migrations
                 column: "CourtID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Bookings_TimeSlotID",
-                table: "Bookings",
+                name: "IX_BookingTimeSlots_TimeSlotId",
+                table: "BookingTimeSlots",
+                column: "TimeSlotId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Courts_PartnerId",
+                table: "Courts",
+                column: "PartnerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CourtTimeSlots_TimeSlotID",
+                table: "CourtTimeSlots",
                 column: "TimeSlotID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Bookings_UserID",
-                table: "Bookings",
-                column: "UserID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Payments_BookingID",
-                table: "Payments",
-                column: "BookingID",
-                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_RefreshTokens_UserID",
@@ -423,7 +426,10 @@ namespace PickleBall.Migrations
                 name: "Blogs");
 
             migrationBuilder.DropTable(
-                name: "Payments");
+                name: "BookingTimeSlots");
+
+            migrationBuilder.DropTable(
+                name: "CourtTimeSlots");
 
             migrationBuilder.DropTable(
                 name: "RefreshTokens");
@@ -435,13 +441,13 @@ namespace PickleBall.Migrations
                 name: "Bookings");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "TimeSlots");
 
             migrationBuilder.DropTable(
                 name: "Courts");
 
             migrationBuilder.DropTable(
-                name: "TimeSlots");
+                name: "AspNetUsers");
         }
     }
 }

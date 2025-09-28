@@ -1,10 +1,11 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using PickleBall.Models;
 
 namespace PickleBall.Data
 {
-    public class BookingContext : IdentityDbContext<User>
+    public class BookingContext : IdentityDbContext<Partner, IdentityRole<Guid>, Guid>
     {
         public BookingContext(DbContextOptions<BookingContext> options) : base(options) { }
 
@@ -15,6 +16,7 @@ namespace PickleBall.Data
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<BookingTimeSlots> BookingTimeSlots { get; set; }
         public DbSet<CourtTimeSlot> CourtTimeSlots { get; set; }
+        public DbSet<Partner> Partners { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder builder)
         {

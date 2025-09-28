@@ -5,7 +5,7 @@ using PickleBall.Service.Auth;
 using Serilog;
 using System.ComponentModel.DataAnnotations;
 
-namespace PickleBall.Controllers
+namespace PickleBall.Controllers.Auth
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -38,82 +38,16 @@ namespace PickleBall.Controllers
                 {
                     Message = "Đăng nhập thành công",
                     StatusCode = result.StatusCode,
-                    AccessToken = result.Data
+                    result.Data
                 });
 
             }
             catch (Exception ex)
             {
-                Log.Error($"Lỗi khác: {ex.Message}");
+                Log.Error($"Lỗi khác: {ex.Message ?? ex.InnerException.Message}");
                 return BadRequest(new
                 {
-                    Message = ex.Message,
-                    StatusCode = StatusCodes.Status400BadRequest
-                });
-            }
-        }
-
-        [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterRequest request)
-        {
-            try
-            {
-                var result =  await _accountService.Register(request);
-
-                if (!result.Success)
-                {
-                    return BadRequest(new
-                    {
-                        Message = result.Error,
-                        StatusCode = result.StatusCode
-                    });
-                }
-
-                return Ok(new
-                {
-                    Message = result.Data,
-                    StatusCode = result.StatusCode
-                });
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"Lỗi khác : {ex.InnerException.Message ?? ex.Message}");
-                return BadRequest(new
-                {
-                    Message = ex.InnerException.Message ?? ex.Message,
-                    StatusCode = StatusCodes.Status400BadRequest
-                });
-            }
-        }
-
-        [HttpPost("admin-register")]
-        public async Task<IActionResult> RegisterForAdmin(RegisterRequest request)
-        {
-            try
-            {
-                var result = await _accountService.RegisterForAdmin(request);
-
-                if (!result.Success)
-                {
-                    return BadRequest(new
-                    {
-                        Message = result.Error,
-                        StatusCode = result.StatusCode
-                    });
-                }
-
-                return Ok(new
-                {
-                     Message = result.Data,
-                     StatusCode = result.StatusCode
-                });
-            }catch(Exception ex)
-            {
-                Log.Error($"Lỗi không đăng kí tài khoàn cho role admin: {ex.InnerException.Message ?? ex.Message}");
-
-                return BadRequest(new
-                {
-                    Message = ex.InnerException.Message ?? ex.Message,
+                    ex.Message,
                     StatusCode = StatusCodes.Status400BadRequest
                 });
             }
@@ -132,13 +66,13 @@ namespace PickleBall.Controllers
                     return BadRequest(new
                     {
                         Message = result.Error,
-                        StatusCode = result.StatusCode
+                        result.StatusCode
                     });
                 }
                 return Ok(new
                 {
                     Message = result.Data,
-                    StatusCode = result.StatusCode
+                    result.StatusCode
                 });
             }catch (Exception ex)
             {   
@@ -165,14 +99,14 @@ namespace PickleBall.Controllers
                     return Unauthorized(new
                     {
                         Message = result.Error,
-                        StatusCode = result.StatusCode
+                        result.StatusCode
                     });
                 }
 
                 return Ok(new
                 {
                     Message = result.Data,
-                    StatusCode = result.StatusCode
+                    result.StatusCode
                 });
             }
             catch (Exception ex)
@@ -200,83 +134,62 @@ namespace PickleBall.Controllers
                     return BadRequest(new
                     {
                         Message = result.Error,
-                        StatusCode = result.StatusCode
+                        result.StatusCode
                     });
                 }
 
                 return Ok(new
                 {
                     Message = "Refresh token succeed",
-                    StatusCode = result.StatusCode,
-                    AccessToken = result.Data
+                    result.StatusCode,
+                    result.Data
                 });
             }
             catch (Exception ex)
             {
                 return BadRequest(new
                 {
-                    Message = ex.Message,
+                    ex.Message,
                     StatusCode = StatusCodes.Status400BadRequest
                 });
             }
         }
 
-
-        [AllowAnonymous]    
-        [HttpPost("reset-password")]
-        public async Task<IActionResult> ResetPassword(ForgetPasswordRequest passwordRequest)
+        //[Authorize]
+        [HttpPost("register-partner")]
+        public async Task<IActionResult> RegisterParterByAdmin(RegisterPartnerRequest request)
         {
             try
             {
-               var result =  await _accountService.ResetPassword(passwordRequest);
+                var result = await _accountService.CreatePartnerByAdmin(request);
 
                 if (!result.Success)
                 {
                     return BadRequest(new
                     {
-                        Message =result.Error,
-                        StatusCode = StatusCodes.Status400BadRequest
+                        Message = result.Error,
+                        result.StatusCode
                     });
                 }
+
                 return Ok(new
                 {
                     Message = result.Data,
-                    StatusCodes = StatusCodes.Status200OK
+                    result.StatusCode,
                 });
-            }catch(Exception ex)
+
+            }
+            catch (Exception ex)
             {
-                Log.Error($"Lỗi khác: {ex.Message}");
+                Log.Error($"Lỗi khác: {ex.Message ?? ex.InnerException.Message}");
                 return BadRequest(new
                 {
-                    Message = ex.Message,
+                    ex.Message,
                     StatusCode = StatusCodes.Status400BadRequest
                 });
             }
         }
 
-        [HttpPost("forgot-email")]
-        [AllowAnonymous]
-        public async Task<IActionResult> ForgotPassword([Required] string email)
-        {   
-            try
-            {
-                var user = await _accountService.ForgotPassword(email);
-
-                return Ok(new
-                {
-                    Message = "Email đã được gửi, hãy kiểm tra email để đặt lại mật khẩu",
-                    StatusCode = StatusCodes.Status200OK
-                });
-            }catch(Exception ex)
-            {
-                Log.Error($"Lỗi khác: {ex.Message}");
-                return BadRequest(new
-                {
-                    Message = ex.Message,
-                    StatusCode = StatusCodes.Status400BadRequest
-                });
-            }
-            
-        }
+       
     }
 }

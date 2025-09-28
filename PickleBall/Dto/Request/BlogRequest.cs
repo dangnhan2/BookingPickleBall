@@ -6,7 +6,7 @@ namespace PickleBall.Dto.Request
     {
         public string Title { get; set; }
         public string Content { get; set; }
-        public string UserID { get; set; }
+        public Guid ParnerID { get; set; }
         public IFormFile? ThumbnailUrl { get; set; }
         public BlogStatus BlogStatus { get; set; }
     }

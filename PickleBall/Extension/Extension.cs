@@ -11,6 +11,11 @@ namespace PickleBall.Extension
             return values.Skip((page - 1) * pageSize).Take(pageSize);
         }
 
+        public static IEnumerable<T> Paging<T>(this IEnumerable<T> values, int page, int pageSize)
+        {
+            return values.Skip((page - 1) * pageSize).Take(pageSize);
+        }
+
         public static string HashRefreshToken(this string token)
         {
             using var sha256 = SHA256.Create();

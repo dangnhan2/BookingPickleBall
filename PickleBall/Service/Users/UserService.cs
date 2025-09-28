@@ -24,7 +24,7 @@ namespace PickleBall.Service.Users
             _cloudinaryService = cloudinaryService;        
         }
 
-        public async Task<DataReponse<UsersDto>> GetAll(UserParams user)
+        public async Task<DataReponse<UserDto>> GetAll(UserParams user)
         {
             var users = _unitOfWorks.User.Get().AsNoTracking();
 
@@ -43,23 +43,19 @@ namespace PickleBall.Service.Users
                 users = users.Where(u => u.Email.Trim().Contains(user.Email.Trim()));
             }
 
-            if (user.Status.HasValue)
-            {
-                users = users.Where(u => u.Status == user.Status);
-            }
 
-            var usersToDto = users.Where(u => !u.IsAdmin).Select(u => new UsersDto
+            var usersToDto = users.Select(u => new UserDto
             {
                 ID = u.Id,
                 FullName = u.FullName,
-                UserName = u.UserName,
+                BussinessName = u.BussinessName,
                 Email = u.Email,
                 PhoneNumber = u.PhoneNumber,
                 Avatar = u.Avatar,
-                Status = u.Status
+                IsApproved = u.IsApproved
             }).Paging(user.Page, user.PageSize);
 
-            return new DataReponse<UsersDto>
+            return new DataReponse<UserDto>
             {
                 Page = user.Page,
                 PageSize = user.PageSize,
@@ -68,47 +64,30 @@ namespace PickleBall.Service.Users
             };
         }
 
-        public async Task<Result<UsersDto>> GetById(string userId)
+        public async Task<Result<UserDto>> GetById(Guid id)
         {
-            var isExistUser = await _unitOfWorks.User.GetById(userId); 
+            var isExistUser = await _unitOfWorks.User.GetById(id); 
 
             if (isExistUser == null)
             {
-                return Result<UsersDto>.Fail("Không tìm thấy người dùng", StatusCodes.Status404NotFound);
+                return Result<UserDto>.Fail("Không tìm thấy người dùng", StatusCodes.Status404NotFound);
             }
 
-            var userToDto = new UsersDto
+            var userToDto = new UserDto
             {
                 ID = isExistUser.Id,
                 FullName = isExistUser.FullName,
-                UserName = isExistUser.UserName,
+                BussinessName = isExistUser.BussinessName,
                 Email = isExistUser.Email,
                 PhoneNumber = isExistUser.PhoneNumber,
                 Avatar = isExistUser.Avatar,
-                Status = isExistUser.Status
+                IsApproved = isExistUser.IsApproved
             };
 
-            return Result<UsersDto>.Ok(userToDto, StatusCodes.Status200OK);
+            return Result<UserDto>.Ok(userToDto, StatusCodes.Status200OK);
         }
 
-        public async Task<Result<string>> UpdateByAdmin(string userId, UserRequestByAdmin user)
-        {
-            var isExistUser = await _unitOfWorks.User.GetById(userId);
-
-            if (isExistUser == null)
-            {
-                return Result<string>.Fail("Không tìm thấy người dùng", StatusCodes.Status404NotFound);
-            }
-
-            isExistUser.Status = user.Status;
-
-            _unitOfWorks.User.Update(isExistUser);
-            await _unitOfWorks.CompleteAsync();
-
-            return Result<string>.Ok("Cập nhật thành công", StatusCodes.Status200OK);
-        }
-
-        public async Task<Result<string>> UpdateByUser(string userId, UserRequest user)
+        public async Task<Result<string>> UpdateByUser(Guid userId, UserRequest user)
         {
             //var isExistUser = await _unitOfWorks.User.GetById(userId) ?? throw new KeyNotFoundException("Không tìm thấy người dùng");
 
@@ -135,9 +114,9 @@ namespace PickleBall.Service.Users
             return Result<string>.Ok("Cập nhật thành công", StatusCodes.Status200OK);
         }
 
-        public async Task UploadAvatarByUser(string userId, IFormFile file)
+        public async Task UploadAvatarByUser(Guid id, IFormFile file)
         {
-            var isExistUser = await _unitOfWorks.User.GetById(userId) ?? throw new KeyNotFoundException("Không tìm thấy người dùng");
+            var isExistUser = await _unitOfWorks.User.GetById(id) ?? throw new KeyNotFoundException("Không tìm thấy người dùng");
             var avatarUrl = await _cloudinaryService.Upload(file, allowedExtension, folder);
 
             if (isExistUser.Avatar == "https://res.cloudinary.com/dtihvekmn/image/upload/v1751645852/istockphoto-1337144146-612x612_llpkam.jpg")
@@ -152,5 +131,6 @@ namespace PickleBall.Service.Users
             _unitOfWorks.User.Update(isExistUser);
             await _unitOfWorks.CompleteAsync();
         }
+
     }
 }

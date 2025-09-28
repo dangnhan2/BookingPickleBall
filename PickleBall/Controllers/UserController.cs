@@ -7,7 +7,7 @@ using System.Security.Claims;
 
 namespace PickleBall.Controllers
 {
-    //[Authorize]   
+    [Authorize]   
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
@@ -20,7 +20,7 @@ namespace PickleBall.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(string id)
+        public async Task<IActionResult> GetById(Guid id)
         {
             try
             {
@@ -54,29 +54,20 @@ namespace PickleBall.Controllers
             }
         }
 
-        [HttpPut("upload-avatar/{userId}")]
-        public async Task<IActionResult> UploadAvatar(string userId, IFormFile file)
+        [HttpPut("upload-avatar/{id}")]
+        public async Task<IActionResult> UploadAvatar(Guid id, IFormFile file)
         {
             try
-            {  
-                var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            {
 
-                if (userId == id)
+                await _userService.UploadAvatarByUser(id, file);
+
+                return Ok(new
                 {
-                    await _userService.UploadAvatarByUser(userId, file);
-
-                    return Ok(new
-                    {
-                        Message = "Cập nhật hình ảnh thành công",
-                        StatusCode = StatusCodes.Status200OK,
-                    });
-                }
-
-                return Unauthorized(new
-                {
-                    Message = "Id của người dùng không hợp lệ",
-                    StatusCode = StatusCodes.Status401Unauthorized
+                    Message = "Cập nhật hình ảnh thành công",
+                    StatusCode = StatusCodes.Status200OK,
                 });
+
             }
             catch (Exception ex)
             {
@@ -91,15 +82,11 @@ namespace PickleBall.Controllers
         }
 
         [HttpPut("{userId}")]
-        public async Task<IActionResult> UpdateUser(string userId, [FromBody] UserRequest user)
+        public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UserRequest user)
         {
             try
             {
-                var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-                if (id == userId)
-                {
-                    var result = await _userService.UpdateByUser(userId, user);
+                    var result = await _userService.UpdateByUser(id, user);
 
                     if (!result.Success)
                     {
@@ -114,14 +101,7 @@ namespace PickleBall.Controllers
                     {
                         Message = result.Data,
                         StatusCode = result.StatusCode
-                    });
-                }                    
-
-                return Unauthorized(new
-                {
-                    Message = "Id của người dùng không hợp lệ",
-                    StatusCode = StatusCodes.Status401Unauthorized
-                });
+                    });                    
             }
             catch (Exception ex)
             {

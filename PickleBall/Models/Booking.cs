@@ -5,8 +5,6 @@ namespace PickleBall.Models
     public class Booking
     {
         public Guid ID { get; set; }
-        public string UserID { get; set; }
-        public User User { get; set; }
         public Guid CourtID { get; set; }
         public Court Court { get; set; }
         public DateOnly BookingDate { get; set; }
@@ -15,6 +13,9 @@ namespace PickleBall.Models
         public DateTime ExpriedAt { get; set; } = DateTime.UtcNow.AddMinutes(10);
         public string TransactionId { get; set; }
         public int TotalAmount { get; set; }
+        public string CustomerName { get; set; }
+        public string PhoneNumber { get; set; }
+        public string Email { get; set; }
         public List<BookingTimeSlots> BookingTimeSlots { get; set; } = new List<BookingTimeSlots>();
     }
 }

@@ -8,8 +8,8 @@ namespace PickleBall.Validation
     {  
         public LoginRequestValidator() {
             RuleFor(x => x.Email)
-            .NotEmpty().WithMessage("Địa chỉ email không được để trống.") // Email không được rỗng
-            .EmailAddress().WithMessage("Địa chỉ email không hợp lệ."); // Phải là định dạng email hợp lệ
+            .NotEmpty().WithMessage("Email không được để trống.") // Email không được rỗng
+            .EmailAddress().WithMessage("Email không hợp lệ."); // Phải là định dạng email hợp lệ
 
             RuleFor(x => x.Password)
                 .NotEmpty().WithMessage("Mật khẩu không được để trống.");

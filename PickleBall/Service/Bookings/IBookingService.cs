@@ -6,6 +6,6 @@ namespace PickleBall.Service.Bookings
 {
     public interface IBookingService
     {
-        public Task<DataReponse<BookingDto>> Get(BookingParams bookingParams);
+        public Task<DataReponse<BookingDto>> GetByPartner(Guid id, BookingParams bookingParams);
     }
 }

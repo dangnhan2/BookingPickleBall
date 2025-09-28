@@ -8,9 +8,9 @@ namespace PickleBall.Controllers.Email
     [ApiController]
     public class EmailController : ControllerBase
     {
-        private readonly UserManager<User> _userManager;
+        private readonly UserManager<Partner> _userManager;
 
-        public EmailController(UserManager<User> userManager)
+        public EmailController(UserManager<Partner> userManager)
         {
             _userManager = userManager;
         }
@@ -35,33 +35,6 @@ namespace PickleBall.Controllers.Email
 
              return Redirect("https://pickleboom.vercel.app/login?confirm=success");
         }
-
-        [HttpGet("confirm-resetpassword")]
-        public async Task<IActionResult> SendEmailConfirmResetPassword(string email, string token)
-        {
-            //var user = await _userManager.FindByEmailAsync(email);
-
-            ////if (user == null)
-            ////    return Redirect("https://localhost:5173/login?confirm=fail");
-
-            //var result = await _userManager.ConfirmEmailAsync(user, token);
-
-            ////if (!result.Succeeded)
-            ////    return Redirect("https://localhost:5173/login?confirm=fail");
-
-            ////user.EmailConfirmed = true;
-
-            ////return Redirect("https://localhost:5173/login?confirm=success");
-
-            //return Ok(new
-            //{
-            //    Message = "Reset password",
-            //    StatusCode = StatusCodes.Status200OK,
-            //    Email = email,
-            //    Token = token
-            //});
-            var url = $"https://pickleboom.vercel.app/api/Email/confirm-resetpassword?email={email}&token={token}";
-            return Redirect(url);
-        }
+        
     }
 }

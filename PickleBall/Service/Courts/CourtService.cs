@@ -1,12 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PickleBall.Data;
 using PickleBall.Dto;
 using PickleBall.Dto.QueryParams;
 using PickleBall.Dto.Request;
 using PickleBall.Extension;
 using PickleBall.Models;
+using PickleBall.Models.Enum;
 using PickleBall.Service.Storage;
 using PickleBall.UnitOfWork;
 using PickleBall.Validation;
+using System.Reflection.Metadata.Ecma335;
 
 namespace PickleBall.Service.Courts
 {
@@ -16,9 +19,12 @@ namespace PickleBall.Service.Courts
         private readonly ICloudinaryService _cloudinaryService;
         private readonly string[] allowedExtension = { ".jpg", ".png", ".jpeg", };
         private const string folder = "Court";
-        public CourtService(IUnitOfWorks unitOfWork, ICloudinaryService cloudinaryService) { 
+        private readonly BookingContext _context;
+
+        public CourtService(IUnitOfWorks unitOfWork, ICloudinaryService cloudinaryService, BookingContext context) { 
           _unitOfWork = unitOfWork;
           _cloudinaryService = cloudinaryService;
+          _context = context;
         }
 
         public async Task<Result<string>> Add(CourtRequest court)
@@ -45,8 +51,8 @@ namespace PickleBall.Service.Courts
             var newCourt = new Court
             {
                 ID = Guid.NewGuid(),
+                PartnerId = court.PartnerId,
                 Name = court.Name,
-                Description = court.Description,
                 Location = court.Location,
                 PricePerHour = court.PricePerHour,
                 CourtStatus = court.CourtStatus,
@@ -96,72 +102,6 @@ namespace PickleBall.Service.Courts
             return Result<string>.Ok("Xóa thành công", StatusCodes.Status200OK);
         }
 
-        public async Task<DataReponse<CourtDto>> GetAll(CourtParams court)
-        {
-            var courts = _unitOfWork.Court.Get();
-
-            if (!string.IsNullOrEmpty(court.Name))
-            {
-                courts = courts.Where(c => c.Name.ToLower().Contains(court.Name.ToLower()));
-            }
-
-            if (court.Status.HasValue)
-            {
-                courts = courts.Where(c => c.CourtStatus == court.Status);
-            }
-
-            var courtsToDto = courts.Select(c => new CourtDto
-            {
-                ID = c.ID,
-                Name = c.Name,
-                Description = c.Description,
-                Location = c.Location,
-                PricePerHour = c.PricePerHour,
-                ImageUrl = c.ImageUrl,
-                CourtStatus = c.CourtStatus,
-                Created = c.Created,
-            }).Paging(court.Page, court.PageSize);
-
-            return new DataReponse<CourtDto>
-            {
-                Page = court.Page,
-                PageSize = court.PageSize,
-                Total = courts.Count(),
-                Data = await courtsToDto.ToListAsync()
-            };
-        }
-
-        public async Task<Result<CourtForIdDto>> GetById(Guid id)
-        {
-          
-            var isExistCourt = await _unitOfWork.Court.GetById(id);
-
-            if( isExistCourt == null)
-            {
-                return Result<CourtForIdDto>.Fail("Không tìm thấy sân", StatusCodes.Status404NotFound);
-            }
-           
-            var courtToDto = new CourtForIdDto
-            {
-                ID = isExistCourt.ID,
-                Name = isExistCourt.Name,
-                Description = isExistCourt.Description,
-                Location = isExistCourt.Location,
-                PricePerHour = isExistCourt.PricePerHour,
-                ImageUrl = isExistCourt.ImageUrl,
-                CourtStatus = isExistCourt.CourtStatus,
-                Created = isExistCourt.Created,
-                TimeSlotIDs = isExistCourt.CourtTimeSlots.Select(tl => new TimeSlotDto
-                {
-                    ID = tl.TimeSlotID,
-                    StartTime = tl.TimeSlot.StartTime,
-                    EndTime = tl.TimeSlot.EndTime,
-                }).ToList()
-            };
-
-            return Result<CourtForIdDto>.Ok(courtToDto, StatusCodes.Status200OK);
-        }
-
         public async Task<Result<string>> Update(Guid id, CourtRequest court)
         {
             var validator = new CourtRequestValidator();
@@ -199,8 +139,8 @@ namespace PickleBall.Service.Courts
                 isExistCourt.ImageUrl = imageUrl;
             }
 
+            isExistCourt.PartnerId = court.PartnerId;
             isExistCourt.Name = court.Name;
-            isExistCourt.Description = court.Description;
             isExistCourt.Location = court.Location;
             isExistCourt.PricePerHour = court.PricePerHour;
             isExistCourt.CourtStatus = court.CourtStatus;
@@ -213,7 +153,8 @@ namespace PickleBall.Service.Courts
             foreach (var slotId in uniqueIds)
             {
                 var newMapping = new CourtTimeSlot
-                {
+                {   
+                    ID = Guid.NewGuid(),
                     CourtID = isExistCourt.ID,
                     TimeSlotID = slotId
                 };
@@ -226,5 +167,96 @@ namespace PickleBall.Service.Courts
 
             return Result<string>.Ok("Cập nhật thành công", StatusCodes.Status200OK);
         }
+
+        public async Task<DataReponse<CourtDto>> GetAllByPartner(Guid id, CourtParams court)
+        {
+            var courts = _unitOfWork.Court.GetAllByPartner(id);
+
+            if (!string.IsNullOrEmpty(court.Name))
+            {
+                courts = courts.Where(c => c.Name.ToLower().Contains(court.Name.ToLower()));
+            }
+
+            if (court.Status.HasValue)
+            {
+                courts = courts.Where(c => c.CourtStatus == court.Status);
+            }
+
+            var courtsToDto = courts.Select(c => new CourtDto
+            {
+                ID = c.ID,
+                Name = c.Name,
+                Location = c.Location,
+                PricePerHour = c.PricePerHour,
+                ImageUrl = c.ImageUrl,
+                CourtStatus = c.CourtStatus,
+                Created = c.Created,
+            }).Paging(court.Page, court.PageSize);
+
+            return new DataReponse<CourtDto>
+            {
+                Page = court.Page,
+                PageSize = court.PageSize,
+                Total = courts.Count(),
+                Data = await courtsToDto.ToListAsync()
+            };
+        }
+
+        public async Task<Result<CourtDto>> GetById(Guid id)
+        {
+            var court = await _unitOfWork.Court.GetById(id);
+
+            if(court == null)
+            {
+                return Result<CourtDto>.Fail("Không tìm thấy sân", StatusCodes.Status200OK);
+            }
+
+            var courtToDto = new CourtDto
+            {
+                ID = court.ID,
+                Name = court.Name,
+                Location = court.Location,
+                PricePerHour = court.PricePerHour,
+                ImageUrl = court.ImageUrl,
+                CourtStatus = court.CourtStatus,
+                Created = court.Created,
+                TimeSlotIDs = court.CourtTimeSlots.Select(s => new TimeSlotDto
+                {
+                  ID = s.ID,
+                  StartTime = s.TimeSlot.StartTime,
+                  EndTime = s.TimeSlot.EndTime
+                }).ToList()
+            };
+
+            return Result<CourtDto>.Ok(courtToDto, StatusCodes.Status200OK);
+        }
+
+        public async Task<IEnumerable<CourtDto>> GetAllInSpecificDate(Guid id, DateOnly date)
+        {
+            return await _context.Courts
+                 .Where(c => c.PartnerId == id)
+                   .Select(c => new CourtDto
+                   {
+                      ID = c.ID,
+                      Name = c.Name,
+                      TimeSlotIDs = c.CourtTimeSlots
+                   .Select(ts => new TimeSlotDto
+                   {
+                      ID = ts.ID,
+                      StartTime = ts.TimeSlot.StartTime,
+                      EndTime = ts.TimeSlot.EndTime,
+                      Status = ts.BookingTimeSlots
+                   .Where(bt => bt.Booking.BookingDate == date && bt.Booking.ExpriedAt > DateTime.UtcNow)
+                   .Select(bt => (BookingStatus?)bt.Booking.BookingStatus)
+    .              FirstOrDefault() ?? BookingStatus.Free
+                    })
+                    .OrderBy(s => s.StartTime)
+                     .ToList()
+                    }).ToListAsync();
+
+        }      
     }
 }
+
+//b3f0c7d0-c7f1-474a-8bd6-66883787c0d7
+//2025-09-27

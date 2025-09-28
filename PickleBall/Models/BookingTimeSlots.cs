@@ -5,8 +5,7 @@
         public Guid Id { get; set; }
         public Guid BookingId { get; set; }
         public Booking Booking { get; set; }
-        public Guid TimeSlotId { get; set; }
-        public TimeSlot TimeSlot { get; set; }
-        
+        public Guid CourtTimeSlotId { get; set; }
+        public CourtTimeSlot CourtTimeSlots { get; set; }
     }
 }

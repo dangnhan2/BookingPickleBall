@@ -3,22 +3,26 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PickleBall.Dto.QueryParams;
 using PickleBall.Dto.Request;
+using PickleBall.Service.Blogs;
 using PickleBall.Service.Users;
+using Serilog;
 
 namespace PickleBall.Controllers.Admin
 {
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "Admin")]
-    public class UserController : ControllerBase
+    public class AdminController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IBlogService _blogService;
 
-        public UserController(IUserService userService) { 
+        public AdminController(IUserService userService, IBlogService blogService) { 
           _userService = userService;
+          _blogService = blogService;
         }
 
-        [HttpGet]
+        [HttpGet("user")]
         public async Task<IActionResult> GetAll([FromQuery] UserParams user)
         {
             try
@@ -41,24 +45,36 @@ namespace PickleBall.Controllers.Admin
             }
         }
 
-        [HttpPatch("{userId}")]
-        public async Task<IActionResult> UpdateByAdmin(string userId,[FromForm] UserRequestByAdmin user)
+        [HttpPatch("blog/{id}")]
+        public async Task<IActionResult> DeleteBlog(Guid id)
         {
             try
             {
-                await _userService.UpdateByAdmin(userId, user);
+                var result = await _blogService.Delete(id);
 
+                if (!result.Success)
+                {
+                    return NotFound(new
+                    {
+                        Message = result.Error,
+                        result.StatusCode
+                    });
+
+                }
                 return Ok(new
                 {
-                    Message = "Cập nhật thành công",
-                    StatusCode = StatusCodes.Status200OK,
+                    Message = result.Data,
+                    result.StatusCode
                 });
-            }catch(KeyNotFoundException ex)
+            }
+            catch (Exception ex)
             {
-                return NotFound(new
+                Log.Error($"Lỗi khác : ${ex.Message}");
+
+                return BadRequest(new
                 {
                     Message = ex.Message,
-                    StatusCode = StatusCodes.Status404NotFound
+                    StatusCode = StatusCodes.Status400BadRequest
                 });
             }
         }
