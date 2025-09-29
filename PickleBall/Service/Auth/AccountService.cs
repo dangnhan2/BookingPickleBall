@@ -254,5 +254,35 @@ namespace PickleBall.Service.Auth
                 return Result<string>.Ok("Đăng kí thành công", StatusCodes.Status201Created);
             
         }
+
+        public async Task<Result<string>> CreateAdmin(RegisterRequest request)
+        {
+            var user = await _userManager.FindByEmailAsync(request.Email);
+
+            if (user != null)
+                return Result<string>.Fail("Email đã được đăng kí", StatusCodes.Status400BadRequest);
+
+            var admin = new Partner
+            {
+                Email = request.Email,
+                NormalizedEmail = request.Email.ToUpper(),
+                FullName = "admin",
+                UserName = request.Username,
+                EmailConfirmed = true,
+                IsApproved = true,
+                IsAdmin = true,
+                Avatar = avatar
+            };
+
+            var result = await _userManager.CreateAsync(admin, request.Password);
+
+            if (!result.Succeeded)
+            {
+                return Result<string>.Fail("Đăng kí thất bại", StatusCodes.Status400BadRequest);
+            }
+
+            await _userManager.AddToRoleAsync(admin, "Admin");
+            return Result<string>.Ok("Đăng kí thành công", StatusCodes.Status201Created);
+        }
     }
 }

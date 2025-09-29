@@ -190,6 +190,38 @@ namespace PickleBall.Controllers.Auth
             }
         }
 
+        [HttpPost("admin-register")]
+        public async Task<IActionResult> AdminRegister([FromBody] RegisterRequest request)
+        {
+            try
+            {
+                var result = await _accountService.CreateAdmin(request);
+
+                if (!result.Success)
+                {
+                    return BadRequest(new
+                    {
+                        Message = result.Error,
+                        result.StatusCode
+                    });
+                }
+
+                return Ok(new
+                {
+                    Message = result.Data,
+                    result.StatusCode,
+                });
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Lỗi khác: {ex.Message ?? ex.InnerException.Message}");
+                return BadRequest(new
+                {
+                    ex.Message,
+                    StatusCode = StatusCodes.Status400BadRequest
+                });
+            }
+        }
        
     }
 }
