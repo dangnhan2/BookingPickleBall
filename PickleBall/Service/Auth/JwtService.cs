@@ -28,30 +28,32 @@ namespace PickleBall.Service.Auth
             _unitOfWork = unitOfWorks;
             _userManager = userManager;
         }
-        public async Task<Result<TokenResponse>> GenerateRefreshToken(string refreshToken)
+        public async Task<Result<LoginResponse>> GenerateRefreshToken(string refreshToken, HttpContext context)
         {
             var isExistToken = await _unitOfWork.RefreshToken.GetAsync(refreshToken.HashRefreshToken());
 
             if (isExistToken == null)
-                return Result<TokenResponse>.Fail("Token không hợp/không tìm thấy", StatusCodes.Status401Unauthorized);
+                return Result<LoginResponse>.Fail("Token is invalid", StatusCodes.Status401Unauthorized);
 
             if (isExistToken.IsLocked == true)
-                return Result<TokenResponse>.Fail("Tài khoản đã bị khóa, vui lòng đăng nhập lại", StatusCodes.Status400BadRequest);
+                return Result<LoginResponse>.Fail("Tài khoản đã bị khóa, vui lòng đăng nhập lại", StatusCodes.Status400BadRequest);
 
             if (isExistToken.ExpiresAt < DateTime.UtcNow)
-                return Result<TokenResponse>.Fail("Token đã hết hạn, vui lòng đăng nhập lại", StatusCodes.Status401Unauthorized);
+                return Result<LoginResponse>.Fail("Token is invalid", StatusCodes.Status401Unauthorized);
 
-            var userToDto = await GenerateToken(isExistToken.User);
+            _unitOfWork.RefreshToken.Delete(isExistToken);
+            var userToDto = await GenerateToken(isExistToken.User, context);
 
-            return Result<TokenResponse>.Ok(userToDto, StatusCodes.Status200OK);
+            return Result<LoginResponse>.Ok(userToDto.Data, StatusCodes.Status200OK);
         }
 
-        public async Task<TokenResponse> GenerateToken(Partner user)
+        public async Task<Result<LoginResponse>> GenerateToken(Partner user, HttpContext context)
         {
             var credentials = new SigningCredentials(_symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
             var issuer = Env.GetString("ISSUER");
             var audience = Env.GetString("AUDIENCE");
 
+            // claims
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -76,12 +78,6 @@ namespace PickleBall.Service.Auth
 
             string refresh = Guid.NewGuid().ToString() + "-" + Guid.NewGuid().ToString();
 
-            var tokens = new TokenResponse
-            {
-                AccessToken = token,
-                RefreshToken = refresh,
-            };
-
             var refreshToken = new RefreshTokens
             {
                 UserID = user.Id,
@@ -91,10 +87,39 @@ namespace PickleBall.Service.Auth
                 ExpiresAt = DateTime.UtcNow.AddMonths(7)
             };
 
+            var loginResponse = new LoginResponse
+            {
+                Data = new UserDto
+                {
+                    ID = user.Id,
+                    FullName = user.FullName,
+                    PhoneNumber = user.PhoneNumber,
+                    Email = user.Email,
+                    BussinessName = user.BussinessName,
+                    Avatar = user.Avatar,
+                    IsApproved = user.IsApproved,
+                    Role = userRole.First(),
+                },
+                AccessToken = token
+            };
+
+
             _unitOfWork.RefreshToken.Add(refreshToken);
             await _unitOfWork.CompleteAsync();
 
-            return tokens;
+            context.Response.Cookies.Append(
+                  "refresh_token",
+                  refresh,
+                  new CookieOptions
+                  {
+                      HttpOnly = true,
+                      Secure = true,
+                      SameSite = SameSiteMode.None,
+                      Path = "/",
+                      Expires = DateTime.UtcNow.AddMonths(3)
+                  });
+
+            return Result<LoginResponse>.Ok(loginResponse, StatusCodes.Status200OK);
         }
 
     }
