@@ -215,7 +215,6 @@ namespace PickleBall.Service.Auth
             await _userManager.AddToRoleAsync(admin, "Admin");
             return Result<string>.Ok("Đăng kí thành công", StatusCodes.Status201Created);
         }
-
         private string Template(string fullName, string email, string password)
         {
             string body = $@"
@@ -255,7 +254,7 @@ namespace PickleBall.Service.Auth
     }
 }
 //{
-//    "email": "nhanndqe180096@fpt.edu.vn",
+//  "email": "nhanndqe180096@fpt.edu.vn",
 //  "fullName": "Partner2",
 //  "bussinessName": "partner2",
 //  "phoneNumber": "0378388001"
