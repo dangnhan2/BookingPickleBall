@@ -10,8 +10,6 @@ namespace PickleBall.Service.Email
     {
         public async Task EmailSender(string email, string subject, string body)
         {
-            try
-            {
                 Env.Load();
                 var host = Env.GetString("SMTP_HOST");
                 var port = Env.GetInt("SMTP_PORT");
@@ -37,13 +35,7 @@ namespace PickleBall.Service.Email
                     client.DeliveryMethod = SmtpDeliveryMethod.Network;
 
                     await client.SendMailAsync(mailMessage);
-                }
-            }catch(Exception ex)
-            {
-                Log.Error($"Email send error: {ex.Message}");
-                throw;
-            }
-           
+                }         
         }
     }
 }
