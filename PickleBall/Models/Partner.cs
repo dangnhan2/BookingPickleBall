@@ -6,7 +6,8 @@ namespace PickleBall.Models
     public class Partner : IdentityUser<Guid>
     {
         public string FullName { get; set; } = null!;
-        public string? BussinessName { get; set; } = null!;
+        public string? BussinessName { get; set; }
+        public string? Address { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public bool IsApproved { get; set; } 
         public bool IsAdmin { get; set; }

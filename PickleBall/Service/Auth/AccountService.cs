@@ -166,6 +166,7 @@ namespace PickleBall.Service.Auth
                     NormalizedEmail = request.Email.ToUpper(),
                     BussinessName = request.BussinessName,
                     PhoneNumber = request.PhoneNumber,
+                    Address = request.Address,
                     Avatar = avatar,
                     EmailConfirmed = true,
                     IsApproved = true,
@@ -253,9 +254,3 @@ namespace PickleBall.Service.Auth
         }
     }
 }
-//{
-//  "email": "nhanndqe180096@fpt.edu.vn",
-//  "fullName": "Partner2",
-//  "bussinessName": "partner2",
-//  "phoneNumber": "0378388001"
-//}

@@ -255,6 +255,20 @@ namespace PickleBall.Service.Courts
                     }).ToListAsync();
 
         }      
+
+        public async Task<IEnumerable<UserDto>> GetAllPartnerInfo()
+        {
+            var partners = _unitOfWork.User.Get();
+
+            var partnersToDto = await partners.Where(p => !p.IsAdmin && p.IsApproved).Select(p => new UserDto
+            {   
+                ID = p.Id,
+                BussinessName = p.BussinessName,
+                Address = p.Address
+            }).ToListAsync();
+
+            return partnersToDto;
+        }
     }
 }
 

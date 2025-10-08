@@ -12,5 +12,6 @@ namespace PickleBall.Service.Courts
         public Task<Result<string>> Add(CourtRequest court);
         public Task<Result<string>> Update(Guid id, CourtRequest court);
         public Task<Result<string>> Delete(Guid id);
+        public Task<IEnumerable<UserDto>> GetAllPartnerInfo();
     }
 }

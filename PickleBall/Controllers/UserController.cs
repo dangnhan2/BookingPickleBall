@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PickleBall.Dto.Request;
+using PickleBall.Service.Courts;
 using PickleBall.Service.Users;
 using Serilog;
 using System.Security.Claims;
@@ -13,10 +14,11 @@ namespace PickleBall.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
-
-        public UserController(IUserService userService)
+        private readonly ICourtService _courtService;
+        public UserController(IUserService userService, ICourtService courtService)
         {
             _userService = userService;
+            _courtService = courtService;
         }
 
         [HttpGet("{id}")]
