@@ -44,7 +44,7 @@ namespace PickleBall.Service.Users
             }
 
 
-            var usersToDto = users.Select(u => new UserDto
+            var usersToDto = users.Where(u => !u.IsAdmin).Select(u => new UserDto
             {
                 ID = u.Id,
                 FullName = u.FullName,

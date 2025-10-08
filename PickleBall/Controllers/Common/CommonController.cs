@@ -1,24 +1,61 @@
-﻿
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PickleBall.Dto.QueryParams;
 using PickleBall.Service.Blogs;
+using PickleBall.Service.Courts;
 using Serilog;
 
-namespace PickleBall.Controllers
+namespace PickleBall.Controllers.Common
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class BlogController : ControllerBase
+    public class CommonController : ControllerBase
     {
+        private readonly ICourtService _courtService;
         private readonly IBlogService _blogService;
-
-        public BlogController(IBlogService blogService)
-        {
-            _blogService = blogService;
+        public CommonController(ICourtService courtService, IBlogService blogService) { 
+           _courtService = courtService;
+           _blogService = blogService;
         }
 
-        [HttpGet]
+        [HttpGet("courts")]
+        public async Task<IActionResult> GetAllCourt()
+        {
+            var result = await _courtService.GetAllPartnerInfo();
+
+            return Ok(new
+            {
+                Message = "Lấy dữ liệu thành công",
+                StatusCode = StatusCodes.Status200OK,
+                Data = result
+            });
+        }
+
+        [HttpGet("courts/{date}")]
+        public async Task<IActionResult> GetAllInSpecificDate(Guid id, DateOnly date)
+        {
+            try
+            {
+                var result = await _courtService.GetAllInSpecificDate(id, date);
+
+                return Ok(new
+                {
+                    Message = "Lấy dữ liệu thành công",
+                    StatusCode = StatusCodes.Status200OK,
+                    Data = result
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Message = ex.InnerException != null ? ex.InnerException.Message : ex.Message,
+                    StatusCode = StatusCodes.Status400BadRequest
+                });
+            }
+        }
+
+        [HttpGet("blog")]
         public async Task<IActionResult> GetAll([FromQuery] BlogParams blog)
         {
             try
@@ -43,14 +80,14 @@ namespace PickleBall.Controllers
             }
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("blog/{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
             try
             {
                 var result = await _blogService.GetById(id);
 
-                if(result.Success != true)
+                if (result.Success != true)
                 {
                     return NotFound(new
                     {
@@ -79,3 +116,7 @@ namespace PickleBall.Controllers
         }
     }
 }
+//{
+//    "email": "partner@gmail.com",
+//  "password": "123456"
+//}
