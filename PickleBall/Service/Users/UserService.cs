@@ -52,7 +52,8 @@ namespace PickleBall.Service.Users
                 Email = u.Email,
                 PhoneNumber = u.PhoneNumber,
                 Avatar = u.Avatar,
-                IsApproved = u.IsApproved
+                IsApproved = u.IsApproved,
+                Address = u.Address
             }).Paging(user.Page, user.PageSize);
 
             return new DataReponse<UserDto>
