@@ -31,7 +31,7 @@ namespace PickleBall.Controllers.Common
             });
         }
 
-        [HttpGet("courts/{date}")]
+        [HttpGet("courts/{id}")]
         public async Task<IActionResult> GetAllInSpecificDate(Guid id, DateOnly date)
         {
             try
