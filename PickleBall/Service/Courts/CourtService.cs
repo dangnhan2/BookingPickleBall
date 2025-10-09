@@ -239,6 +239,10 @@ namespace PickleBall.Service.Courts
                    {
                       ID = c.ID,
                       Name = c.Name,
+                      ImageUrl = c.ImageUrl,
+                      PricePerHour = c.PricePerHour,
+                      CourtStatus =c.CourtStatus,
+                      Location = c.Location,
                       TimeSlotIDs = c.CourtTimeSlots
                    .Select(ts => new TimeSlotDto
                    {
