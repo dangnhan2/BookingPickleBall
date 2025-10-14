@@ -66,7 +66,7 @@ namespace PickleBall.Service.Auth
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddMinutes(5),
+                Expires = DateTime.UtcNow.AddDays(1),
                 SigningCredentials = credentials,
                 Issuer = issuer,
                 Audience = audience,
