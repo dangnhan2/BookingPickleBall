@@ -41,8 +41,8 @@ namespace PickleBall.Service.Auth
             if (isExistToken.ExpiresAt < DateTime.UtcNow)
                 return Result<LoginResponse>.Fail("Token is invalid", StatusCodes.Status401Unauthorized);
 
-            _unitOfWork.RefreshToken.Delete(isExistToken);
             var userToDto = await GenerateToken(isExistToken.User, context);
+            _unitOfWork.RefreshToken.Delete(isExistToken);
 
             return Result<LoginResponse>.Ok(userToDto.Data, StatusCodes.Status200OK);
         }
@@ -84,7 +84,7 @@ namespace PickleBall.Service.Auth
                 RefreshToken = refresh.HashRefreshToken(),
                 IsLocked = false,
                 CreatedAt = DateTime.UtcNow,
-                ExpiresAt = DateTime.UtcNow.AddMonths(7)
+                ExpiresAt = DateTime.UtcNow.AddMonths(3)
             };
 
             var loginResponse = new LoginResponse
