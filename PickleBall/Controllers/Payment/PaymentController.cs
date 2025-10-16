@@ -56,22 +56,10 @@ namespace PickleBall.Controllers.Payment
         }
 
         [HttpPost("confirm")]
-        public async Task<IActionResult> ConfirmWebhook(Guid partnerId)
+        public async Task<IActionResult> ConfirmWebhook([FromBody] Guid partnerId)
         {
             var result = await _payOS.ConfirmPayOSWebHook(partnerId);
             return Ok(result);
         }
     }
 }
-
-//{
-//    "userID": "7bb7fd56-9a8b-44e9-8529-a61115c3730a",
-//  "courtID": "fa11eb86-27a6-4833-89f2-2e6073b09000",
-//  "bookingDate": "2025-09-23",
-//  "customerName": "Nguyễn Đăng Nhân",
-//  "amount": 1000,
-//  "timeSlots": [
-//    "dd7e8d16-fe42-4816-a90c-7d9856749f3e",
-//    "97d52ff5-76e3-4a81-a59b-9fff0835fed8"
-//  ]
-//}
