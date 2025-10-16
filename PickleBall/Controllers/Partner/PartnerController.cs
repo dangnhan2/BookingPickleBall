@@ -13,7 +13,7 @@ namespace PickleBall.Controllers.Admin
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Partner")]
+    //[Authorize(Roles = "Partner")]
     public class PartnerController : ControllerBase
     {
         private readonly IBlogService _blogService;
@@ -98,7 +98,7 @@ namespace PickleBall.Controllers.Admin
             }
         }
 
-        [HttpGet("booking/{id}")]
+        [HttpGet("booking-by-partner/{id}")]
         public async Task<IActionResult> GetBookings(Guid id, [FromQuery] BookingParams bookingParams)
         {
             try
@@ -123,6 +123,19 @@ namespace PickleBall.Controllers.Admin
                 });
             }
         }
+
+        //[HttpGet("booking/{id}")]
+        //public async Task<IActionResult> GetBookingById(Guid id)
+        //{
+        //    var result = await _bookingService.GetById(id);
+
+        //    return Ok(new
+        //    {
+        //        Message = "Lấy dữ liệu thành công",
+        //        result.StatusCode,
+        //        result.Data
+        //    });
+        //}
 
         [HttpGet("court")]
         public async Task<IActionResult> GetAllByPartner(Guid id, [FromQuery] CourtParams court)

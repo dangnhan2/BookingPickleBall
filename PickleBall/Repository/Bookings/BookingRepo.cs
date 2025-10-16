@@ -42,18 +42,23 @@ namespace PickleBall.Repository.Bookings
 
         public  IQueryable<Booking> GetAllByPartner(Guid id)
         {
-            return  _bookingContext.Bookings.Where(b => b.Court.PartnerId == id).AsQueryable();
+            return  _bookingContext.Bookings  
+                .Include(b => b.BookingTimeSlots)
+                .Where(b => b.Court.PartnerId == id).AsQueryable();
         }
 
         public async Task<Booking?> GetById(Guid id)
         {
-            return await _bookingContext.Bookings.FirstOrDefaultAsync(b => b.ID == id);
+            return await _bookingContext.Bookings
+                .Include(b => b.BookingTimeSlots)
+                   .ThenInclude(bts => bts.CourtTimeSlots)
+                   .ThenInclude(cts => cts.TimeSlot)
+                .FirstOrDefaultAsync(b => b.ID == id);
         }
 
         public async Task<Booking?> GetByOrderCode(string orderCode)
         {
-            return await _bookingContext.Bookings
-                .Include(b => b.BookingTimeSlots)
+            return await _bookingContext.Bookings               
                 .FirstOrDefaultAsync(b => b.TransactionId == orderCode);
         }
 

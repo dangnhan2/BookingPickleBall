@@ -7,5 +7,8 @@
         public string BussinessName { get; set; }
         public string Address { get; set; }
         public string PhoneNumber { get; set; }
+        public string PayOSClientId { get; set; }
+        public string PayOSApiKey { get; set; }
+        public string PayOSCheckSumKey { get; set; }
     }
 }
