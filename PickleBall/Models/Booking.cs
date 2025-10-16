@@ -7,6 +7,8 @@ namespace PickleBall.Models
         public Guid ID { get; set; }
         public Guid CourtID { get; set; }
         public Court Court { get; set; }
+        public Guid PartnerId { get; set; }
+        public Partner Partner { get; set; }
         public DateOnly BookingDate { get; set; }
         public BookingStatus BookingStatus { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

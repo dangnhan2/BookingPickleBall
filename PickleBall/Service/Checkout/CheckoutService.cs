@@ -47,6 +47,7 @@ namespace PickleBall.Service.SoftService
             {
                 ID = Guid.NewGuid(),
                 CourtID = booking.CourtID,
+                PartnerId = booking.PartnerId,
                 BookingDate = booking.BookingDate,
                 TransactionId = orderCode.ToString(),
                 TotalAmount = booking.BookingTimeSlot.Count * booking.Amount,
@@ -93,7 +94,7 @@ namespace PickleBall.Service.SoftService
       
             result = await _payOSService.CreatePaymentLink(
                 [new ItemData("Pickleball Court Booking", booking.BookingTimeSlot.Count, newBooking.TotalAmount)],
-                newBooking.TotalAmount, orderCode          
+                newBooking.TotalAmount, orderCode , booking.PartnerId         
             );
 
             return Result<dynamic>.Ok(result, StatusCodes.Status200OK);

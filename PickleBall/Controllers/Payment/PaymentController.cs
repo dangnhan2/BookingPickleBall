@@ -56,9 +56,9 @@ namespace PickleBall.Controllers.Payment
         }
 
         [HttpPost("confirm")]
-        public async Task<IActionResult> ConfirmWebhook()
+        public async Task<IActionResult> ConfirmWebhook(Guid partnerId)
         {
-            var result = await _payOS.ConfirmPayOSWebHook();
+            var result = await _payOS.ConfirmPayOSWebHook(partnerId);
             return Ok(result);
         }
     }
