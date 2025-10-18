@@ -25,23 +25,23 @@ namespace PickleBall.Controllers.Payment
         [HttpPost]
         public async Task<IActionResult> CallBack()
         {
-            var result = await _payOSService.CallBack(Request);
+            //var result = await _payOSService.CallBack(Request);
 
-            if (!result.Success)
-            {
-                return BadRequest(new
-                {
-                    Message = result.Error,
-                    StatusCode = result.StatusCode
-                });
-            }
+            //if (!result.Success)
+            //{
+            //    return BadRequest(new
+            //    {
+            //        Message = result.Error,
+            //        StatusCode = result.StatusCode
+            //    });
+            //}
 
-            return Ok(new
-            {
-                Message = result.Data,
-                StatusCode = result.StatusCode
-            });
-            //return Ok(new { message = "hi" });
+            //return Ok(new
+            //{
+            //    Message = result.Data,
+            //    StatusCode = result.StatusCode
+            //});
+            return Ok(new { message = "hi" });
         }
     }
 }

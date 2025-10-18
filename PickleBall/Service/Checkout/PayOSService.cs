@@ -19,7 +19,7 @@ namespace PickleBall.Service.Checkout
     public class PayOSService : IPayOSService
     {
         private readonly IUnitOfWorks _unitOfWorks;
-        private const string returnUrl = "https://pickleboom.vercel.app/payment/success";
+        private const string returnUrl = "https://pickleboom.space/payment/success";
         private const string cancelUrl = "Cancel";
         //private readonly string _checksumKey;
         private readonly IHubContext<BookingHub> _hubContext;
