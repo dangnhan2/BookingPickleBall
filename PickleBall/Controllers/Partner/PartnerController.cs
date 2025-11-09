@@ -6,6 +6,7 @@ using PickleBall.Dto.Request;
 using PickleBall.Service.Blogs;
 using PickleBall.Service.Bookings;
 using PickleBall.Service.Courts;
+using PickleBall.Service.DashboardOverview;
 using PickleBall.Service.TimeSlots;
 using Serilog;
 
@@ -20,13 +21,15 @@ namespace PickleBall.Controllers.Admin
         private readonly IBookingService _bookingService;
         private readonly ICourtService _courtService;
         private readonly ITimeSlotService _timeSlotService;
+        private readonly IDashBoardService _dashBoardService;
 
-        public PartnerController(IBlogService blogService, IBookingService bookingService, ICourtService courtService, ITimeSlotService timeSlotService)
+        public PartnerController(IBlogService blogService, IBookingService bookingService, ICourtService courtService, ITimeSlotService timeSlotService, IDashBoardService dashBoardService)
         {
             _blogService = blogService;
             _bookingService = bookingService;
             _courtService = courtService;
             _timeSlotService = timeSlotService;
+            _dashBoardService = dashBoardService;
         }
 
        
@@ -124,19 +127,6 @@ namespace PickleBall.Controllers.Admin
             }
         }
 
-        //[HttpGet("booking/{id}")]
-        //public async Task<IActionResult> GetBookingById(Guid id)
-        //{
-        //    var result = await _bookingService.GetById(id);
-
-        //    return Ok(new
-        //    {
-        //        Message = "Lấy dữ liệu thành công",
-        //        result.StatusCode,
-        //        result.Data
-        //    });
-        //}
-
         [HttpGet("court")]
         public async Task<IActionResult> GetAllByPartner(Guid id, [FromQuery] CourtParams court)
         {
@@ -187,7 +177,7 @@ namespace PickleBall.Controllers.Admin
             catch(Exception ex) {
                 return BadRequest(new
                 {
-                    Message = ex.InnerException.Message ?? ex.Message,
+                    Message = ex.InnerException?.Message ?? ex.Message,
                     StatusCode = StatusCodes.Status400BadRequest
                 });
             }
@@ -310,7 +300,7 @@ namespace PickleBall.Controllers.Admin
             }
             catch (Exception ex)
             {
-                Log.Error($"Lỗi khác : {ex.InnerException.Message ?? ex.Message}");
+                Log.Error($"Lỗi khác : {ex.InnerException?.Message ?? ex.Message}");
                 return BadRequest(new
                 {
                     Message = ex.InnerException.Message ?? ex.Message,
@@ -383,6 +373,19 @@ namespace PickleBall.Controllers.Admin
                     StatusCode = StatusCodes.Status400BadRequest
                 });
             }
+        }
+
+        [HttpGet("dashboard")]
+        public async Task<IActionResult> DashBoardOverviewByPartner(Guid id)
+        {
+            var result = await _dashBoardService.DashboardOverviewByPartner(id);
+
+            return Ok(new
+            {
+                Message = "Lấy dữ liệu thành công",
+                result.StatusCode,
+                result.Data
+            });
         }
 
     }

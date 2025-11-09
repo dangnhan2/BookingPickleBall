@@ -10,6 +10,7 @@ using PickleBall.Service.Blogs;
 using PickleBall.Service.Bookings;
 using PickleBall.Service.Checkout;
 using PickleBall.Service.Courts;
+using PickleBall.Service.DashboardOverview;
 using PickleBall.Service.Email;
 using PickleBall.Service.SoftService;
 using PickleBall.Service.Storage;
@@ -43,6 +44,7 @@ namespace PickleBall.Extension
           services.AddScoped<IBookingService, BookingService>();
           services.AddScoped<IBackgroundJob, BackgroundJob>();
           services.AddScoped<IPayOSService, PayOSService>();
+          services.AddScoped<IDashBoardService, DashboardOverview>();
           return services;
         }
     }

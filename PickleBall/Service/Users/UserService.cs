@@ -65,13 +65,13 @@ namespace PickleBall.Service.Users
             };
         }
 
-        public async Task<Result<UserDto>> GetById(Guid id)
+        public async Task<ApiResponse<UserDto>> GetById(Guid id)
         {
             var isExistUser = await _unitOfWorks.User.GetById(id); 
 
             if (isExistUser == null)
             {
-                return Result<UserDto>.Fail("Không tìm thấy người dùng", StatusCodes.Status404NotFound);
+                return ApiResponse<UserDto>.Fail("Không tìm thấy người dùng", StatusCodes.Status404NotFound);
             }
 
             var userToDto = new UserDto
@@ -85,10 +85,10 @@ namespace PickleBall.Service.Users
                 IsApproved = isExistUser.IsApproved
             };
 
-            return Result<UserDto>.Ok(userToDto, StatusCodes.Status200OK);
+            return ApiResponse<UserDto>.Ok(userToDto, StatusCodes.Status200OK);
         }
 
-        public async Task<Result<string>> UpdateByUser(Guid userId, UserRequest user)
+        public async Task<ApiResponse<string>> UpdateByUser(Guid userId, UserRequest user)
         {
             //var isExistUser = await _unitOfWorks.User.GetById(userId) ?? throw new KeyNotFoundException("Không tìm thấy người dùng");
 
@@ -97,12 +97,12 @@ namespace PickleBall.Service.Users
 
             if (isExistUser == null)
             {
-                return Result<string>.Fail("Không tìm thấy người dùng", StatusCodes.Status404NotFound);
+                return ApiResponse<string>.Fail("Không tìm thấy người dùng", StatusCodes.Status404NotFound);
             }
 
             if (await users.AnyAsync(u => u.PhoneNumber == user.PhoneNumber && u.Id != userId))
             {
-                return Result<string>.Fail("Số điện thoại đã được đăng kí", StatusCodes.Status404NotFound);
+                return ApiResponse<string>.Fail("Số điện thoại đã được đăng kí", StatusCodes.Status404NotFound);
             }
 
             isExistUser.FullName = user.FullName;
@@ -112,7 +112,7 @@ namespace PickleBall.Service.Users
             _unitOfWorks.User.Update(isExistUser);
             await _unitOfWorks.CompleteAsync();
 
-            return Result<string>.Ok("Cập nhật thành công", StatusCodes.Status200OK);
+            return ApiResponse<string>.Ok("Cập nhật thành công", StatusCodes.Status200OK);
         }
 
         public async Task UploadAvatarByUser(Guid id, IFormFile file)

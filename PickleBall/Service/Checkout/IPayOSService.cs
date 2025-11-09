@@ -7,6 +7,6 @@ namespace PickleBall.Service.Checkout
     {
         public Task<dynamic> CreatePaymentLink(List<ItemData> items,int amount, int orderCode, Guid partnerId);
         public Task<string> ConfirmPayOSWebHook(Guid partnerId);
-        public Task<Result<string>> CallBack(HttpRequest request);
+        public Task<ApiResponse<string>> CallBack(HttpRequest request);
     }
 }

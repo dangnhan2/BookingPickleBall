@@ -23,7 +23,7 @@ namespace PickleBall.Service.Blogs
             _cloudinaryService = cloudinaryService;
         }
 
-        public async Task<Result<string>> Create(BlogRequest request)
+        public async Task<ApiResponse<string>> Create(BlogRequest request)
         {   
             var validator = new BlogRequestValidator();
 
@@ -33,7 +33,7 @@ namespace PickleBall.Service.Blogs
             {
                 foreach (var error in result.Errors)
                 {
-                    return Result<string>.Fail(error.ErrorMessage, StatusCodes.Status400BadRequest);
+                    return ApiResponse<string>.Fail(error.ErrorMessage, StatusCodes.Status400BadRequest);
                 }
             }
 
@@ -55,17 +55,17 @@ namespace PickleBall.Service.Blogs
             await _unitOfWork.Blog.CreateAsync(newBlog);
             await _unitOfWork.CompleteAsync();
 
-            return Result<string>.Ok("Thêm blog thành công", StatusCodes.Status201Created);
+            return ApiResponse<string>.Ok("Thêm blog thành công", StatusCodes.Status201Created);
            
         }
 
-        public async Task<Result<string>> Delete(Guid id)
+        public async Task<ApiResponse<string>> Delete(Guid id)
         {
             var isExistBlog = await _unitOfWork.Blog.GetById(id); 
             
             if (isExistBlog == null)
             {
-                return Result<string>.Fail("Không tìm thấy blog", StatusCodes.Status404NotFound);
+                return ApiResponse<string>.Fail("Không tìm thấy blog", StatusCodes.Status404NotFound);
             }
 
             isExistBlog.IsDeleted = true;
@@ -73,7 +73,7 @@ namespace PickleBall.Service.Blogs
             _unitOfWork.Blog.Update(isExistBlog);
             await _unitOfWork.CompleteAsync();
 
-            return Result<string>.Ok("Xóa blog thành công", StatusCodes.Status200OK);
+            return ApiResponse<string>.Ok("Xóa blog thành công", StatusCodes.Status200OK);
         }
 
         public async Task<DataReponse<BlogDto>> GetAll(BlogParams blog)
@@ -110,13 +110,13 @@ namespace PickleBall.Service.Blogs
             };
         }
 
-        public async Task<Result<BlogDto>> GetById(Guid id)
+        public async Task<ApiResponse<BlogDto>> GetById(Guid id)
         {
             var blog = await _unitOfWork.Blog.GetById(id);
 
             if(blog == null)
             {
-                return Result<BlogDto>.Fail("Không tìm thấy blog", StatusCodes.Status404NotFound);
+                return ApiResponse<BlogDto>.Fail("Không tìm thấy blog", StatusCodes.Status404NotFound);
             }
 
             var blogToDto = new BlogDto
@@ -130,10 +130,10 @@ namespace PickleBall.Service.Blogs
                 CreatedAt = blog.CreatedAt,
             };
 
-            return Result<BlogDto>.Ok(blogToDto, StatusCodes.Status200OK);
+            return ApiResponse<BlogDto>.Ok(blogToDto, StatusCodes.Status200OK);
         }
 
-        public async Task<Result<string>> Update(Guid id, BlogRequest request)
+        public async Task<ApiResponse<string>> Update(Guid id, BlogRequest request)
         {
             var validator = new BlogRequestValidator();
 
@@ -143,7 +143,7 @@ namespace PickleBall.Service.Blogs
             {
                 foreach (var error in result.Errors)
                 {
-                    return Result<string>.Fail(error.ErrorMessage, StatusCodes.Status400BadRequest);
+                    return ApiResponse<string>.Fail(error.ErrorMessage, StatusCodes.Status400BadRequest);
                 }
             }
 
@@ -153,7 +153,7 @@ namespace PickleBall.Service.Blogs
 
             if (isExistBlog == null)
             {
-                return Result<string>.Fail("Không tìm thấy blog", StatusCodes.Status404NotFound);
+                return ApiResponse<string>.Fail("Không tìm thấy blog", StatusCodes.Status404NotFound);
             }
 
             if (request.ThumbnailUrl != null || request?.ThumbnailUrl?.Length > 0)
@@ -174,7 +174,7 @@ namespace PickleBall.Service.Blogs
             _unitOfWork.Blog.Update(isExistBlog);
             await _unitOfWork.CompleteAsync();
 
-            return Result<string>.Ok("Cập nhật thành công", StatusCodes.Status200OK);
+            return ApiResponse<string>.Ok("Cập nhật thành công", StatusCodes.Status200OK);
         }
     }
 }

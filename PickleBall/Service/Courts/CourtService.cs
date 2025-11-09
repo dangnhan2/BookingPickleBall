@@ -27,7 +27,7 @@ namespace PickleBall.Service.Courts
           _context = context;
         }
 
-        public async Task<Result<string>> Add(CourtRequest court)
+        public async Task<ApiResponse<string>> Add(CourtRequest court)
         {
             var validator = new CourtRequestValidator();
 
@@ -37,7 +37,7 @@ namespace PickleBall.Service.Courts
             {
                 foreach (var error in result.Errors)
                 {
-                    return Result<string>.Fail(error.ErrorMessage, StatusCodes.Status400BadRequest);
+                    return ApiResponse<string>.Fail(error.ErrorMessage, StatusCodes.Status400BadRequest);
                 }
             }
 
@@ -45,7 +45,7 @@ namespace PickleBall.Service.Courts
 
             if(await courts.AnyAsync(c => c.Name.ToLower() == court.Name.ToLower()))
             {
-                return Result<string>.Fail("Sân đã tồn tại", StatusCodes.Status400BadRequest);
+                return ApiResponse<string>.Fail("Sân đã tồn tại", StatusCodes.Status400BadRequest);
             }
 
             var newCourt = new Court
@@ -73,7 +73,7 @@ namespace PickleBall.Service.Courts
 
             if (court.ImageUrl == null || court.ImageUrl.Length == 0)
             {
-                return Result<string>.Fail("File phải được upload", StatusCodes.Status400BadRequest);
+                return ApiResponse<string>.Fail("File phải được upload", StatusCodes.Status400BadRequest);
             }
 
             var imageUrl = await _cloudinaryService.Upload(court.ImageUrl, allowedExtension, folder);
@@ -83,26 +83,26 @@ namespace PickleBall.Service.Courts
             await _unitOfWork.Court.CreateAsync(newCourt);
             await _unitOfWork.CompleteAsync();
 
-            return Result<string>.Ok("Thêm mới thành công", StatusCodes.Status201Created);
+            return ApiResponse<string>.Ok("Thêm mới thành công", StatusCodes.Status201Created);
         }
 
-        public async Task<Result<string>> Delete(Guid id)
+        public async Task<ApiResponse<string>> Delete(Guid id)
         {
             var isExistCourt = await _unitOfWork.Court.GetById(id);
 
             if(isExistCourt == null)
             {
-                return Result<string>.Fail("Không tìm thấy sân", StatusCodes.Status404NotFound);
+                return ApiResponse<string>.Fail("Không tìm thấy sân", StatusCodes.Status404NotFound);
             }
 
             _unitOfWork.Court.Delete(isExistCourt);
             await _cloudinaryService.Delete(isExistCourt.ImageUrl);
             await _unitOfWork.CompleteAsync();
 
-            return Result<string>.Ok("Xóa thành công", StatusCodes.Status200OK);
+            return ApiResponse<string>.Ok("Xóa thành công", StatusCodes.Status200OK);
         }
 
-        public async Task<Result<string>> Update(Guid id, CourtRequest court)
+        public async Task<ApiResponse<string>> Update(Guid id, CourtRequest court)
         {
             var validator = new CourtRequestValidator();
 
@@ -112,7 +112,7 @@ namespace PickleBall.Service.Courts
             {
                 foreach (var error in result.Errors)
                 {
-                    return Result<string>.Fail(error.ErrorMessage, StatusCodes.Status400BadRequest);
+                    return ApiResponse<string>.Fail(error.ErrorMessage, StatusCodes.Status400BadRequest);
                 }
             }
 
@@ -120,14 +120,14 @@ namespace PickleBall.Service.Courts
 
             if(isExistCourt == null)
             {
-                return Result<string>.Fail("Không tìm thấy sân", StatusCodes.Status404NotFound);
+                return ApiResponse<string>.Fail("Không tìm thấy sân", StatusCodes.Status404NotFound);
             }
 
             var courts = _unitOfWork.Court.Get();
 
             if (await courts.AnyAsync(c => c.Name.ToLower() == court.Name.ToLower() && c.ID != id))
             {
-                return Result<string>.Fail("Sân đã tồn tại", StatusCodes.Status400BadRequest);
+                return ApiResponse<string>.Fail("Sân đã tồn tại", StatusCodes.Status400BadRequest);
             }
 
             if (court.ImageUrl != null)
@@ -165,7 +165,7 @@ namespace PickleBall.Service.Courts
             _unitOfWork.Court.Update(isExistCourt);
             await _unitOfWork.CompleteAsync();
 
-            return Result<string>.Ok("Cập nhật thành công", StatusCodes.Status200OK);
+            return ApiResponse<string>.Ok("Cập nhật thành công", StatusCodes.Status200OK);
         }
 
         public async Task<DataReponse<CourtDto>> GetAllByPartner(Guid id, CourtParams court)
@@ -202,13 +202,13 @@ namespace PickleBall.Service.Courts
             };
         }
 
-        public async Task<Result<CourtDto>> GetById(Guid id)
+        public async Task<ApiResponse<CourtDto>> GetById(Guid id)
         {
             var court = await _unitOfWork.Court.GetById(id);
 
             if(court == null)
             {
-                return Result<CourtDto>.Fail("Không tìm thấy sân", StatusCodes.Status200OK);
+                return ApiResponse<CourtDto>.Fail("Không tìm thấy sân", StatusCodes.Status200OK);
             }
 
             var courtToDto = new CourtDto
@@ -228,7 +228,7 @@ namespace PickleBall.Service.Courts
                 }).ToList()
             };
 
-            return Result<CourtDto>.Ok(courtToDto, StatusCodes.Status200OK);
+            return ApiResponse<CourtDto>.Ok(courtToDto, StatusCodes.Status200OK);
         }
 
         public async Task<IEnumerable<CourtDto>> GetAllInSpecificDate(Guid id, DateOnly date)

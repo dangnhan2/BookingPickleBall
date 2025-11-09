@@ -28,26 +28,26 @@ namespace PickleBall.Service.Auth
             _unitOfWork = unitOfWorks;
             _userManager = userManager;
         }
-        public async Task<Result<LoginResponse>> GenerateRefreshToken(string refreshToken, HttpContext context)
+        public async Task<ApiResponse<LoginResponse>> GenerateRefreshToken(string refreshToken, HttpContext context)
         {
             var isExistToken = await _unitOfWork.RefreshToken.GetAsync(refreshToken.HashRefreshToken());
 
             if (isExistToken == null)
-                return Result<LoginResponse>.Fail("Token is invalid", StatusCodes.Status401Unauthorized);
+                return ApiResponse<LoginResponse>.Fail("Token is invalid", StatusCodes.Status401Unauthorized);
 
             if (isExistToken.IsLocked == true)
-                return Result<LoginResponse>.Fail("Tài khoản đã bị khóa, vui lòng đăng nhập lại", StatusCodes.Status400BadRequest);
+                return ApiResponse<LoginResponse>.Fail("Tài khoản đã bị khóa, vui lòng đăng nhập lại", StatusCodes.Status400BadRequest);
 
             if (isExistToken.ExpiresAt < DateTime.UtcNow)
-                return Result<LoginResponse>.Fail("Token is invalid", StatusCodes.Status401Unauthorized);
+                return ApiResponse<LoginResponse>.Fail("Token is invalid", StatusCodes.Status401Unauthorized);
 
             var userToDto = await GenerateToken(isExistToken.User, context);
             _unitOfWork.RefreshToken.Delete(isExistToken);
 
-            return Result<LoginResponse>.Ok(userToDto.Data, StatusCodes.Status200OK);
+            return ApiResponse<LoginResponse>.Ok(userToDto.Data, StatusCodes.Status200OK);
         }
 
-        public async Task<Result<LoginResponse>> GenerateToken(Partner user, HttpContext context)
+        public async Task<ApiResponse<LoginResponse>> GenerateToken(Partner user, HttpContext context)
         {
             var credentials = new SigningCredentials(_symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
             var issuer = Env.GetString("ISSUER");
@@ -119,7 +119,7 @@ namespace PickleBall.Service.Auth
                       Expires = DateTime.UtcNow.AddMonths(3)
                   });
 
-            return Result<LoginResponse>.Ok(loginResponse, StatusCodes.Status200OK);
+            return ApiResponse<LoginResponse>.Ok(loginResponse, StatusCodes.Status200OK);
         }
 
     }

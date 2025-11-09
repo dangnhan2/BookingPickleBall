@@ -34,14 +34,14 @@ namespace PickleBall.Service.Auth
             _backgroundJob = backgroundJob;
             _emailService = emailService;
         }
-        public async Task<Result<LoginResponse>> Login(LoginRequest request, HttpContext context)
+        public async Task<ApiResponse<LoginResponse>> Login(LoginRequest request, HttpContext context)
         {
             var result = await new LoginRequestValidator().ValidateAsync(request);
             if (!result.IsValid)
             {
                 foreach (var error in result.Errors)
                 {
-                    return Result<LoginResponse>.Fail(error.ErrorMessage, StatusCodes.Status400BadRequest);
+                    return ApiResponse<LoginResponse>.Fail(error.ErrorMessage, StatusCodes.Status400BadRequest);
                 }
             }
             
@@ -50,22 +50,22 @@ namespace PickleBall.Service.Auth
             var isPassword = await _userManager.CheckPasswordAsync(user, request.Password);
 
             if (user == null || !isPassword)           
-               return Result<LoginResponse>.Fail("Thông tin đăng nhập không đúng", StatusCodes.Status400BadRequest);         
+               return ApiResponse<LoginResponse>.Fail("Thông tin đăng nhập không đúng", StatusCodes.Status400BadRequest);         
  
             var reponse = await _jwtService.GenerateToken(user, context);
 
-            return Result<LoginResponse>.Ok(reponse.Data, StatusCodes.Status200OK);
+            return ApiResponse<LoginResponse>.Ok(reponse.Data, StatusCodes.Status200OK);
         }
-        public async Task<Result<string>> Logout(HttpContext context)
+        public async Task<ApiResponse<string>> Logout(HttpContext context)
         {
             var refreshToken = context.Request.Cookies["refresh_token"];
             if (refreshToken == null)
-                return Result<string>.Fail("Token is invalid", StatusCodes.Status401Unauthorized);
+                return ApiResponse<string>.Fail("Token is invalid", StatusCodes.Status401Unauthorized);
 
             var isTokenExist = await _unitOfWorks.RefreshToken.GetAsync(refreshToken.HashRefreshToken());
 
             if(isTokenExist == null)
-                return Result<string>.Fail("Token is invalid", StatusCodes.Status401Unauthorized);
+                return ApiResponse<string>.Fail("Token is invalid", StatusCodes.Status401Unauthorized);
 
             _unitOfWorks.RefreshToken.Delete(isTokenExist);
             await _unitOfWorks.CompleteAsync();
@@ -83,24 +83,24 @@ namespace PickleBall.Service.Auth
                     });
 
 
-            return Result<string>.Ok("Đăng xuất thành công", StatusCodes.Status200OK);
+            return ApiResponse<string>.Ok("Đăng xuất thành công", StatusCodes.Status200OK);
         }
-        public async Task<Result<string>> ChangePassword(string userId, ChangePasswordRequest passwordRequest, HttpContext context)
+        public async Task<ApiResponse<string>> ChangePassword(string userId, ChangePasswordRequest passwordRequest, HttpContext context)
         {
             var refreshToken = context.Request.Cookies["refresh_token"];
 
             var isExistToken = await _unitOfWorks.RefreshToken.GetAsync(refreshToken.HashRefreshToken());
             if (refreshToken == null)
-                return Result<string>.Fail("Token is invalid", StatusCodes.Status401Unauthorized);
+                return ApiResponse<string>.Fail("Token is invalid", StatusCodes.Status401Unauthorized);
 
             if (isExistToken == null)
-                return Result<string>.Fail("Token không hợp/không tìm thấy", StatusCodes.Status401Unauthorized);
+                return ApiResponse<string>.Fail("Token không hợp/không tìm thấy", StatusCodes.Status401Unauthorized);
 
             if (isExistToken.IsLocked == true)
-                return Result<string>.Fail("Tài khoản đã bị khóa, vui lòng đăng nhập lại", StatusCodes.Status400BadRequest);
+                return ApiResponse<string>.Fail("Tài khoản đã bị khóa, vui lòng đăng nhập lại", StatusCodes.Status400BadRequest);
 
             if (isExistToken.ExpiresAt < DateTime.UtcNow)
-                return Result<string>.Fail("Token is invalid", StatusCodes.Status401Unauthorized);
+                return ApiResponse<string>.Fail("Token is invalid", StatusCodes.Status401Unauthorized);
 
            
             var validator = new ChangePasswordRequestValidator();
@@ -111,19 +111,19 @@ namespace PickleBall.Service.Auth
             {
                 foreach (var error in result.Errors)
                 {
-                    return Result<string>.Fail(error.ErrorMessage, StatusCodes.Status400BadRequest);
+                    return ApiResponse<string>.Fail(error.ErrorMessage, StatusCodes.Status400BadRequest);
                 }
             }
            
             var user = await _userManager.FindByIdAsync(userId);
 
             if (user == null)
-                return Result<string>.Fail("Không tìm thấy người dùng", StatusCodes.Status404NotFound);
+                return ApiResponse<string>.Fail("Không tìm thấy người dùng", StatusCodes.Status404NotFound);
 
             var reponse = await _userManager.ChangePasswordAsync(user, passwordRequest.CurrentPassword, passwordRequest.NewPassword);
 
             if (!reponse.Succeeded)        
-                return Result<string>.Fail("Đổi mật khẩu không thành công", StatusCodes.Status400BadRequest);
+                return ApiResponse<string>.Fail("Đổi mật khẩu không thành công", StatusCodes.Status400BadRequest);
 
             _unitOfWorks.RefreshToken.Delete(isExistToken);
             await _unitOfWorks.CompleteAsync();
@@ -140,23 +140,23 @@ namespace PickleBall.Service.Auth
                        Expires = DateTimeOffset.UnixEpoch,
                    });
 
-            return Result<string>.Ok("Đổi mật khẩu thành công", StatusCodes.Status200OK );
+            return ApiResponse<string>.Ok("Đổi mật khẩu thành công", StatusCodes.Status200OK );
 
         }
-        public async Task<Result<LoginResponse>> RefreshToken(HttpContext context)
+        public async Task<ApiResponse<LoginResponse>> RefreshToken(HttpContext context)
         {
             var refreshToken = context.Request.Cookies["refresh_token"];
 
             var response = await _jwtService.GenerateRefreshToken(refreshToken, context);
 
-            return Result<LoginResponse>.Ok(response.Data, StatusCodes.Status200OK);
+            return ApiResponse<LoginResponse>.Ok(response.Data, StatusCodes.Status200OK);
         }
-        public async Task<Result<string>> CreatePartnerByAdmin(RegisterPartnerRequest request)
+        public async Task<ApiResponse<string>> CreatePartnerByAdmin(RegisterPartnerRequest request)
         {           
                 var isEmailExist = await _userManager.FindByEmailAsync(request.Email);
 
                 if (isEmailExist != null)                
-                    return Result<string>.Fail("Email đã được đăng kí", StatusCodes.Status400BadRequest);
+                    return ApiResponse<string>.Fail("Email đã được đăng kí", StatusCodes.Status400BadRequest);
                 
                 var partner = new Partner
                 {
@@ -179,7 +179,7 @@ namespace PickleBall.Service.Auth
                 var result = await _userManager.CreateAsync(partner, "123456");
 
                 if (!result.Succeeded)                
-                    return Result<string>.Fail("Đăng kí thất bại", StatusCodes.Status400BadRequest);
+                    return ApiResponse<string>.Fail("Đăng kí thất bại", StatusCodes.Status400BadRequest);
                 
                 await _userManager.AddToRoleAsync(partner, "Partner");
 
@@ -187,15 +187,15 @@ namespace PickleBall.Service.Auth
 
                 await _emailService.EmailSender(partner.Email, "Thông tin đăng nhập", Template(partner.FullName, partner.Email, "123456"));
 
-                return Result<string>.Ok("Đăng kí thành công", StatusCodes.Status201Created);
+                return ApiResponse<string>.Ok("Đăng kí thành công", StatusCodes.Status201Created);
             
         }
-        public async Task<Result<string>> CreateAdmin(RegisterRequest request)
+        public async Task<ApiResponse<string>> CreateAdmin(RegisterRequest request)
         {
             var user = await _userManager.FindByEmailAsync(request.Email);
 
             if (user != null)
-                return Result<string>.Fail("Email đã được đăng kí", StatusCodes.Status400BadRequest);
+                return ApiResponse<string>.Fail("Email đã được đăng kí", StatusCodes.Status400BadRequest);
 
             var admin = new Partner
             {
@@ -213,11 +213,11 @@ namespace PickleBall.Service.Auth
 
             if (!result.Succeeded)
             {
-                return Result<string>.Fail("Đăng kí thất bại", StatusCodes.Status400BadRequest);
+                return ApiResponse<string>.Fail("Đăng kí thất bại", StatusCodes.Status400BadRequest);
             }
 
             await _userManager.AddToRoleAsync(admin, "Admin");
-            return Result<string>.Ok("Đăng kí thành công", StatusCodes.Status201Created);
+            return ApiResponse<string>.Ok("Đăng kí thành công", StatusCodes.Status201Created);
         }
         private string Template(string fullName, string email, string password)
         {

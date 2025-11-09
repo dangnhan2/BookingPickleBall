@@ -26,7 +26,7 @@ namespace PickleBall.Service.SoftService
             _payOSService = payOSService;
             _hubContext = hubContext;
         }
-        public async Task<Result<dynamic>> Checkout(BookingRequest booking)
+        public async Task<ApiResponse<dynamic>> Checkout(BookingRequest booking)
         {
             dynamic result;
             var requestTimeSlots = booking.BookingTimeSlot;
@@ -39,7 +39,7 @@ namespace PickleBall.Service.SoftService
                 bt.Booking.ExpriedAt > DateTime.UtcNow).Select(bt => bt.CourtTimeSlotId).ToArrayAsync();
 
             if (conflictingsSlots.Any())
-                return Result<dynamic>.Fail("Một hoặc nhiều slot đã được đặt. Vui lòng chọn slot khác.", StatusCodes.Status400BadRequest);
+                return ApiResponse<dynamic>.Fail("Một hoặc nhiều slot đã được đặt. Vui lòng chọn slot khác.", StatusCodes.Status400BadRequest);
 
             int orderCode = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
 
@@ -97,7 +97,7 @@ namespace PickleBall.Service.SoftService
                 newBooking.TotalAmount, orderCode , booking.PartnerId         
             );
 
-            return Result<dynamic>.Ok(result, StatusCodes.Status200OK);
+            return ApiResponse<dynamic>.Ok(result, StatusCodes.Status200OK);
 
         }
 

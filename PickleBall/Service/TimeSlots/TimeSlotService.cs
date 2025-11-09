@@ -16,7 +16,7 @@ namespace PickleBall.Service.TimeSlots
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Result<string>> Add(TimeSlotRequest timeSlot)
+        public async Task<ApiResponse<string>> Add(TimeSlotRequest timeSlot)
         {
             var validator = new TimeSlotRequestValidator();
 
@@ -26,7 +26,7 @@ namespace PickleBall.Service.TimeSlots
             {
                 foreach (var error in result.Errors)
                 {
-                    return Result<string>.Fail(error.ErrorMessage, StatusCodes.Status400BadRequest);
+                    return ApiResponse<string>.Fail(error.ErrorMessage, StatusCodes.Status400BadRequest);
                 }
             }
 
@@ -34,7 +34,7 @@ namespace PickleBall.Service.TimeSlots
 
             if (await isExistTimeSlot.AnyAsync(tl => tl.StartTime == timeSlot.StartTime || tl.EndTime == timeSlot.EndTime))
             {
-                return Result<string>.Fail("Thời gian bắt đầu hoặc thời gian kết thúc bị trùng lặp với một khung giờ đã tồn tại.", StatusCodes.Status400BadRequest);
+                return ApiResponse<string>.Fail("Thời gian bắt đầu hoặc thời gian kết thúc bị trùng lặp với một khung giờ đã tồn tại.", StatusCodes.Status400BadRequest);
             }
 
             var newTimeSlot = new TimeSlot
@@ -47,22 +47,22 @@ namespace PickleBall.Service.TimeSlots
             _unitOfWork.TimeSlot.Create(newTimeSlot);
             await _unitOfWork.CompleteAsync();
 
-            return Result<string>.Ok("Thêm mới thành công", StatusCodes.Status201Created);
+            return ApiResponse<string>.Ok("Thêm mới thành công", StatusCodes.Status201Created);
         }
 
-        public async Task<Result<string>> Delete(Guid id)
+        public async Task<ApiResponse<string>> Delete(Guid id)
         {   
             var isExistTimeSlot = await _unitOfWork.TimeSlot.GetById(id);
 
             if (isExistTimeSlot == null)
             {
-                return Result<string>.Fail("Không tìm thấy khung thời gian", StatusCodes.Status404NotFound);
+                return ApiResponse<string>.Fail("Không tìm thấy khung thời gian", StatusCodes.Status404NotFound);
             }
 
             _unitOfWork.TimeSlot.Delete(isExistTimeSlot);
             await _unitOfWork.CompleteAsync();
 
-            return Result<string>.Ok("Xóa thành công", StatusCodes.Status200OK);
+            return ApiResponse<string>.Ok("Xóa thành công", StatusCodes.Status200OK);
         }
 
         public async Task<IEnumerable<TimeSlotDto>> GetByPartner(Guid partnerId)

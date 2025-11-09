@@ -74,7 +74,7 @@ namespace PickleBall.Service.Checkout
             return result;
         }
     
-        public async Task<Result<string>> CallBack(HttpRequest request)
+        public async Task<ApiResponse<string>> CallBack(HttpRequest request)
         {
             //using var reader = new StreamReader(request.Body, Encoding.UTF8);
             //var rawJson = await reader.ReadToEndAsync();
@@ -151,28 +151,28 @@ namespace PickleBall.Service.Checkout
             var rawJson = await reader.ReadToEndAsync();
 
             if (string.IsNullOrWhiteSpace(rawJson))
-                return Result<string>.Fail("Empty body", StatusCodes.Status400BadRequest);
+                return ApiResponse<string>.Fail("Empty body", StatusCodes.Status400BadRequest);
 
             var root = JObject.Parse(rawJson);
             var signatureProvided = root["signature"]?.ToString();
             var data = root["data"] as JObject;
 
             if (string.IsNullOrEmpty(signatureProvided) || data == null)
-                return Result<string>.Fail("Invalid payload", StatusCodes.Status400BadRequest);
+                return ApiResponse<string>.Fail("Invalid payload", StatusCodes.Status400BadRequest);
 
             var orderCode = data["orderCode"]?.ToObject<string>();
             if (string.IsNullOrEmpty(orderCode))
-                return Result<string>.Fail("Missing orderCode", StatusCodes.Status400BadRequest);
+                return ApiResponse<string>.Fail("Missing orderCode", StatusCodes.Status400BadRequest);
 
             // ✅ Tìm booking và partner
             var booking = await _unitOfWorks.Booking.GetByOrderCode(orderCode);
 
             if (booking == null)
-                return Result<string>.Fail("Không tìm thấy booking", StatusCodes.Status404NotFound);
+                return ApiResponse<string>.Fail("Không tìm thấy booking", StatusCodes.Status404NotFound);
 
             var partner = await _unitOfWorks.User.GetById(booking.PartnerId);
             if (partner == null)
-                return Result<string>.Fail("Không tìm thấy chủ sân", StatusCodes.Status404NotFound);
+                return ApiResponse<string>.Fail("Không tìm thấy chủ sân", StatusCodes.Status404NotFound);
 
             // ✅ Dùng checksum key của partner
             var checksumKey = partner.PayOSCheckSumKey;
@@ -193,7 +193,7 @@ namespace PickleBall.Service.Checkout
             var signatureComputed = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
 
             if (!string.Equals(signatureProvided, signatureComputed, StringComparison.OrdinalIgnoreCase))
-                return Result<string>.Fail("Invalid signature", StatusCodes.Status401Unauthorized);
+                return ApiResponse<string>.Fail("Invalid signature", StatusCodes.Status401Unauthorized);
 
             if (booking.BookingStatus == BookingStatus.Pending)
             {
@@ -218,7 +218,7 @@ namespace PickleBall.Service.Checkout
                 }
             }
 
-            return Result<string>.Ok("Webhook processed successfully", StatusCodes.Status200OK);
+            return ApiResponse<string>.Ok("Webhook processed successfully", StatusCodes.Status200OK);
         }
 
 
